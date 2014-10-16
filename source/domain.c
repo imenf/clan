@@ -328,6 +328,12 @@ void clan_domain_for(clan_domain_p domain,
   osl_relation_p iterator_relation;
   osl_relation_p init_constraints;
 
+printf("Affichage condition \n");
+osl_relation_idump(stdout, condition, 0) ;
+
+printf("Affichage domain \n");
+ clan_domain_idump(stdout,  domain, 2); 
+
   // Generate the set of constraints contributed by the initialization
   // (nb: it could not be done before because we need to know the stride).
   iterator_term = clan_vector_term(iterator, 0, NULL, options->precision);
@@ -343,16 +349,32 @@ void clan_domain_for(clan_domain_p domain,
   osl_vector_free(iterator_term);
   osl_relation_free(iterator_relation);
 
+printf("Affichage init_constraints \n");
+osl_relation_idump(stdout, init_constraints, 0) ;
+
   // Add the contribution of the initialization to the current domain.
   clan_domain_and(domain, init_constraints);
 
+printf("Affichage domain  after adding init_constraints\n");
+ clan_domain_idump(stdout,  domain, 2);
+
   // Add the contribution of the condition to the current domain.
-  if (!options->noloopcontext)
+  if (!options->noloopcontext) {
     clan_relation_loop_context(condition, init_constraints, depth);
+
+printf("Affichage condition ::::::: \n");
+osl_relation_idump(stdout, condition, 0) ; }
+
   clan_domain_and(domain, condition);
 
+printf("Affichage domain after condition \n");
+ clan_domain_idump(stdout,  domain, 2);
+
   // Add the contribution of the stride to the current domain.
-  clan_domain_stride(domain, depth, stride);
+  clan_domain_stride(domain, depth, stride); // !!!!!!!!!!! the problem is here !!! 
+
+printf("Affichage domain after stride \n");
+ clan_domain_idump(stdout,  domain, 2);
 
   osl_relation_free(init_constraints);
 }

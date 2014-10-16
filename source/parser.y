@@ -325,10 +325,10 @@ statement_indented:
 // Rules for a statement
 // Return <stmt>
 statement:
-    labeled_statement        { $$ = $1; }
-  | compound_statement       { $$ = $1; }
-  | expression_statement     { $$ = $1; }
-  | selection_statement      { $$ = $1; }
+    labeled_statement        { $$ = $1;  printf("statement: labeled_statement\n"); }
+  | compound_statement       { $$ = $1;  printf("statement: compound_statement\n"); }
+  | expression_statement     { $$ = $1;  printf("statement: expression_statement\n"); }
+  | selection_statement      { $$ = $1;  printf("statement: selection_statement\n"); }
   | {
       if (parser_options->autoscop && !parser_autoscop && !parser_loop_depth) {
         parser_line_start = scanner_line;
@@ -343,7 +343,7 @@ statement:
       }
     }    
     iteration_statement
-    {
+    { printf("statement: iteration_statement\n");
       $$ = $2;
       if (parser_options->autoscop && parser_autoscop && !parser_loop_depth) {
         parser_line_end = scanner_line;
@@ -358,7 +358,7 @@ statement:
 
 labeled_statement:
     INTEGER ':' 
-    {
+    { printf("labeled_statement.1.1: <int> : ... LABEL !!!\n");
       int i;
       clan_domain_p labeled_domain;
       osl_relation_list_p labeled_constraints;
@@ -389,7 +389,7 @@ labeled_statement:
       parser_xfor_nb_nests++;
     }
     statement
-    {
+    { printf("labeled_statement.1.2: ... <stmt> ::::\n");
       clan_domain_drop(&parser_stack);
       parser_xfor_nb_nests--;
       parser_xfor_labels[parser_xfor_nb_nests] = CLAN_UNDEFINED;
@@ -478,6 +478,18 @@ selection_statement:
 iteration_statement:
     XFOR '(' loop_initialization_list loop_condition_list loop_stride_list ')'
     {
+      // Check normalize option 
+      if ( ! parser_options->normalize ) {
+        CLAN_error("missing -normalize option to analyse xfor loops");
+	osl_relation_list_free($3);
+        osl_relation_list_free($4);
+	free($5);
+        YYABORT;
+      }
+
+
+printf(" xfor ( init cond stride ) ...\n");
+
       CLAN_debug("rule iteration_statement.1.1: xfor ( init cond stride ) ...");
       parser_xfor_labels[parser_loop_depth] = CLAN_UNDEFINED;
       clan_parser_increment_loop_depth();
@@ -509,12 +521,15 @@ iteration_statement:
       osl_relation_list_free($4);
       $3 = NULL; // To avoid conflicts with the destructor TODO: avoid that.
       $4 = NULL;
-      parser_scattering[2*parser_loop_depth-1] = ($5[0] > 0) ? 1 : -1;
+      parser_scattering[2*parser_loop_depth-1] = ($5[0] > 0) ? 1 : -1; // Il faut considérer tout les incréments !!
       parser_scattering[2*parser_loop_depth] = 0;
       free($5);
     }
     loop_body
     {
+
+printf("loop_body\n");
+
       CLAN_debug("rule iteration_statement.1.2: xfor ( init cond stride ) "
 	         "body");
       parser_xfor_depths[parser_xfor_nb_nests]--;
@@ -604,6 +619,10 @@ loop_initialization_list:
     loop_initialization ',' loop_initialization_list
     {
       osl_relation_list_p new = osl_relation_list_malloc();
+
+      printf(" initialization , initialization_list\n");
+
+
       CLAN_debug("rule initialization_list.1: initialization , "
 	         "initialization_list");
       new->elt = $1;
@@ -612,6 +631,9 @@ loop_initialization_list:
     }
   | loop_initialization ';'
     {
+
+      printf(" initialization ;\n");
+
       CLAN_debug("rule initialization_list.2: initialization ;");
       parser_xfor_index = 0;
       $$ = osl_relation_list_malloc();
@@ -646,14 +668,14 @@ loop_declaration:
 
 loop_condition_list:
     loop_condition ',' loop_condition_list
-    {
+    { printf ("loop_condition ',' loop_condition_list \n");
       osl_relation_list_p new = osl_relation_list_malloc();
       new->elt = $1;
       osl_relation_list_push(&$3, new);
       $$ = $3;
     }
   | loop_condition ';'
-    {
+    { printf ("loop_condition ';'\n");
       parser_xfor_index = 0;
       $$ = osl_relation_list_malloc();
       $$->elt = $1;
@@ -674,7 +696,7 @@ loop_condition:
 
 loop_stride_list:
     loop_stride ',' loop_stride_list
-    {
+    { printf("loop_stride ',' loop_stride_list \n");
       int i;
       $$ = malloc((parser_xfor_index) * sizeof(int));
       for (i = 0; i < parser_xfor_index - 1; i++)
@@ -683,7 +705,7 @@ loop_stride_list:
       $$[0] = $1;
     }
   | loop_stride
-    {
+    { printf("loop_stride \n");
       $$ = malloc(sizeof(int));
       $$[0] = $1;
     }
@@ -724,6 +746,9 @@ loop_infinite:
 loop_body:
     statement
     {
+
+printf(" loop_body -> statement  \n");
+
       CLAN_debug("rule loop_body.1: <stmt>");
       parser_loop_depth--;
       clan_symbol_free(parser_iterators[parser_loop_depth]);
@@ -1643,7 +1668,7 @@ expression_statement:
       CLAN_debug_call(osl_statement_dump(stderr, $$));
     }
   | 
-    {
+    { printf(" AVANTT expression_statement  \n");
       if (parser_options->extbody) {
         parser_access_start = -1;
         parser_access_extbody = osl_extbody_malloc();
@@ -1653,7 +1678,7 @@ expression_statement:
       parser_recording = CLAN_TRUE;
     }
     expression ';'
-    {
+    { printf(" expression ';'  \n");
       osl_statement_p statement;
       osl_body_p body;
       osl_generic_p gen;
