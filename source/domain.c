@@ -332,7 +332,7 @@ printf("Affichage condition \n");
 osl_relation_idump(stdout, condition, 0) ;
 
 printf("Affichage domain \n");
- clan_domain_idump(stdout,  domain, 2); 
+ clan_domain_idump(stdout,  domain, 2);
 
   // Generate the set of constraints contributed by the initialization
   // (nb: it could not be done before because we need to know the stride).
@@ -371,7 +371,7 @@ printf("Affichage domain after condition \n");
  clan_domain_idump(stdout,  domain, 2);
 
   // Add the contribution of the stride to the current domain.
-  clan_domain_stride(domain, depth, stride); // !!!!!!!!!!! the problem is here !!! 
+  clan_domain_stride(domain, depth, stride); // !!!!!!!!!!! the problem is here !!!
 
 printf("Affichage domain after stride \n");
  clan_domain_idump(stdout,  domain, 2);

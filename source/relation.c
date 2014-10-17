@@ -786,7 +786,7 @@ void clan_relation_to_expressions(osl_relation_p r, int depth) {
  * \param[in] stride The loop stride value.
  */
 osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
-  int i, lower, precision;
+  int i, lower, precision,coef;
   osl_relation_p contribution;
   osl_relation_p constraint;
   osl_relation_p bound, notbound;
@@ -814,9 +814,10 @@ printf(" stride = %d \n",stride);
     // stride from others (notbound) which will be reinjected later.
     clan_relation_extract_bounding(r, &bound, &notbound, depth, lower);
 
+    coef = osl_int_one ( bound->precision, bound->m[0][0]) ;
 
 printf("Affichage bound ::::::: bounding constraints (bound) which are impacted by the stride \n");
-osl_relation_idump(stdout, bound, 0) ; 
+osl_relation_idump(stdout, bound, 0) ;
 
 
     // Change the bounding constraints to a set of linear expressions
@@ -824,15 +825,15 @@ osl_relation_idump(stdout, bound, 0) ;
     clan_relation_to_expressions(bound, depth);
 
 printf("Affichage bound ::::::: clan_relation_to_expressions(bound, depth); \n");
-osl_relation_idump(stdout, bound, 0) ; 
-  
+osl_relation_idump(stdout, bound, 0) ;
+
     // Each bound constraint contributes along with the stride.
     for (i = 0; i < bound->nb_rows; i++) {
       // -1. Extract the contributing constraint c.
       constraint = clan_relation_extract_constraint(bound, i);
 
 printf("Affichage bound :::::::  dans la boucle for après étape 1 \n");
-osl_relation_idump(stdout, bound, 0) ; 
+osl_relation_idump(stdout, bound, 0) ;
 
 
       // -2. For every constaint before c, ensure the comparison at step 3
@@ -853,21 +854,21 @@ osl_relation_idump(stdout, bound, 0) ;
       }
 
 printf("Affichage bound :::::::  dans la boucle for après étape 2 ** \n");
-osl_relation_idump(stdout, bound, 0) ; 
+osl_relation_idump(stdout, bound, 0) ;
 
       // -3. Compute c > a && c > b && c >= c && c >= d ...
       //     We remove the c >= c row which corresponds to a trivial 0 >= 0.
       //     (Resp. c < a && c <b && c <= c && c <=d ... for the upper case.)
-      if (lower)
+      if ( lower && !coef ) //if (lower)
         contribution = clan_relation_greater(constraint, bound, 0);
       else
-        contribution = clan_relation_greater(bound, constraint, 0);
+        contribution = clan_relation_greater(bound, constraint, 0); // !!!!!!!!
       osl_relation_remove_row(contribution, i);
 
 printf("Affichage bound :::::::  dans la boucle for après étape 3 *** \n");
-osl_relation_idump(stdout, bound, 0) ; 
+osl_relation_idump(stdout, bound, 0) ;
 printf("Affichage contribution :::::::  dans la boucle for après étape 3 ********************************** \n");
-osl_relation_idump(stdout, contribution, 0) ; 
+osl_relation_idump(stdout, contribution, 0) ;
 
       // -4. The iterator i of the current depth is i >= c.
       //     (Resp. c <= i for the upper case.)
@@ -875,16 +876,18 @@ osl_relation_idump(stdout, contribution, 0) ;
       osl_relation_insert_constraints(contribution, constraint, -1);
 
 printf("Affichage contribution :::::::  * 4.1 Put c at the end of the constraint set. \n");
-osl_relation_idump(stdout, contribution, 0) ; 
+osl_relation_idump(stdout, contribution, 0) ;
 
       //     * 4.2 Oppose so we have -c.
       //           (Resp. do nothing so we have c for the upper case.)
-/*      if (lower) {
+    /*  if ( ! lower) {
         clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
       }*/
 
+
+
 printf("Affichage contribution :::::::  ** 4.2 Oppose so we have -c. \n");
-osl_relation_idump(stdout, contribution, 0) ; 
+osl_relation_idump(stdout, contribution, 0) ;
       //     * 4.3 Put the loop iterator so we have i - c.
       //           (Resp. -i + c for the upper case.)
       if (lower) {
@@ -895,23 +898,30 @@ osl_relation_idump(stdout, contribution, 0) ;
                        &contribution->m[contribution->nb_rows - 1][depth], -1);
       }
 printf("Affichage contribution :::::::  ** * 4.3 Put the loop iterator so we have i - c. \n");
-osl_relation_idump(stdout, contribution, 0) ; 
+osl_relation_idump(stdout, contribution, 0) ;
 
       //     * 4.4 Set the inequality marker so we have i - c >= 0.
       //           (Resp. -i + c >= 0 for the upper case.)
       osl_int_set_si(precision,
                      &contribution->m[contribution->nb_rows - 1][0], 1);
 printf("Affichage contribution :::::::  ** * 4.4 Set the inequality marker so we have i - c >= 0. \n");
-osl_relation_idump(stdout, contribution, 0) ; 
+osl_relation_idump(stdout, contribution, 0) ;
 
 
 
 printf("Affichage contribution :::::::  dans la boucle for après étape 4 ********************************** \n");
-osl_relation_idump(stdout, contribution, 0) ; 
+osl_relation_idump(stdout, contribution, 0) ;
     
       // -5. Add the contribution of the stride (same for lower and upper).
       //     * 5.1 Put c at the end of the constraint set.
       osl_relation_insert_constraints(contribution, constraint, -1);
+
+      if ( lower) {
+        clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
+      }
+
+
+
       //     * 5.2 Put the opposed loop iterator so we have -i + c.
       osl_int_set_si(precision,
                      &contribution->m[contribution->nb_rows - 1][depth], -1);
@@ -924,12 +934,12 @@ osl_relation_idump(stdout, contribution, 0) ;
       osl_relation_free(constraint);
       osl_relation_add(&part, contribution);
 printf("Affichage contribution :::::::  dans la boucle for après étape 5 ***** \n");
-osl_relation_idump(stdout, contribution, 0) ; 
+osl_relation_idump(stdout, contribution, 0) ;
     }//
 
 
 printf("Affichage part :::::::  part * part * part * part * part * part * part * part * part * part * \n");
-osl_relation_idump(stdout, part, 0) ; 
+osl_relation_idump(stdout, part, 0) ;
 
     // Re-inject notbound constraints
     clan_relation_and(notbound, part);
@@ -1213,7 +1223,6 @@ void clan_relation_loop_context(osl_relation_p condition,
                                 int depth) {
   int i, j;
   osl_relation_p contextual = NULL, temp, first_condition, new_condition;
-
   if ((condition == NULL) || (initialization == NULL))
     return;
 
@@ -1235,36 +1244,55 @@ void clan_relation_loop_context(osl_relation_p condition,
     while (condition != NULL) {
       // Build the loop context (i.e. the loop condition where the
       // iterator is replaced by its initial value).
-      temp = osl_relation_nclone(condition, 1);
 
-printf("Affichage temp temp temp temptemptemptemptemp osl_relation_nclone(condition, 1); \n");
-osl_relation_idump(stdout, temp, 0) ; 
 
-      osl_relation_insert_blank_row(temp, 0);
+printf("\n\n -------------------------- coef binf =%d    coef bsup = %d -------------------------------------- \n\n",initialization->m[i][depth],condition->m[0][depth]);
 
-printf("Affichage temp temp temp temptemptemptemptemp  osl_relation_insert_blank_row(temp, 0); \n");
-osl_relation_idump(stdout, temp, 0) ; 
 
-      for (j = 0; j < temp->nb_columns; j++)
-        osl_int_assign(temp->precision,
-                       &temp->m[0][j], initialization->m[i][j]);
+
+if  ( osl_int_one ( condition->precision, condition->m[0][depth]) ) {
+	printf("\n\n -------------------------- PERMUTATION ---------------------------- \n\n");
+
+
+    temp = osl_relation_nclone(condition, 1);
+    osl_relation_insert_blank_row(temp, 1);
+
+    for (j = 0; j < temp->nb_columns; j++)
+      osl_int_assign(temp->precision,
+                     &temp->m[1][j], initialization->m[i][j]);
+
+
+} else {
+    temp = osl_relation_nclone(condition, 1);
+    osl_relation_insert_blank_row(temp, 0);
+
+    for (j = 0; j < temp->nb_columns; j++)
+      osl_int_assign(temp->precision,
+                     &temp->m[0][j], initialization->m[i][j]);
+}
+
+
 
 printf("Affichage temp temp temp temptemptemptemptemp for (j = 0; j < temp->nb_columns; j++) \n");
-osl_relation_idump(stdout, temp, 0) ; 
+osl_relation_idump(stdout, temp, 0) ;
 
-      clan_relation_tag_equality(temp, 0); // !!!!!!!!!
+      clan_relation_tag_equality(temp, 1); // !!!!!!!!!
+
+
 
 printf("Affichage temp temp temp temptemptemptemptemp  clan_relation_tag_equality(temp, 0); \n");
-osl_relation_idump(stdout, temp, 0) ; 
+osl_relation_idump(stdout, temp, 0) ;
 
-      clan_relation_gaussian_elimination(temp, 0, depth); // !!!!!!!!!!
+      clan_relation_gaussian_elimination(temp, 1, depth); // !!!!!!!!!!
 printf("Affichage temp temp temp temptemptemptemptemp  clan_relation_gaussian_elimination(temp, 0, depth); \n");
-osl_relation_idump(stdout, temp, 0) ; 
+osl_relation_idump(stdout, temp, 0) ;
 
 
-      osl_relation_remove_row(temp, 0); /// !!!!!!!!!!
+      osl_relation_remove_row(temp, 1); /// !!!!!!!!!!
 printf("Affichage temp temp temp temptemptemptemptemp  osl_relation_remove_row(temp, 0); \n");
-osl_relation_idump(stdout, temp, 0) ; 
+osl_relation_idump(stdout, temp, 0) ;
+
+
 
       
       // Intersect the union part of the condition with its loop context.
@@ -1273,11 +1301,13 @@ osl_relation_idump(stdout, temp, 0) ;
 
 
 printf("Affichage temp temp temp temptemptemptemptemptemptemptemptemptemptemptemp \n");
-osl_relation_idump(stdout, temp, 0) ; 
+osl_relation_idump(stdout, temp, 0) ;
 
 
 printf("Affichage new_condition :::::::  new_condition ::::::: new_condition ::::::: new_condition :::::::\n");
-osl_relation_idump(stdout, new_condition, 0) ; 
+osl_relation_idump(stdout, new_condition, 0) ;
+
+
 
 
       osl_relation_free(temp);
