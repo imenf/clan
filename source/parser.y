@@ -108,6 +108,7 @@
    int*           parser_scattering;    /**< Current statement scattering */
    clan_symbol_p* parser_iterators;     /**< Current iterator list */
    clan_domain_p  parser_stack;         /**< Iteration domain stack */
+   clan_domain_p  parser_scatt_stack;   /**< scattering relation stack */
    int*           parser_nb_local_dims; /**< Nb of local dims per depth */
    int            parser_nb_parameters; /**< Nb of parameter symbols */
    int*           parser_valid_else;    /**< Boolean: OK for else per depth */
@@ -140,7 +141,7 @@
 %}
 
 /* We expect the if-then-else shift/reduce to be there, nothing else. */
-%expect 8 // TODO: should be 1 !!! (cause : labeled_statement)
+%expect 7 // TODO: should be 1 !!! (cause : labeled_statement)
 
 %union { int value;                      /**< An integer value */
          int* vecint;                    /**< A vector of integer values */
@@ -173,6 +174,7 @@
 %type <stmt>   statement_list
 %type <stmt>   statement_indented
 %type <stmt>   statement
+%type <stmt>   statement_with_no_label
 %type <stmt>   labeled_statement
 %type <stmt>   compound_statement
 %type <stmt>   expression_statement
@@ -325,10 +327,10 @@ statement_indented:
 // Rules for a statement
 // Return <stmt>
 statement:
-    labeled_statement        { $$ = $1;  printf("statement: labeled_statement\n"); }
-  | compound_statement       { $$ = $1;  printf("statement: compound_statement\n"); }
-  | expression_statement     { $$ = $1;  printf("statement: expression_statement\n"); }
-  | selection_statement      { $$ = $1;  printf("statement: selection_statement\n"); }
+    labeled_statement        { $$ = $1; }
+  | compound_statement       { $$ = $1; }
+  | expression_statement     { $$ = $1; }
+  | selection_statement      { $$ = $1; }
   | {
       if (parser_options->autoscop && !parser_autoscop && !parser_loop_depth) {
         parser_line_start = scanner_line;
@@ -343,7 +345,38 @@ statement:
       }
     }    
     iteration_statement
-    { printf("statement: iteration_statement\n");
+    { 
+      $$ = $2;
+      if (parser_options->autoscop && parser_autoscop && !parser_loop_depth) {
+        parser_line_end = scanner_line;
+        parser_column_end = scanner_column;
+        if (CLAN_DEBUG)
+          fprintf(stderr, "Autoscop found: line %3d column %3d\n",
+                  parser_line_end, parser_column_end);
+      }
+    }
+;
+
+
+statement_with_no_label:
+    compound_statement       { $$ = $1; }
+  | expression_statement     { $$ = $1; }
+  | selection_statement      { $$ = $1; }
+  | {
+      if (parser_options->autoscop && !parser_autoscop && !parser_loop_depth) {
+        parser_line_start = scanner_line;
+        parser_column_start = scanner_column_LALR;
+        parser_autoscop = CLAN_TRUE;
+        // Reinitialize the symbol table.
+        clan_symbol_free(parser_symbol);
+        parser_symbol = NULL;
+        if (CLAN_DEBUG)
+          fprintf(stderr, "Autoscop start: line %3d column %3d\n",
+                  parser_line_start, parser_column_start);
+      }
+    }    
+    iteration_statement
+    { 
       $$ = $2;
       if (parser_options->autoscop && parser_autoscop && !parser_loop_depth) {
         parser_line_end = scanner_line;
@@ -358,10 +391,13 @@ statement:
 
 labeled_statement:
     INTEGER ':' 
-    { printf("labeled_statement.1.1: <int> : ... LABEL !!!\n");
+    { 
       int i;
       clan_domain_p labeled_domain;
       osl_relation_list_p labeled_constraints;
+
+      clan_domain_p labeled_scatt_domain ;
+      osl_relation_list_p labeled_scattering ;
 
       CLAN_debug("labeled_statement.1.1: <int> : ...");
      
@@ -377,26 +413,40 @@ labeled_statement:
 
       labeled_domain = clan_domain_malloc();
       labeled_domain->constraints = osl_relation_list_malloc();
-      labeled_constraints = parser_stack->constraints;
+      labeled_constraints = parser_stack->constraints; 
       for (i = 0; i < $1; i++)
 	labeled_constraints = labeled_constraints->next;
       labeled_domain->constraints->elt =
 	  osl_relation_clone(labeled_constraints->elt);
 
       clan_domain_push(&parser_stack, labeled_domain);
+
+//** Scattering //parser_scatt_stack
+      labeled_scatt_domain = clan_domain_malloc();
+      labeled_scatt_domain->constraints = osl_relation_list_malloc();
+      labeled_scattering = parser_scatt_stack->constraints; 
+      for (i = 0; i < $1; i++)
+	labeled_scattering = labeled_scattering->next;
+      labeled_scatt_domain->constraints->elt =
+	  osl_relation_clone(labeled_scattering->elt);
+
+      clan_domain_push(&parser_scatt_stack, labeled_scatt_domain);
+//**
       parser_xfor_labels[parser_xfor_nb_nests] = $1;
       parser_xfor_depths[parser_xfor_nb_nests + 1] = 0;
       parser_xfor_nb_nests++;
     }
-    statement
-    { printf("labeled_statement.1.2: ... <stmt> ::::\n");
+    statement_with_no_label
+    { 
       clan_domain_drop(&parser_stack);
+      clan_domain_drop(&parser_scatt_stack);
       parser_xfor_nb_nests--;
       parser_xfor_labels[parser_xfor_nb_nests] = CLAN_UNDEFINED;
       $$ = $4;
       CLAN_debug("labeled_statement.1.2: ... <stmt>");
     }
   ;
+
 
 
 // Rules for a compound statement
@@ -486,16 +536,12 @@ iteration_statement:
 	free($5);
         YYABORT;
       }
-
-
-printf(" xfor ( init cond stride ) ...\n");
-
       CLAN_debug("rule iteration_statement.1.1: xfor ( init cond stride ) ...");
       parser_xfor_labels[parser_loop_depth] = CLAN_UNDEFINED;
       clan_parser_increment_loop_depth();
        
       // Check loop bounds and stride consistency and reset sanity sentinels.
-      if (!clan_parser_is_loop_sane($3, $4, $5))
+      if (!clan_parser_is_loop_sane($3, $4, $5)) // Add offset and grain
         YYABORT;
 
       // Check that either an xfor loop is the first one or have the same
@@ -521,15 +567,22 @@ printf(" xfor ( init cond stride ) ...\n");
       osl_relation_list_free($4);
       $3 = NULL; // To avoid conflicts with the destructor TODO: avoid that.
       $4 = NULL;
+
+//** Scattering 
       parser_scattering[2*parser_loop_depth-1] = ($5[0] > 0) ? 1 : -1; // Il faut considérer tout les incréments !!
       parser_scattering[2*parser_loop_depth] = 0;
       free($5);
+
+      // Add the constraints contributed by the xfor loop to the scattering stack.
+      clan_domain_dup(&parser_scatt_stack);
+      clan_scattering_relation_xfor(parser_scatt_stack, parser_loop_depth, parser_symbol, $3, $5, parser_options); // manque l'offset et le grain !
+
+      //free($6); // offset list
+      //free($7); //  Grain list
+//**
     }
     loop_body
     {
-
-printf("loop_body\n");
-
       CLAN_debug("rule iteration_statement.1.2: xfor ( init cond stride ) "
 	         "body");
       parser_xfor_depths[parser_xfor_nb_nests]--;
@@ -566,9 +619,16 @@ printf("loop_body\n");
       osl_relation_list_free($4);
       $3 = NULL; // To avoid conflicts with the destructor TODO: avoid that.
       $4 = NULL;
+
+//** Scattering 
       parser_scattering[2*parser_loop_depth-1] = ($5[0] > 0) ? 1 : -1;
       parser_scattering[2*parser_loop_depth] = 0;
       free($5);
+
+      // Add the constraints contributed by the xfor loop to the scattering stack.
+      clan_domain_dup(&parser_scatt_stack);
+      clan_scattering_relation_for(parser_scatt_stack, parser_loop_depth, parser_symbol, $3->elt, $5[0], parser_options); 
+//**
     }
     loop_body
     {
@@ -603,8 +663,13 @@ printf("loop_body\n");
       clan_domain_and(parser_stack, iterator_relation);
       osl_vector_free(iterator_term);
       osl_relation_free(iterator_relation);
+ 
+      // Add it to the scattering stack. !!!!!!!
+      clan_domain_dup(&parser_scatt_stack);
+      //clan_domain_and(parser_scatt_stack, iterator_relation);
       parser_scattering[2*parser_loop_depth-1] = 1;
       parser_scattering[2*parser_loop_depth] = 0;
+
     }
     loop_body
     {
@@ -619,10 +684,6 @@ loop_initialization_list:
     loop_initialization ',' loop_initialization_list
     {
       osl_relation_list_p new = osl_relation_list_malloc();
-
-      printf(" initialization , initialization_list\n");
-
-
       CLAN_debug("rule initialization_list.1: initialization , "
 	         "initialization_list");
       new->elt = $1;
@@ -631,9 +692,6 @@ loop_initialization_list:
     }
   | loop_initialization ';'
     {
-
-      printf(" initialization ;\n");
-
       CLAN_debug("rule initialization_list.2: initialization ;");
       parser_xfor_index = 0;
       $$ = osl_relation_list_malloc();
@@ -668,14 +726,14 @@ loop_declaration:
 
 loop_condition_list:
     loop_condition ',' loop_condition_list
-    { printf ("loop_condition ',' loop_condition_list \n");
+    { 
       osl_relation_list_p new = osl_relation_list_malloc();
       new->elt = $1;
       osl_relation_list_push(&$3, new);
       $$ = $3;
     }
   | loop_condition ';'
-    { printf ("loop_condition ';'\n");
+    { 
       parser_xfor_index = 0;
       $$ = osl_relation_list_malloc();
       $$->elt = $1;
@@ -696,7 +754,7 @@ loop_condition:
 
 loop_stride_list:
     loop_stride ',' loop_stride_list
-    { printf("loop_stride ',' loop_stride_list \n");
+    { 
       int i;
       $$ = malloc((parser_xfor_index) * sizeof(int));
       for (i = 0; i < parser_xfor_index - 1; i++)
@@ -705,7 +763,7 @@ loop_stride_list:
       $$[0] = $1;
     }
   | loop_stride
-    { printf("loop_stride \n");
+    { 
       $$ = malloc(sizeof(int));
       $$[0] = $1;
     }
@@ -746,14 +804,12 @@ loop_infinite:
 loop_body:
     statement
     {
-
-printf(" loop_body -> statement  \n");
-
       CLAN_debug("rule loop_body.1: <stmt>");
       parser_loop_depth--;
       clan_symbol_free(parser_iterators[parser_loop_depth]);
       parser_iterators[parser_loop_depth] = NULL;
       clan_domain_drop(&parser_stack);
+      clan_domain_drop(&parser_scatt_stack);
       $$ = $1;
       parser_scattering[2*parser_loop_depth]++;
       parser_nb_local_dims[parser_loop_depth + parser_if_depth] = 0;
@@ -1668,21 +1724,19 @@ expression_statement:
       CLAN_debug_call(osl_statement_dump(stderr, $$));
     }
   | 
-    { printf(" AVANTT expression_statement  \n");
+    { 
       if (parser_options->extbody) {
         parser_access_start = -1;
         parser_access_extbody = osl_extbody_malloc();
       }
-
       CLAN_strdup(parser_record, scanner_latest_text);
       parser_recording = CLAN_TRUE;
     }
     expression ';'
-    { printf(" expression ';'  \n");
+    { 
       osl_statement_p statement;
       osl_body_p body;
       osl_generic_p gen;
-      
       CLAN_debug("rule expression_statement.2: expression ;");
       statement = osl_statement_malloc();
 
@@ -1696,9 +1750,16 @@ expression_statement:
       osl_relation_set_attributes(statement->domain, parser_loop_depth, 0,
 	                          clan_parser_nb_ld(), CLAN_MAX_PARAMETERS);
 
-      // - 2. Scattering
-      statement->scattering = clan_relation_scattering(parser_scattering,
-          parser_loop_depth, parser_options->precision);
+      // - 2. Scattering 
+      statement->scattering = osl_relation_clone(parser_scatt_stack->constraints->elt);
+      osl_relation_set_type(statement->scattering, OSL_TYPE_SCATTERING);
+
+      // local dim ?!    clan_parser_nb_ld() 
+      osl_relation_set_attributes(statement->scattering, 2 * parser_loop_depth + 1, parser_loop_depth,
+	                          clan_parser_nb_ld(), CLAN_MAX_PARAMETERS);
+
+/*      statement->scattering = clan_relation_scattering(parser_scattering,
+          parser_loop_depth, parser_options->precision);*/
 
       // - 3. Array accesses
       statement->access = $2;
@@ -2039,6 +2100,12 @@ void clan_parser_state_print(FILE* file) {
   clan_domain_idump(file, parser_stack, 2);
   fprintf(file, "|\t|\n");
 
+  // Scattering stack.
+  fprintf(file, "|\tparser_Scattering [Scattering stack]\n");
+  fprintf(file, "|\t|\t|\n");
+  clan_domain_idump(file, parser_scatt_stack, 2);
+  fprintf(file, "|\t|\n");
+
   // Number of local dimensions per depth.
   fprintf(file, "|\tparser_nb_local_dims [Nb of local dims per depth]\n");
   fprintf(file, "|\t|\t|\n");
@@ -2201,6 +2268,10 @@ void clan_parser_state_malloc(int precision) {
   parser_stack->constraints = osl_relation_list_malloc();
   parser_stack->constraints->elt = osl_relation_pmalloc(precision,
       0, nb_columns);
+  parser_scatt_stack      = clan_domain_malloc();
+  parser_scatt_stack->constraints = osl_relation_list_malloc();
+  parser_scatt_stack->constraints->elt = osl_relation_pmalloc(precision,
+      0, nb_columns);
   CLAN_malloc(parser_nb_local_dims, int*, depth * sizeof(int));
   CLAN_malloc(parser_valid_else, int*, depth * sizeof(int));
   CLAN_malloc(parser_scattering, int*, (2 * depth + 1) * sizeof(int));
@@ -2231,7 +2302,8 @@ void clan_parser_state_free() {
   free(parser_max);
   free(parser_xfor_depths);
   free(parser_xfor_labels);
-  clan_domain_drop(&parser_stack);
+  clan_domain_drop(&parser_stack); 
+  clan_domain_drop(&parser_scatt_stack);
 }
 
 
@@ -2294,7 +2366,9 @@ void clan_parser_reinitialize() {
   for (i = 0; i < parser_loop_depth; i++)
     clan_symbol_free(parser_iterators[i]);
   while (parser_stack->next != NULL)
-    clan_domain_drop(&parser_stack);
+    clan_domain_drop(&parser_stack); 
+  while (parser_scatt_stack->next != NULL)
+    clan_domain_drop(&parser_scatt_stack);
   osl_scop_free(parser_scop);
   clan_parser_state_initialize(parser_options);
 }

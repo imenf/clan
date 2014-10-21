@@ -44,9 +44,12 @@
 #include <osl/macros.h>
 #include <osl/int.h>
 #include <osl/relation.h>
+#include <osl/relation_list.h>
+#include <clan/relation_list.h>
 #include <clan/macros.h>
 #include <clan/options.h>
 #include <clan/relation.h>
+#include <clan/vector.h>
 
 int clan_parser_nb_ld(void);
 void clan_parser_add_ld(void);
@@ -802,8 +805,6 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
   lower = (stride > 0) ? 1 : 0;
   stride = (stride > 0) ? stride : -stride;
 
-printf(" stride = %d \n",stride);
-
   // Each part of the relation union will provide independent contribution.
   while (r != NULL) {
     part = NULL;
@@ -1239,3 +1240,123 @@ void clan_relation_loop_context(osl_relation_p condition,
   // Free the contextual "shell".
   free(contextual);
 }
+
+/**
+ * clan_scattering_relation_for function:
+ * this function adds the contribution of a for loop to a a scattering relation.
+ * \param[in,out] domain         The set of constraint set to update.
+ * \param[in]     depth          The loop depth.
+ * \param[in]     iterator       The loop iterator symbol.
+ * \param[in]     initialization The loop initialiation right part constraints.
+ * \param[in]     stride         The loop stride value.
+ * \param[in]     options        Clan's options.
+ */
+void clan_scattering_relation_for(clan_domain_p domain,
+                     int depth,
+                     clan_symbol_p iterator,
+                     osl_relation_p initialization,
+   		             int stride,
+                     clan_options_p options) {
+  osl_vector_p iterator_term;
+  osl_relation_p iterator_relation;
+  osl_relation_p init_constraints;
+
+/*
+      parser_scattering[2*parser_loop_depth-1] = ($5[0] > 0) ? 1 : -1; // Il faut considérer tout les incréments !!
+      parser_scattering[2*parser_loop_depth] = 0;
+      free($5);
+*/
+  // Generate the set of constraints contributed by the initialization
+  // (nb: it could not be done before because we need to know the stride).
+  iterator_term = clan_vector_term(iterator, 0, NULL, options->precision);
+  osl_int_set_si(options->precision, &iterator_term->v[depth], 1);
+  iterator_relation = osl_relation_from_vector(iterator_term);
+  if (stride > 0) {
+    init_constraints = clan_relation_greater(iterator_relation,
+	initialization, 0);
+  } else {
+    init_constraints = clan_relation_greater(initialization,
+	iterator_relation, 0);
+  }
+  osl_vector_free(iterator_term);
+  osl_relation_free(iterator_relation);
+
+  // Add the contribution of the initialization to the current domain.
+  clan_domain_and(domain, init_constraints);
+
+  // Add the contribution of the condition to the current domain.
+
+
+  // Add the contribution of the stride to the current domain.
+  clan_domain_stride(domain, depth, stride);
+
+  osl_relation_free(init_constraints);
+}
+
+
+/**
+ * clan_scattering_relation_xfor function:
+ * this function adds the contribution of a xfor loop to a scattering relation.
+ * \param[in,out] domain         The set of constraint set to update.
+ * \param[in]     depth          The loop depth.
+ * \param[in]     iterator       The loop iterator symbols.
+ * \param[in]     initialization The loop initialiation right part constraints.
+ * \param[in]     stride         The loop stride values.
+ * \param[in]     options        Clan's options.
+ */
+void clan_scattering_relation_xfor(clan_domain_p domain,
+                      int depth,
+                      clan_symbol_p iterator,
+                      osl_relation_list_p initialization,
+		              int* stride,
+                      clan_options_p options) {
+  int i;
+  int nb_indices = clan_relation_list_nb_elements(initialization);
+  int nb_constraint_sets = clan_relation_list_nb_elements(domain->constraints);
+  osl_relation_list_p base, new = NULL;
+  clan_domain_p shell = NULL;
+
+  // Three possible cases:
+  // 1. the number of constraint sets in the domain is 1 ("first xfor"),
+  //    then we duplicate the constraint sets to match the number of xfor
+  //    indices, then each constraint set receives the contribution of the
+  //    corresponding xfor index,
+  // 2. the number of constraints sets in the domain is equal to
+  //    the number of xfor indices, then each constraint set
+  //    receives the contribution of the corresponding xfor index,
+  // 3. an error is reported (this should be checked in the parser for
+  //    reporting through yyerror).
+
+  if (nb_constraint_sets == 1) {
+    for (i = 0; i < nb_indices - 1; i++) {
+      osl_relation_list_dup(&domain->constraints);
+    }
+  } else if (nb_constraint_sets != nb_indices) {
+    CLAN_error("incorrect number of indices in an xfor loop");
+  }
+
+  // -1. Prepare a domain "shell" to process the xfor indices one by one.
+  shell = clan_domain_malloc();
+  shell->constraints = osl_relation_list_malloc();
+  base = domain->constraints;
+  // -2. For each xfor index
+  for (i = 0; i < nb_indices; i++) {
+    // -2.1 Put the corresponding base constraints in the domain shell.
+    shell->constraints->elt = osl_relation_clone(base->elt);
+    // -2.2 Apply the contribution of the loop to it.
+    clan_scattering_relation_for(shell, depth, iterator, initialization->elt, stride[i], options);
+    // -2.3 Add the final constraint set to a new list.
+    osl_relation_list_add(&new, shell->constraints);
+    // -2.4 Prepare the variables to process the next xfor index.
+    iterator = iterator->next;
+    initialization = initialization->next;
+    shell->constraints = osl_relation_list_malloc();
+    base = base->next;
+  }
+  // -3. Replace the original set of constraint set with the new one.
+  osl_relation_list_free(domain->constraints);
+  domain->constraints = new;
+
+  clan_domain_free(shell);
+}
+

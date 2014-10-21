@@ -1,13 +1,12 @@
-
-   /*+------- <| --------------------------------------------------------**
-    **         A                     Clan                                **
-    **---     /.\   -----------------------------------------------------**
-    **   <|  [""M#                 relation.h                            **
-    **-   A   | #   -----------------------------------------------------**
-    **   /.\ [""M#         First version: 30/04/2008                     **
-    **- [""M# | #  U"U#U  -----------------------------------------------**
-         | #  | #  \ .:/
-         | #  | #___| #
+/*+------- <| --------------------------------------------------------**
+ **         A                     Clan                                **
+ **---     /.\   -----------------------------------------------------**
+ **   <|  [""M#                 relation.h                            **
+ **-   A   | #   -----------------------------------------------------**
+ **   /.\ [""M#         First version: 30/04/2008                     **
+ **- [""M# | #  U"U#U  -----------------------------------------------**
+ | #  | #  \ .:/
+ | #  | #___| #
  ******  | "--'     .-"  ******************************************************
  *     |"-"-"-"-"-#-#-##   Clan : the Chunky Loop Analyzer (experimental)     *
  ****  |     # ## ######  *****************************************************
@@ -35,45 +34,42 @@
  *                                                                            *
  ******************************************************************************/
 
-
 #ifndef CLAN_relation_H
 # define CLAN_relation_H
 
+# include <clan/symbol.h>
 # include <clan/options.h>
+#include <clan/domain.h>
 
 # if defined(__cplusplus)
-extern "C"
-  {
+extern "C" {
 # endif
-
 
 struct osl_relation;
 struct osl_vector;
 
-
 /*+****************************************************************************
  *                            Processing functions                            *
  ******************************************************************************/
-void                 clan_relation_tag_array(struct osl_relation*, int);
+void clan_relation_tag_array(struct osl_relation*, int);
 struct osl_relation* clan_relation_build_context(int, clan_options_p);
 struct osl_relation* clan_relation_scattering(int*, int, int);
-void                 clan_relation_new_output_vector(struct osl_relation*,
-                                                     struct osl_vector*);
-void                 clan_relation_new_output_scalar(struct osl_relation*, int);
-void                 clan_relation_compact(struct osl_relation*, int);
-struct osl_relation* clan_relation_greater(struct osl_relation*,
-                                           struct osl_relation*, int);
+void clan_relation_new_output_vector(struct osl_relation*, struct osl_vector*);
+void clan_relation_new_output_scalar(struct osl_relation*, int);
+void clan_relation_compact(struct osl_relation*, int);
+struct osl_relation* clan_relation_greater(struct osl_relation*, struct osl_relation*, int);
 struct osl_relation* clan_relation_not(struct osl_relation*);
-void                 clan_relation_and(struct osl_relation*,
-                                       struct osl_relation*);
-int                  clan_relation_existential(struct osl_relation*);
-void                 clan_relation_oppose_row(struct osl_relation*, int);
+void clan_relation_and(struct osl_relation*, struct osl_relation*);
+int clan_relation_existential(struct osl_relation*);
+void clan_relation_oppose_row(struct osl_relation*, int);
 struct osl_relation* clan_relation_stride(struct osl_relation*, int, int);
-void                 clan_relation_simplify(struct osl_relation*);
-void                 clan_relation_loop_context(struct osl_relation*,
-                                                struct osl_relation*, int);
+void clan_relation_simplify(struct osl_relation*);
+void clan_relation_loop_context(struct osl_relation*, struct osl_relation*, int);
+void clan_scattering_relation_for (clan_domain_p, int, clan_symbol_p, struct osl_relation*, int, clan_options_p);
+void clan_scattering_relation_xfor(clan_domain_p, int, clan_symbol_p, struct osl_relation_list*, int*, clan_options_p);
+
 
 # if defined(__cplusplus)
-  }
+}
 # endif
 #endif /* define CLAN_relation_H */
