@@ -1249,13 +1249,15 @@ void clan_relation_loop_context(osl_relation_p condition,
  * \param[in]     iterator       The loop iterator symbol.
  * \param[in]     initialization The loop initialiation right part constraints.
  * \param[in]     stride         The loop stride value.
+ * \param[in]     grain          The loop grain values.
+ * \param[in]     offset         The loop offset values.
  * \param[in]     options        Clan's options.
  */
 void clan_scattering_relation_for(clan_domain_p domain,
                      int depth,
                      clan_symbol_p iterator,
                      osl_relation_p initialization,
-   		             int stride,
+   		             int stride, int grain, osl_relation_p offset,
                      clan_options_p options) {
   osl_vector_p iterator_term;
   osl_relation_p iterator_relation;
@@ -1302,13 +1304,15 @@ void clan_scattering_relation_for(clan_domain_p domain,
  * \param[in]     iterator       The loop iterator symbols.
  * \param[in]     initialization The loop initialiation right part constraints.
  * \param[in]     stride         The loop stride values.
+ * \param[in]     grain          The loop grain values.
+ * \param[in]     offset         The loop offset values.
  * \param[in]     options        Clan's options.
  */
 void clan_scattering_relation_xfor(clan_domain_p domain,
                       int depth,
                       clan_symbol_p iterator,
                       osl_relation_list_p initialization,
-		              int* stride,
+		              int* stride, int* grain, osl_relation_list_p offset,
                       clan_options_p options) {
   int i;
   int nb_indices = clan_relation_list_nb_elements(initialization);
@@ -1344,12 +1348,13 @@ void clan_scattering_relation_xfor(clan_domain_p domain,
     // -2.1 Put the corresponding base constraints in the domain shell.
     shell->constraints->elt = osl_relation_clone(base->elt);
     // -2.2 Apply the contribution of the loop to it.
-    clan_scattering_relation_for(shell, depth, iterator, initialization->elt, stride[i], options);
+    clan_scattering_relation_for(shell, depth, iterator, initialization->elt, stride[i], grain[i], offset->elt, options);
     // -2.3 Add the final constraint set to a new list.
     osl_relation_list_add(&new, shell->constraints);
     // -2.4 Prepare the variables to process the next xfor index.
     iterator = iterator->next;
     initialization = initialization->next;
+    offset = offset->next;
     shell->constraints = osl_relation_list_malloc();
     base = base->next;
   }

@@ -375,7 +375,7 @@ void clan_domain_xfor(clan_domain_p domain,
                       clan_symbol_p iterator,
                       osl_relation_list_p initialization,
                       osl_relation_list_p condition,
-		      int* stride,
+		              int* stride,
                       clan_options_p options) {
   int i;
   int nb_indices = clan_relation_list_nb_elements(initialization);
