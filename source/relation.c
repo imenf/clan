@@ -1263,34 +1263,28 @@ void clan_scattering_relation_for(clan_domain_p domain,
   osl_relation_p iterator_relation;
   osl_relation_p init_constraints;
 
-/*
-      parser_scattering[2*parser_loop_depth-1] = ($5[0] > 0) ? 1 : -1; // Il faut considérer tout les incréments !!
-      parser_scattering[2*parser_loop_depth] = 0;
-      free($5);
-*/
-  // Generate the set of constraints contributed by the initialization
-  // (nb: it could not be done before because we need to know the stride).
+
+  // Generate the set of constraints contributed by the initialization i-binf
   iterator_term = clan_vector_term(iterator, 0, NULL, options->precision);
   osl_int_set_si(options->precision, &iterator_term->v[depth], 1);
   iterator_relation = osl_relation_from_vector(iterator_term);
-  if (stride > 0) {
-    init_constraints = clan_relation_greater(iterator_relation,
-	initialization, 0);
-  } else {
-    init_constraints = clan_relation_greater(initialization,
-	iterator_relation, 0);
-  }
+  init_constraints = clan_relation_greater(iterator_relation, initialization, 0);
   osl_vector_free(iterator_term);
   osl_relation_free(iterator_relation);
 
-  // Add the contribution of the initialization to the current domain.
+
+  // Add the contribution of the stride to the current domain. i-binf==stride*l
+  clan_domain_stride(init_constraints, depth, stride);
   clan_domain_and(domain, init_constraints);
 
-  // Add the contribution of the condition to the current domain.
+
+  //stride*ci==grain*i-grain*binf+offset*stride
 
 
-  // Add the contribution of the stride to the current domain.
-  clan_domain_stride(domain, depth, stride);
+  // The constante ci==0
+  int lastRow = domain->constraints->elt->nb_rows ;
+  osl_relation_insert_blank_row(domain, lastRow);
+  osl_int_set_si(options->precision, &(domain->constraints->elt->m[lastRow][2*depth+1]), 1);
 
   osl_relation_free(init_constraints);
 }

@@ -2334,6 +2334,7 @@ void clan_parser_state_malloc(int precision) {
   parser_scatt_stack->constraints = osl_relation_list_malloc();
   parser_scatt_stack->constraints->elt = osl_relation_pmalloc(precision,
       1, nb_columns);
+  osl_int_set_si(precision, &(parser_scatt_stack->constraints->elt->m[0][1]), 1);
   CLAN_malloc(parser_nb_local_dims, int*, depth * sizeof(int));
   CLAN_malloc(parser_valid_else, int*, depth * sizeof(int));
   CLAN_malloc(parser_scattering, int*, (2 * depth + 1) * sizeof(int));
