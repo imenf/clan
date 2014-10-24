@@ -1310,7 +1310,7 @@ void clan_scattering_relation_for(clan_domain_p domain,
     lastRow++;
   }
 
-//  clan_domain_and(domain, initialization);
+  //  clan_domain_and(domain, initialization);
 
   printf(" Affichage domaine avant clan_domain_stride \n");
   clan_domain_dump(stdout, domain);
