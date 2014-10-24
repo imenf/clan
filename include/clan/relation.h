@@ -65,8 +65,9 @@ void clan_relation_oppose_row(struct osl_relation*, int);
 struct osl_relation* clan_relation_stride(struct osl_relation*, int, int);
 void clan_relation_simplify(struct osl_relation*);
 void clan_relation_loop_context(struct osl_relation*, struct osl_relation*, int);
-void clan_scattering_relation_for (clan_domain_p, int, clan_symbol_p, struct osl_relation*, int, int, struct osl_relation*, clan_options_p);
-void clan_scattering_relation_xfor(clan_domain_p, int, clan_symbol_p, struct osl_relation_list*, int*, int*, struct osl_relation_list*, clan_options_p);
+void clan_scattering_relation_for (clan_domain_p, int, struct osl_relation*, int, int, struct osl_relation*, clan_options_p);
+void clan_scattering_relation_xfor(clan_domain_p, int, struct osl_relation_list*, int*, int*, struct osl_relation_list*, clan_options_p);
+struct osl_relation* clan_relation_grain_offset (struct osl_relation*, int, int, int, struct osl_relation*);
 
 
 # if defined(__cplusplus)

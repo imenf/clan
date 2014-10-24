@@ -1242,6 +1242,29 @@ void clan_relation_loop_context(osl_relation_p condition,
 }
 
 /**
+ * clan_relation_grain_offset:
+ * this function generates a relation corresponding to this
+ * constraint : stride*ci==grain*i-grain*init_constraints+offset*stride
+ */
+osl_relation_p clan_relation_grain_offset(osl_relation_p init_constraints,
+		int depth, int stride, int grain, osl_relation_p offset) {
+	osl_relation_p grain_offset_constraints;
+
+	while(init_constraints) {
+		printf(" nb rows init_constraints = %d \n",init_constraints->nb_rows);
+		clan_relation_tag_equality(init_constraints, 0);
+
+		init_constraints=init_constraints->next;
+	}
+
+
+
+	return grain_offset_constraints;
+}
+
+
+
+/**
  * clan_scattering_relation_for function:
  * this function adds the contribution of a for loop to a a scattering relation.
  * \param[in,out] domain         The set of constraint set to update.
@@ -1255,36 +1278,71 @@ void clan_relation_loop_context(osl_relation_p condition,
  */
 void clan_scattering_relation_for(clan_domain_p domain,
                      int depth,
-                     clan_symbol_p iterator,
                      osl_relation_p initialization,
-   		             int stride, int grain, osl_relation_p offset,
+   		             int stride,
+   		             int grain,
+   		             osl_relation_p offset,
                      clan_options_p options) {
-  osl_vector_p iterator_term;
-  osl_relation_p iterator_relation;
-  osl_relation_p init_constraints;
+
+  osl_relation_p init_constraints, relation;
+  osl_relation_p grain_offset_constraints;
+  osl_int_p variable;
+  int i, lastRow, j, locald ;
+  int current_comlumn = CLAN_MAX_SCAT_DIMS + depth ;
+
+  relation = domain->constraints->elt;
+  lastRow = relation->nb_rows  ;
+  locald = CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH ;
+
 
 
   // Generate the set of constraints contributed by the initialization i-binf
-  iterator_term = clan_vector_term(iterator, 0, NULL, options->precision);
-  osl_int_set_si(options->precision, &iterator_term->v[depth], 1);
-  iterator_relation = osl_relation_from_vector(iterator_term);
-  init_constraints = clan_relation_greater(iterator_relation, initialization, 0);
-  osl_vector_free(iterator_term);
-  osl_relation_free(iterator_relation);
+  for(i=0 ; i < initialization->nb_rows ; i++) {
+    osl_relation_insert_blank_row(relation, lastRow);
+    clan_relation_oppose_row(initialization, i) ;
 
+    osl_int_set_si(options->precision, &relation->m[lastRow][current_comlumn], 1);
+    for(j=1 ; j < initialization->nb_columns ; j++) {
+        osl_int_set_si(options->precision, &relation->m[lastRow][CLAN_MAX_SCAT_DIMS+1],
+        		osl_int_get_si(options->precision, initialization->m[i][j])	);
+    }
+    osl_int_set_si(options->precision, &initialization->m[i][locald], stride*(-1));
+    lastRow++;
+  }
+
+//  clan_domain_and(domain, initialization);
+
+  printf(" Affichage domaine avant clan_domain_stride \n");
+  clan_domain_dump(stdout, domain);
 
   // Add the contribution of the stride to the current domain. i-binf==stride*l
-  clan_domain_stride(init_constraints, depth, stride);
-  clan_domain_and(domain, init_constraints);
+  clan_domain_stride(domain, depth, stride);
 
+  printf(" Affichage domaine après clan_domain_stride \n");
+    clan_domain_dump(stdout, domain);
 
   //stride*ci==grain*i-grain*binf+offset*stride
+  grain_offset_constraints = clan_relation_grain_offset (init_constraints, depth, stride,
+		   grain, offset);
+//  clan_domain_and(domain, grain_offset_constraints);
 
+  printf(" Affichage domaine après stride*ci==grain*i-grain*binf+offset*stride \n");
+      clan_domain_dump(stdout, domain);
 
   // The constante ci==0
-  int lastRow = domain->constraints->elt->nb_rows ;
-  osl_relation_insert_blank_row(domain, lastRow);
-  osl_int_set_si(options->precision, &(domain->constraints->elt->m[lastRow][2*depth+1]), 1);
+
+
+  printf("lastRow=%d --- 3*depth+1=%d   domain->constraints->elt->nb_rows=%d \n",lastRow,3*depth,domain->constraints->elt->nb_rows);
+
+  osl_relation_insert_blank_row(domain->constraints->elt, lastRow);
+  printf (" 1111 \n");
+  printf("lastRow=%d --- 3*depth+1=%d   domain->constraints->elt->nb_rows=%d \n",lastRow,3*depth,domain->constraints->elt->nb_rows);
+
+  osl_int_set_si(options->precision, &relation->m[lastRow][2*depth+1], 1);
+  printf (" 2222 \n");
+
+  printf(" Affichage domaine après The constante ci==0 \n");
+      clan_domain_dump(stdout, domain);
 
   osl_relation_free(init_constraints);
 }
@@ -1304,15 +1362,18 @@ void clan_scattering_relation_for(clan_domain_p domain,
  */
 void clan_scattering_relation_xfor(clan_domain_p domain,
                       int depth,
-                      clan_symbol_p iterator,
                       osl_relation_list_p initialization,
-		              int* stride, int* grain, osl_relation_list_p offset,
+		              int* stride,
+		              int* grain,
+		              osl_relation_list_p offset,
                       clan_options_p options) {
   int i;
   int nb_indices = clan_relation_list_nb_elements(initialization);
   int nb_constraint_sets = clan_relation_list_nb_elements(domain->constraints);
   osl_relation_list_p base, new = NULL;
   clan_domain_p shell = NULL;
+
+  printf(" -- nb_indices = %d   nb_constraint_sets = %d  \n", nb_indices, nb_constraint_sets);
 
   // Three possible cases:
   // 1. the number of constraint sets in the domain is 1 ("first xfor"),
@@ -1342,15 +1403,16 @@ void clan_scattering_relation_xfor(clan_domain_p domain,
     // -2.1 Put the corresponding base constraints in the domain shell.
     shell->constraints->elt = osl_relation_clone(base->elt);
     // -2.2 Apply the contribution of the loop to it.
-    clan_scattering_relation_for(shell, depth, iterator, initialization->elt, stride[i], grain[i], offset->elt, options);
+    clan_scattering_relation_for(shell, depth, initialization->elt, stride[i], grain[i], offset->elt, options);
     // -2.3 Add the final constraint set to a new list.
     osl_relation_list_add(&new, shell->constraints);
     // -2.4 Prepare the variables to process the next xfor index.
-    iterator = iterator->next;
     initialization = initialization->next;
     offset = offset->next;
     shell->constraints = osl_relation_list_malloc();
     base = base->next;
+    if (domain->next != NULL) printf( " Il y a un autre element !!!!!!!!! \n" );
+
   }
   // -3. Replace the original set of constraint set with the new one.
   osl_relation_list_free(domain->constraints);

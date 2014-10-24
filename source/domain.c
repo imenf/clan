@@ -353,8 +353,8 @@ void clan_domain_for(clan_domain_p domain,
   clan_domain_and(domain, condition);
 
   // Add the contribution of the stride to the current domain.
-  clan_domain_stride(domain, depth, stride);
-
+  /* Strides will be treated on the scattering relations */
+  //clan_domain_stride(domain, depth, stride);
   osl_relation_free(init_constraints);
 }
 
