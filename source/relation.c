@@ -1314,7 +1314,7 @@ void clan_scattering_relation_for(clan_domain_p domain,
 
   printf(" Affichage domaine avant clan_domain_stride \n");
   clan_domain_dump(stdout, domain);
-
+/*
   // Add the contribution of the stride to the current domain. i-binf==stride*l
   clan_domain_stride(domain, depth, stride);
 
@@ -1340,6 +1340,7 @@ void clan_scattering_relation_for(clan_domain_p domain,
 
   osl_int_set_si(options->precision, &relation->m[lastRow][2*depth+1], 1);
   printf (" 2222 \n");
+  */
 
   printf(" Affichage domaine après The constante ci==0 \n");
       clan_domain_dump(stdout, domain);
