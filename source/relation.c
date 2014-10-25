@@ -258,53 +258,80 @@ void clan_relation_compact(osl_relation_p relation,
   int i, j, nb_columns;
   int nb_output_dims, nb_input_dims, nb_local_dims, nb_out_in_loc;
   osl_relation_p compacted;
-
-  while (relation != NULL) {
-    nb_output_dims = relation->nb_output_dims;
-    nb_input_dims  = relation->nb_input_dims;
-    nb_local_dims  = relation->nb_local_dims;
-    nb_out_in_loc  = nb_output_dims + nb_input_dims + nb_local_dims;
-
-    nb_columns = nb_out_in_loc  + nb_parameters + 2;
-    compacted = osl_relation_pmalloc(relation->precision,
-                                     relation->nb_rows, nb_columns);
-
-    for (i = 0; i < relation->nb_rows; i++) {
-      // We copy the equ/inequ tag, the output and input coefficients.
-      for (j = 0; j <= nb_output_dims + nb_input_dims; j++)
-        osl_int_assign(relation->precision,
-                       &compacted->m[i][j], relation->m[i][j]);
-
-      // Then we copy the local dimension coefficients.
-      for (j = 0; j < nb_local_dims; j++)
-        osl_int_assign(relation->precision,
-            &compacted->m[i][nb_output_dims + nb_input_dims + 1 + j],
-            relation->m[i][CLAN_MAX_DEPTH + 1 + j]);
-
-      // Then we copy the parameter coefficients.
-      for (j = 0; j < nb_parameters; j++)
-        osl_int_assign(relation->precision,
-            &compacted->m[i][j + nb_out_in_loc + 1],
-            relation->m[i][relation->nb_columns - CLAN_MAX_PARAMETERS -1 + j]);
-
-      // Lastly the scalar coefficient.
-      osl_int_assign(relation->precision,
-          &compacted->m[i][nb_columns - 1],
-          relation->m[i][relation->nb_columns - 1]);
-    }
-
-    osl_relation_free_inside(relation);
-
-    // Replace the inside of relation.
-    relation->nb_rows       = compacted->nb_rows;
-    relation->nb_columns    = compacted->nb_columns;
-    relation->m             = compacted->m;
-    relation->nb_parameters = nb_parameters;
-
-    // Free the compacted "container".
-    free(compacted);
-
-    relation = relation->next;
+  if (relation->type == OSL_TYPE_SCATTERING) {
+	while (relation != NULL) {
+		nb_output_dims = relation->nb_output_dims;
+		nb_input_dims = relation->nb_input_dims;
+		nb_local_dims = relation->nb_local_dims;
+		nb_out_in_loc = nb_output_dims + nb_input_dims + nb_local_dims;
+		nb_columns = nb_out_in_loc + nb_parameters + 2;
+		compacted = osl_relation_pmalloc(relation->precision, relation->nb_rows, nb_columns);
+		for (i = 0; i < relation->nb_rows; i++) {
+			// We copy the equ/inequ tag and the output  coefficients.
+			for (j = 0; j <= nb_output_dims; j++)
+				osl_int_assign(relation->precision, &compacted->m[i][j], relation->m[i][j]);
+			// We copy the input coefficients.
+			for (j = 0; j <= nb_input_dims; j++)
+				osl_int_assign(relation->precision, &compacted->m[i][nb_output_dims + 1 + j],
+						relation->m[i][CLAN_MAX_SCAT_DIMS + 1 + j]);
+			// Then we copy the local dimension coefficients.
+			for (j = 0; j < nb_local_dims; j++)
+				osl_int_assign(relation->precision,
+						&compacted->m[i][nb_output_dims + nb_input_dims + 1	+ j],
+						relation->m[i][CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH	+ 1 + j]);
+			// Then we copy the parameter coefficients.
+			for (j = 0; j < nb_parameters; j++)
+				osl_int_assign(relation->precision, &compacted->m[i][j + nb_out_in_loc + 1],
+						relation->m[i][relation->nb_columns - CLAN_MAX_PARAMETERS - 1 + j]);
+			// Lastly the scalar coefficient.
+			osl_int_assign(relation->precision,
+					&compacted->m[i][nb_columns - 1], relation->m[i][relation->nb_columns - 1]);
+		}
+		osl_relation_free_inside(relation);
+		// Replace the inside of relation.
+		relation->nb_rows = compacted->nb_rows;
+		relation->nb_columns = compacted->nb_columns;
+		relation->m = compacted->m;
+		relation->nb_parameters = nb_parameters;
+		// Free the compacted "container".
+		free(compacted);
+		relation = relation->next;
+	}
+  } else {
+		while (relation != NULL) {
+			nb_output_dims = relation->nb_output_dims;
+			nb_input_dims = relation->nb_input_dims;
+			nb_local_dims = relation->nb_local_dims;
+			nb_out_in_loc = nb_output_dims + nb_input_dims + nb_local_dims;
+			nb_columns = nb_out_in_loc + nb_parameters + 2;
+			compacted = osl_relation_pmalloc(relation->precision, relation->nb_rows, nb_columns);
+			for (i = 0; i < relation->nb_rows; i++) {
+				// We copy the equ/inequ tag, the output and the input coefficients.
+				for (j = 0; j <= nb_output_dims + nb_input_dims; j++)
+					osl_int_assign(relation->precision, &compacted->m[i][j], relation->m[i][j]);
+				// Then we copy the local dimension coefficients.
+				for (j = 0; j < nb_local_dims; j++)
+					osl_int_assign(relation->precision,
+							&compacted->m[i][nb_output_dims + nb_input_dims + 1	+ j],
+							relation->m[i][ CLAN_MAX_DEPTH	+ 1 + j]);
+				// Then we copy the parameter coefficients.
+				for (j = 0; j < nb_parameters; j++)
+					osl_int_assign(relation->precision, &compacted->m[i][j + nb_out_in_loc + 1],
+							relation->m[i][relation->nb_columns - CLAN_MAX_PARAMETERS - 1 + j]);
+				// Lastly the scalar coefficient.
+				osl_int_assign(relation->precision,
+						&compacted->m[i][nb_columns - 1], relation->m[i][relation->nb_columns - 1]);
+			}
+			osl_relation_free_inside(relation);
+			// Replace the inside of relation.
+			relation->nb_rows = compacted->nb_rows;
+			relation->nb_columns = compacted->nb_columns;
+			relation->m = compacted->m;
+			relation->nb_parameters = nb_parameters;
+			// Free the compacted "container".
+			free(compacted);
+			relation = relation->next;
+		}
   }
 }
 
@@ -1242,35 +1269,12 @@ void clan_relation_loop_context(osl_relation_p condition,
 }
 
 /**
- * clan_relation_grain_offset:
- * this function generates a relation corresponding to this
- * constraint : stride*ci==grain*i-grain*init_constraints+offset*stride
- */
-osl_relation_p clan_relation_grain_offset(osl_relation_p init_constraints,
-		int depth, int stride, int grain, osl_relation_p offset) {
-	osl_relation_p grain_offset_constraints;
-
-	while(init_constraints) {
-		printf(" nb rows init_constraints = %d \n",init_constraints->nb_rows);
-		clan_relation_tag_equality(init_constraints, 0);
-
-		init_constraints=init_constraints->next;
-	}
-
-
-
-	return grain_offset_constraints;
-}
-
-
-
-/**
  * clan_scattering_relation_for function:
  * this function adds the contribution of a for loop to a a scattering relation.
  * \param[in,out] domain         The set of constraint set to update.
  * \param[in]     depth          The loop depth.
  * \param[in]     iterator       The loop iterator symbol.
- * \param[in]     initialization The loop initialiation right part constraints.
+ * \param[in]     initialization The loop initialization right part constraints.
  * \param[in]     stride         The loop stride value.
  * \param[in]     grain          The loop grain values.
  * \param[in]     offset         The loop offset values.
@@ -1287,63 +1291,75 @@ void clan_scattering_relation_for(clan_domain_p domain,
   osl_relation_p init_constraints, relation;
   osl_relation_p grain_offset_constraints;
   osl_int_p variable;
-  int i, lastRow, j, locald ;
+  int i, j, k, lastRow, locald, val ;
   int current_comlumn = CLAN_MAX_SCAT_DIMS + depth ;
 
   relation = domain->constraints->elt;
   lastRow = relation->nb_rows  ;
   locald = CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH ;
 
-
-
-  // Generate the set of constraints contributed by the initialization i-binf
-  for(i=0 ; i < initialization->nb_rows ; i++) {
-    osl_relation_insert_blank_row(relation, lastRow);
-    clan_relation_oppose_row(initialization, i) ;
-
-    osl_int_set_si(options->precision, &relation->m[lastRow][current_comlumn], 1);
-    for(j=1 ; j < initialization->nb_columns ; j++) {
-        osl_int_set_si(options->precision, &relation->m[lastRow][CLAN_MAX_SCAT_DIMS+1],
-        		osl_int_get_si(options->precision, initialization->m[i][j])	);
-    }
-    osl_int_set_si(options->precision, &initialization->m[i][locald], stride*(-1));
-    lastRow++;
+  if ( options->normalize ) {
+	// Generate the set of constraints contributed by the initialization and the stride i-binf==stride*l
+	for (i = 0; i < initialization->nb_rows; i++) {
+		osl_relation_insert_blank_row(relation, lastRow);
+		for (j = 1; j < initialization->nb_columns; j++) {
+			osl_int_set_si(options->precision, &relation->m[lastRow][CLAN_MAX_SCAT_DIMS + j],
+					osl_int_get_si(options->precision, initialization->m[i][j]) * (-1));
+		}
+		osl_int_set_si(options->precision, &relation->m[lastRow][current_comlumn], 1);
+		osl_int_set_si(options->precision, &relation->m[lastRow][locald + depth], stride * (-1));
+		lastRow++;
+	}
+    printf(" Affichage domaine après i-binf==stride*l \n");
+    clan_domain_dump(stdout, domain);
+	if (offset != NULL) {
+		printf("initialization->nb_columns=%d      offset->nb_columns=%d \n",
+				initialization->nb_columns, offset->nb_columns);
+		//stride*ci==grain*i-grain*binf+offset*stride
+		for (i = 0; i < initialization->nb_rows; i++) {
+			for (k = 0; k < offset->nb_rows; k++) {
+				osl_relation_insert_blank_row(relation, lastRow);
+				for (j = 1; j < initialization->nb_columns; j++) {
+					val = osl_int_get_si(options->precision, initialization->m[i][j]) * grain
+							- osl_int_get_si(options->precision, offset->m[k][j]) * stride;
+					osl_int_set_si(options->precision,
+							&relation->m[lastRow][CLAN_MAX_SCAT_DIMS + j], val);
+				}
+				osl_int_set_si(options->precision, &relation->m[lastRow][current_comlumn], grain * (-1));
+				osl_int_set_si(options->precision, &relation->m[lastRow][2 * depth], stride);
+				lastRow++;
+			}
+		}
+	} else {
+		//stride*ci==i-binf
+		for (i = 0; i < initialization->nb_rows; i++) {
+				osl_relation_insert_blank_row(relation, lastRow);
+				for (j = 1; j < initialization->nb_columns; j++) {
+					val = osl_int_get_si(options->precision, initialization->m[i][j]) ;
+					osl_int_set_si(options->precision,
+							&relation->m[lastRow][CLAN_MAX_SCAT_DIMS + j], val);
+				}
+				osl_int_set_si(options->precision, &relation->m[lastRow][current_comlumn], -1);
+				osl_int_set_si(options->precision, &relation->m[lastRow][2 * depth], stride);
+				lastRow++;
+		}
+	}
+    //grain_offset_constraints = clan_relation_grain_offset (init_constraints, depth, stride, grain, offset);
+    //  clan_domain_and(domain, grain_offset_constraints);
+    printf(" Affichage domaine après stride*ci==grain*i-grain*binf+offset*stride \n");
+    clan_domain_dump(stdout, domain);
+  } else {
+	osl_relation_insert_blank_row(relation, lastRow);
+	osl_int_set_si(options->precision, &relation->m[lastRow][current_comlumn], -1);
+	osl_int_set_si(options->precision, &relation->m[lastRow][2 * depth], 1);
+	lastRow++;
   }
 
-  //  clan_domain_and(domain, initialization);
-
-  printf(" Affichage domaine avant clan_domain_stride \n");
-  clan_domain_dump(stdout, domain);
-/*
-  // Add the contribution of the stride to the current domain. i-binf==stride*l
-  clan_domain_stride(domain, depth, stride);
-
-  printf(" Affichage domaine après clan_domain_stride \n");
-    clan_domain_dump(stdout, domain);
-
-  //stride*ci==grain*i-grain*binf+offset*stride
-  grain_offset_constraints = clan_relation_grain_offset (init_constraints, depth, stride,
-		   grain, offset);
-//  clan_domain_and(domain, grain_offset_constraints);
-
-  printf(" Affichage domaine après stride*ci==grain*i-grain*binf+offset*stride \n");
-      clan_domain_dump(stdout, domain);
-
   // The constante ci==0
-
-
-  printf("lastRow=%d --- 3*depth+1=%d   domain->constraints->elt->nb_rows=%d \n",lastRow,3*depth,domain->constraints->elt->nb_rows);
-
   osl_relation_insert_blank_row(domain->constraints->elt, lastRow);
-  printf (" 1111 \n");
-  printf("lastRow=%d --- 3*depth+1=%d   domain->constraints->elt->nb_rows=%d \n",lastRow,3*depth,domain->constraints->elt->nb_rows);
-
   osl_int_set_si(options->precision, &relation->m[lastRow][2*depth+1], 1);
-  printf (" 2222 \n");
-  */
-
   printf(" Affichage domaine après The constante ci==0 \n");
-      clan_domain_dump(stdout, domain);
+  clan_domain_dump(stdout, domain);
 
   osl_relation_free(init_constraints);
 }

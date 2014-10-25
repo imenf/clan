@@ -623,17 +623,7 @@ iteration_statement:
         YYABORT;
 
       // Add the constraints contributed by the for loop to the domain stack.
-
-
-
-printf(" Affichage parser_stack ++++++++++++++++++++++++++++  \n");
-    clan_domain_dump(stdout, parser_stack);
-
       clan_domain_dup(&parser_stack);
-
-printf(" Affichage parser_stack ++++++++++++++++++++++++++++ \n");
-    clan_domain_dump(stdout, parser_stack);
-
       clan_domain_for(parser_stack, parser_loop_depth, parser_symbol,
 	              $3->elt, $4->elt, $5[0], parser_options);
 
@@ -646,26 +636,12 @@ printf(" Affichage parser_stack ++++++++++++++++++++++++++++ \n");
       parser_scattering[2*parser_loop_depth] = 0;
 
       // Add the constraints contributed by the xfor loop to the scattering stack.
-  printf(" Affichage parser_scatt_stack \n");
-    clan_domain_dump(stdout, parser_scatt_stack);
-
       clan_domain_dup(&parser_scatt_stack);
-
- 
       if (parser_scatt_stack->constraints->elt->nb_rows ==0) {
         osl_relation_insert_blank_row(parser_scatt_stack->constraints->elt, 0);
         osl_int_set_si(parser_scatt_stack->constraints->elt->precision, &(parser_scatt_stack->constraints->elt->m[0][1]), 1);
       }
-
-printf(" Affichage parser_scatt_stack !!!!!! \n");
-    clan_domain_dump(stdout, parser_scatt_stack);
-
-
-      clan_scattering_relation_for(parser_scatt_stack, parser_loop_depth, $3->elt, $5[0], 1, 0, parser_options); 
-
-printf(" Affichage parser_scatt_stack APRES ... \n");
-    clan_domain_dump(stdout, parser_scatt_stack);
-
+      clan_scattering_relation_for(parser_scatt_stack, parser_loop_depth, $3->elt, $5[0], 1, NULL, parser_options); 
       osl_relation_list_free($3);
       osl_relation_list_free($4);
       $3 = NULL; // To avoid conflicts with the destructor TODO: avoid that.
@@ -1848,7 +1824,7 @@ expression_statement:
 
       // local dim ?!    clan_parser_nb_ld() 
       osl_relation_set_attributes(statement->scattering, 2 * parser_loop_depth + 1, parser_loop_depth,
-	                          clan_parser_nb_ld(), CLAN_MAX_PARAMETERS);
+	                          parser_loop_depth, CLAN_MAX_PARAMETERS);
 
 /*      statement->scattering = clan_relation_scattering(parser_scattering,
           parser_loop_depth, parser_options->precision);*/

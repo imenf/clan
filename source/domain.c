@@ -293,7 +293,6 @@ void clan_domain_and(clan_domain_p domain, osl_relation_p new_constraints) {
 void clan_domain_stride(clan_domain_p domain, int depth, int stride) {
   osl_relation_list_p base_constraints = domain->constraints;
   osl_relation_p stride_constraints;
-
   if ((stride != 1) && (stride != -1)) {
     while (base_constraints != NULL) {
       stride_constraints = clan_relation_stride(base_constraints->elt,
@@ -353,8 +352,10 @@ void clan_domain_for(clan_domain_p domain,
   clan_domain_and(domain, condition);
 
   // Add the contribution of the stride to the current domain.
-  /* Strides will be treated on the scattering relations */
-  //clan_domain_stride(domain, depth, stride);
+  /* else Strides will be treated on the scattering relations */
+  if ( ! options->normalize )
+    clan_domain_stride(domain, depth, stride);
+
   osl_relation_free(init_constraints);
 }
 
