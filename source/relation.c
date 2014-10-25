@@ -1293,6 +1293,7 @@ void clan_scattering_relation_for(clan_domain_p domain,
   osl_int_p variable;
   int i, j, k, lastRow, locald, val ;
   int current_comlumn = CLAN_MAX_SCAT_DIMS + depth ;
+  int coef = (stride > 0) ? 1 : -1;
 
   relation = domain->constraints->elt;
   lastRow = relation->nb_rows  ;
@@ -1310,11 +1311,7 @@ void clan_scattering_relation_for(clan_domain_p domain,
 		osl_int_set_si(options->precision, &relation->m[lastRow][locald + depth], stride * (-1));
 		lastRow++;
 	}
-    printf(" Affichage domaine après i-binf==stride*l \n");
-    clan_domain_dump(stdout, domain);
 	if (offset != NULL) {
-		printf("initialization->nb_columns=%d      offset->nb_columns=%d \n",
-				initialization->nb_columns, offset->nb_columns);
 		//stride*ci==grain*i-grain*binf+offset*stride
 		for (i = 0; i < initialization->nb_rows; i++) {
 			for (k = 0; k < offset->nb_rows; k++) {
@@ -1344,22 +1341,16 @@ void clan_scattering_relation_for(clan_domain_p domain,
 				lastRow++;
 		}
 	}
-    //grain_offset_constraints = clan_relation_grain_offset (init_constraints, depth, stride, grain, offset);
-    //  clan_domain_and(domain, grain_offset_constraints);
-    printf(" Affichage domaine après stride*ci==grain*i-grain*binf+offset*stride \n");
-    clan_domain_dump(stdout, domain);
   } else {
 	osl_relation_insert_blank_row(relation, lastRow);
 	osl_int_set_si(options->precision, &relation->m[lastRow][current_comlumn], -1);
-	osl_int_set_si(options->precision, &relation->m[lastRow][2 * depth], 1);
+	osl_int_set_si(options->precision, &relation->m[lastRow][2 * depth], coef);
 	lastRow++;
   }
 
   // The constante ci==0
   osl_relation_insert_blank_row(domain->constraints->elt, lastRow);
   osl_int_set_si(options->precision, &relation->m[lastRow][2*depth+1], 1);
-  printf(" Affichage domaine après The constante ci==0 \n");
-  clan_domain_dump(stdout, domain);
 
   osl_relation_free(init_constraints);
 }
