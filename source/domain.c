@@ -345,25 +345,23 @@ void clan_domain_for(clan_domain_p domain,
   // Add the contribution of the initialization to the current domain.
   clan_domain_and(domain, init_constraints);
 
-  printf(" Affichage domaine Add the contribution of the initialization to the current domain \n");
-      clan_domain_dump(stdout, domain);
-
   // Add the contribution of the stride to the current domain.
   /* else Strides will be treated on the scattering relations */
   if ( ! options->normalize )
     clan_domain_stride(domain, depth, stride);
 
-        printf(" Affichage domaine Add the contribution of the sride to the current domain. \n");
-                clan_domain_dump(stdout, domain);
-
   // Add the contribution of the condition to the current domain.
+printf(" AVANT lan_relation_loop_context(condition, init_constraints, depth); \n");
+    osl_relation_dump(stdout, condition);
+
   if (!options->noloopcontext)
     clan_relation_loop_context(condition, init_constraints, depth);
 
-  clan_domain_and(domain, condition);
+  printf("  lan_relation_loop_context(condition, init_constraints, depth); \n");
+  osl_relation_dump(stdout, condition);
 
-  printf(" Affichage domaine Add the contribution of the condition to the current domain. \n");
-        clan_domain_dump(stdout, domain);
+
+  clan_domain_and(domain, condition);
 
   osl_relation_free(init_constraints);
 }

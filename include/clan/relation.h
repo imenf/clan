@@ -71,8 +71,8 @@ void clan_scattering_relation_xfor(clan_domain_p, int, clan_symbol_p, struct osl
 		int*, int*, struct osl_relation_list*, clan_options_p);
 struct osl_relation* clan_relation_init_constraints ( struct osl_relation*, clan_symbol_p,	int,
 		int, clan_options_p);
-void clan_scattering_stride(clan_domain_p, struct osl_relation*, int, int);
-struct osl_relation* clan_scattering_relation_stride(struct osl_relation*, struct osl_relation*, int, int);
+void clan_scattering_stride(clan_domain_p, struct osl_relation*, struct osl_relation*, int, int);
+struct osl_relation* clan_scattering_relation_stride( struct osl_relation*, struct osl_relation*, int, int);
 
 # if defined(__cplusplus)
 }
