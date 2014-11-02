@@ -1368,29 +1368,44 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 	if (offset == NULL) {
 		while (bound != NULL) {
 			part = NULL;
-			printf(" ****** Iterattion N° %d *******   bound->nb_rows =%d  bound->nb_columns=%d \n ",
+			printf(
+					" ****** Iterattion N° %d *******   bound->nb_rows =%d  bound->nb_columns=%d \n ",
 					it++, bound->nb_rows, bound->nb_columns);
 			for (i = 0; i < bound->nb_rows; i++) {
-				contribution = osl_relation_pmalloc(bound->precision, 2,
-						nb_columns);
+				if ((stride != 1) && (stride != -1))
+					contribution = osl_relation_pmalloc(bound->precision, 2,
+							nb_columns);
+				else
+					contribution = osl_relation_pmalloc(bound->precision, 1,
+							nb_columns);
 				osl_relation_set_attributes(contribution, bound->nb_output_dims,
 						bound->nb_input_dims, bound->nb_local_dims,
 						bound->nb_parameters);
 				for (j = CLAN_MAX_SCAT_DIMS + 1; j < bound->nb_columns; j++) {
 					osl_int_set_si(bound->precision, &contribution->m[0][j],
-							osl_int_get_si(bound->precision, bound->m[i][j]));
+							osl_int_get_si(bound->precision, bound->m[i][j])
+									* (-1));
 
-					osl_int_set_si(bound->precision, &contribution->m[1][j],
-							osl_int_get_si(bound->precision, bound->m[i][j]) * (-1));
+					if ((stride != 1) && (stride != -1))
+						osl_int_set_si(bound->precision, &contribution->m[1][j],
+								osl_int_get_si(bound->precision,
+										bound->m[i][j]));
 
 				}
-				osl_int_set_si(bound->precision, &contribution->m[0][current_comlumn], 1);
-				osl_int_set_si(bound->precision, &contribution->m[0][locald + depth], stride * (-1));
 
 				//stride*ci==i-binf
 
-				osl_int_set_si(bound->precision, &contribution->m[1][current_comlumn], -1);
-				osl_int_set_si(bound->precision, &contribution->m[1][2 * depth], stride);
+				osl_int_set_si(bound->precision,
+						&contribution->m[0][current_comlumn], -1);
+				osl_int_set_si(bound->precision, &contribution->m[0][2 * depth],
+						stride);
+
+				if ((stride != 1) && (stride != -1)) {
+					osl_int_set_si(bound->precision,
+							&contribution->m[1][current_comlumn], 1);
+					osl_int_set_si(bound->precision,
+							&contribution->m[1][locald + depth], stride * (-1));
+				}
 
 				osl_relation_add(&part, contribution);
 			}
@@ -1413,8 +1428,8 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 
 	}
 	printf(" bbbbbb  \n ");
-
-	clan_scattering_add_ld();
+	if ((stride != 1) && (stride != -1))
+		clan_scattering_add_ld();
 
 	printf("zzzzzzzzzzzzzz \n   ");
 	osl_relation_dump(stdout, full);
@@ -1442,7 +1457,7 @@ void clan_scattering_stride(clan_domain_p domain,
 
 	osl_relation_list_p base_constraints = domain->constraints;
 	osl_relation_p stride_constraints = NULL;
-	if ((stride != 1) && (stride != -1)) {
+	//if ((stride != 1) && (stride != -1)) {
 		while (base_constraints != NULL) {
 			printf(" AVANT clan_scattering_relation_stride \n");
 			printf(" Affichage init_constraints->precision  ::: \n");
@@ -1473,7 +1488,7 @@ void clan_scattering_stride(clan_domain_p domain,
 
 			base_constraints = base_constraints->next;
 		}
-	}
+//	}
 }
 
 
