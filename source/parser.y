@@ -79,8 +79,6 @@
 
    void clan_parser_add_ld();
    int  clan_parser_nb_ld();
-   void clan_scattering_add_ld();
-   int  clan_scattering_nb_ld();
    void clan_parser_log(char*);
    void clan_parser_increment_loop_depth();
    void clan_parser_state_print(FILE*);
@@ -779,23 +777,24 @@ loop_condition:
 loop_grain_list:
     INTEGER ',' loop_grain_list
     { 
+      parser_xfor_grain++;
       int i;
       $$ = malloc((parser_xfor_grain) * sizeof(int));
       for (i = 0; i < parser_xfor_grain - 1; i++)
         $$[i + 1] = $3[i];
       free($3);
       $$[0] = $1;
-      parser_xfor_grain++;
+
     }
   | INTEGER ';'
     {
+      parser_xfor_grain++;
       if ($1 == 0) {
 	yyerror("The grain must be greater than or equal to 1");
         YYABORT;
       } 
       $$ = malloc(sizeof(int));
       $$[0] = $1;
-      parser_xfor_grain++;
     }
   ;
 
@@ -1847,7 +1846,7 @@ expression_statement:
       statement->scattering = osl_relation_clone(parser_scatt_stack->constraints->elt);
       osl_relation_set_type(statement->scattering, OSL_TYPE_SCATTERING);
       osl_relation_set_attributes(statement->scattering, 2 * parser_loop_depth + 1, parser_loop_depth,
-	                          clan_scattering_nb_ld(), CLAN_MAX_PARAMETERS);
+	                          parser_loop_depth, CLAN_MAX_PARAMETERS);
 
       /*
       statement->scattering = clan_relation_scattering(parser_scattering,
@@ -2297,31 +2296,6 @@ fprintf(file, "|\tscatt_nb_local_dims [Nb of local dims per depth]\n");
 }
 
 
-void clan_scattering_add_ld() {
-  scatt_nb_local_dims[parser_loop_depth + parser_if_depth]++;
-
-  if (CLAN_DEBUG) {
-    int i;
-    CLAN_debug("scatt_nb_local_dims updated");
-    for (i = 0; i <= parser_loop_depth + parser_if_depth; i++)
-      fprintf(stderr, "%d:%d ", i, scatt_nb_local_dims[i]);
-    fprintf(stderr, "\n");
-  }
-  
-  if (clan_scattering_nb_ld() > CLAN_MAX_LOCAL_DIMS)
-    CLAN_error("CLAN_MAX_LOCAL_DIMS reached, recompile with a higher value");
-}
-
-
-int clan_scattering_nb_ld() {
-  int i, nb_ld = 0;
-
-  for (i = 0; i <= parser_loop_depth + parser_if_depth; i++)
-    nb_ld += scatt_nb_local_dims[i]; 
-  return nb_ld;
-}
-
-
 void clan_parser_add_ld() {
   parser_nb_local_dims[parser_loop_depth + parser_if_depth]++;
 
@@ -2364,8 +2338,6 @@ int clan_parser_is_loop_sane(osl_relation_list_p initialization,
     yyerror("not the same number of elements in all loop parts");
     return 0;
   }
-  
-  printf ( " parser_xfor_index=%d  parser_xfor_grain =%d parser_xfor_offset=%d \n ",parser_xfor_index, parser_xfor_grain, parser_xfor_offset  );
   
   if ((parser_xfor_index>1) && ((parser_xfor_grain != parser_xfor_index) || (parser_xfor_offset != parser_xfor_index))) {
     yyerror("not the same number of elements in all loop parts");

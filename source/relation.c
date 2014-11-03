@@ -1442,7 +1442,6 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 							val = osl_int_get_si(bound->precision, bound->m[i][j]) * grain * (-1)
 											- osl_int_get_si(bound->precision, offset->m[k][j - CLAN_MAX_SCAT_DIMS]) * stride;
 
-							printf(" +++++++++++++++++++++ val =%d ++++++++++++++ \n", val);
 							osl_int_set_si(bound->precision, &contribution->m[0][j], val);
 
 							if ((stride != 1) && (stride != -1))
@@ -1483,9 +1482,7 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 		}
 	}
 	printf(" bbbbbb  \n ");
-	if ((stride != 1) && (stride != -1))
-		clan_scattering_add_ld();
-
+	
 	printf("zzzzzzzzzzzzzz \n   ");
 	osl_relation_dump(stdout, full);
 	printf("rrrrrrrrrrrrrrrrrrrrrrr \n   ");
