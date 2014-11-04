@@ -351,15 +351,8 @@ void clan_domain_for(clan_domain_p domain,
     clan_domain_stride(domain, depth, stride);
 
   // Add the contribution of the condition to the current domain.
-printf(" AVANT lan_relation_loop_context(condition, init_constraints, depth); \n");
-    osl_relation_dump(stdout, condition);
-
   if (!options->noloopcontext)
     clan_relation_loop_context(condition, init_constraints, depth);
-
-  printf("  lan_relation_loop_context(condition, init_constraints, depth); \n");
-  osl_relation_dump(stdout, condition);
-
 
   clan_domain_and(domain, condition);
 
