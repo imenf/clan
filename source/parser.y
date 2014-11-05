@@ -701,9 +701,9 @@ iteration_statement:
 		parser_scatt_stack->constraints->elt->nb_input_dims,
 		parser_scatt_stack->constraints->elt->nb_local_dims,
 		parser_scatt_stack->constraints->elt->nb_parameters);
-       osl_int_set_si(parser_options->precision, &iterator_relation->m[0][CLAN_MAX_SCAT_DIMS + parser_loop_depth], -1);
-       osl_int_set_si(parser_options->precision, &iterator_relation->m[0][2 * parser_loop_depth], 1);
-       osl_int_set_si(parser_options->precision, &iterator_relation->m[1][2 * parser_loop_depth + 1], 1);
+       osl_int_set_si(parser_options->precision, &iterator_relation->m[0][CLAN_MAX_SCAT_DIMS + parser_loop_depth], 1);
+       osl_int_set_si(parser_options->precision, &iterator_relation->m[0][2 * parser_loop_depth], -1);
+       osl_int_set_si(parser_options->precision, &iterator_relation->m[1][2 * parser_loop_depth + 1], -1);
        // Add it to the scattering stack. 
        clan_domain_dup(&parser_scatt_stack);
        clan_domain_and(parser_scatt_stack, iterator_relation);
@@ -2519,7 +2519,9 @@ void clan_parser_state_initialize(clan_options_p options) {
     parser_xfor_depths[i] = 0;
     parser_xfor_labels[i] = CLAN_UNDEFINED;
   }
-
+  if (parser_scatt_stack != NULL)
+    osl_int_set_si(parser_options->precision, 
+         &parser_scatt_stack->constraints->elt->m[0][parser_scatt_stack->constraints->elt->nb_columns-1], 0); 
 /*  for (i = 0; i < 2 * CLAN_MAX_DEPTH + 1; i++)
     parser_scattering[i] = 0;
 */

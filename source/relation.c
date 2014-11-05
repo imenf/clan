@@ -862,11 +862,11 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
         if (lower) {
           osl_int_add_si(precision,
                          &bound->m[i - 1][bound->nb_columns - 1],
-                         bound->m[i - 1][bound->nb_columns - 1], 1);
+                         bound->m[i - 1][bound->nb_columns - 1], -1);
         } else {
           osl_int_add_si(precision,
                          &bound->m[i - 1][bound->nb_columns - 1],
-                         bound->m[i - 1][bound->nb_columns - 1], -1);
+                         bound->m[i - 1][bound->nb_columns - 1], 1);
         }
       }
 
@@ -1334,7 +1334,7 @@ return relation;
  */
 osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 		osl_relation_p offset, int grain, int depth, int stride) {
-	int i, j, k, current_comlumn, nb_columns, locald, val;
+	int i, j, k, current_comlumn, nb_columns, locald, val, coef;
 	osl_relation_p contribution;
 	osl_relation_p part;
 	osl_relation_p full = NULL;
@@ -1349,6 +1349,9 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 		CLAN_error("unsupported zero stride");
 
 	//stride = (stride > 0) ? stride : -stride;
+
+	coef = (stride > 0) ? 1 : -1;
+
 	if (offset == NULL) {
 		while (bound != NULL) {
 			part = NULL;
@@ -1361,11 +1364,11 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 						bound->nb_input_dims, bound->nb_local_dims, bound->nb_parameters);
 				for (j = CLAN_MAX_SCAT_DIMS + 1; j < bound->nb_columns; j++) {
 					osl_int_set_si(bound->precision, &contribution->m[0][j],
-							osl_int_get_si(bound->precision, bound->m[i][j]) * grain);
+							osl_int_get_si(bound->precision, bound->m[i][j]) * grain * coef);
 
 					if ((stride != 1) && (stride != -1))
 						osl_int_set_si(bound->precision, &contribution->m[1][j],
-								osl_int_get_si(bound->precision, bound->m[i][j]));
+								osl_int_get_si(bound->precision, bound->m[i][j]) * coef);
 
 				}
 
@@ -1408,14 +1411,14 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 								bound->nb_local_dims, bound->nb_parameters);
 						for (j = CLAN_MAX_SCAT_DIMS + 1; j < bound->nb_columns; j++) {
 							//stride*ci==grain*i-grain*binf+offset*stride
-							val = osl_int_get_si(bound->precision, bound->m[i][j]) * grain
+							val = osl_int_get_si(bound->precision, bound->m[i][j]) * grain * coef
 								- osl_int_get_si(bound->precision, offset->m[k][j-CLAN_MAX_SCAT_DIMS]) * stride * (-1);
 
 							osl_int_set_si(bound->precision, &contribution->m[0][j], val);
 
 							if ((stride != 1) && (stride != -1))
 								osl_int_set_si(bound->precision, &contribution->m[1][j],
-										osl_int_get_si(bound->precision, bound->m[i][j]));
+										osl_int_get_si(bound->precision, bound->m[i][j]) * coef);
 
 						}
 
@@ -1497,7 +1500,7 @@ void clan_scattering_relation_for(clan_domain_p domain,
   osl_relation_p init_constraints, relation;
   int  nb_columns, current_comlumn, coef ;
 
-  //coef = (stride > 0) ? 1 : -1;
+  coef = (stride > 0) ? 1 : -1;
   nb_columns = CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH + CLAN_MAX_LOCAL_DIMS
 			+ CLAN_MAX_PARAMETERS + 2;
   current_comlumn = CLAN_MAX_SCAT_DIMS + depth ;
@@ -1530,7 +1533,7 @@ void clan_scattering_relation_for(clan_domain_p domain,
 				domain->constraints->elt->nb_input_dims,
 				domain->constraints->elt->nb_local_dims,
 				domain->constraints->elt->nb_parameters);
-		osl_int_set_si(options->precision, &relation->m[0][current_comlumn], 1);
+		osl_int_set_si(options->precision, &relation->m[0][current_comlumn], coef);
 		osl_int_set_si(options->precision, &relation->m[0][2 * depth], -1);
 		osl_int_set_si(options->precision, &relation->m[1][2 * depth + 1], -1);
 		clan_domain_and(domain, relation);
