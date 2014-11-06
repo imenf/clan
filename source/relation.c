@@ -1335,14 +1335,13 @@ return relation;
 osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 		osl_relation_p offset, int grain, int depth, int stride) {
 	int i, j, k, y, z, current_comlumn, nb_columns ;
-	int locald, val, coef, coeff, precision, lower;
+	int locald, val, coef, coeff, precision;
 	osl_relation_p contribution, contribution2;
-	osl_relation_p constraint, offset2;
+	osl_relation_p constraint, offset2, bound2;
 	osl_relation_p part;
 	osl_relation_p full = NULL;
 
     precision = bound->precision;
-	lower = (stride > 0) ? 1 : 0;
 
 	current_comlumn = CLAN_MAX_SCAT_DIMS + depth;
 	nb_columns = CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH + CLAN_MAX_LOCAL_DIMS
@@ -1354,90 +1353,79 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 	else if (stride == 0)
 		CLAN_error("unsupported zero stride");
 
-	//stride = (stride > 0) ? stride : -stride;
-
 	coef = (stride > 0) ? 1 : -1;
 
 	if (offset == NULL) {
 		while (bound != NULL) {
 			part = NULL;
-			//bound2 = osl_relation_clone(bound); //***
+			bound2 = osl_relation_clone(bound); //***
 			for (i = 0; i < bound->nb_rows; i++) {
-/*
-//**********************************************************************
-			      // -1. Extract the contributing constraint c.
-			      constraint = clan_relation_extract_constraint(bound2, i);
-
-			      // -2. For every constaint before c, ensure the comparison at step 3
-			      //     will be strictly greater, by adding 1: since the different
-			      //     sets must be disjoint, we don't want a >= b then b >= a but
-			      //     a >= b then b > a to avoid a == b to be in both sets.
-			      //     (Resp. adding -1 for the upper case.)
-			      if (i > 0) {
-			        if (lower) {
-			          osl_int_add_si(precision,
-			                         &bound2->m[i - 1][bound2->nb_columns - 1],
-			                         bound2->m[i - 1][bound2->nb_columns - 1], -1);
-			        } else {
-			          osl_int_add_si(precision,
-			                         &bound2->m[i - 1][bound2->nb_columns - 1],
-			                         bound2->m[i - 1][bound2->nb_columns - 1], 1);
-			        }
-			      }
-
-			      // -3. Compute c > a && c > b && c >= c && c >= d ...
-			      //     We remove the c >= c row which corresponds to a trivial 0 >= 0.
-			      //     (Resp. c < a && c <b && c <= c && c <=d ... for the upper case.)
-			      if ( lower && !coeff ) //if (lower)
-			        contribution = clan_relation_greater(constraint, bound2, 0);
-			      else
-			        contribution = clan_relation_greater(bound2, constraint, 0);
-			      osl_relation_remove_row(contribution, i);
-
-			      //     * 4 Put c at the end of the constraint set.
-			      osl_relation_insert_constraints(contribution, constraint, -1);
-
-			      if ( lower) {
-			        clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
-			      }
-
 
 //**********************************************************************
- */
-				if ((stride != 1) && (stride != -1))
-					contribution = osl_relation_pmalloc(precision, 2, nb_columns);
+				// -1. Extract the contributing constraint c.
+				constraint = clan_relation_extract_constraint(bound2, i);
+
+				// -2. For every constaint before c, ensure the comparison at step 3
+				//     will be strictly greater, by adding 1: since the different
+				//     sets must be disjoint, we don't want a >= b then b >= a but
+				//     a >= b then b > a to avoid a == b to be in both sets.
+				if (i > 0) {
+					osl_int_add_si(precision, &bound2->m[i - 1][bound2->nb_columns - 1],
+							bound2->m[i - 1][bound2->nb_columns - 1], -1);
+				}
+
+				// -3. Compute c > a && c > b && c >= c && c >= d ...
+				//     We remove the c >= c row which corresponds to a trivial 0 >= 0.
+				//     (Resp. c < a && c <b && c <= c && c <=d ... for the upper case.)
+				if (stride > 0) //( lower && !coeff )
+					contribution = clan_relation_greater(constraint, bound2, 0);
 				else
-					contribution = osl_relation_pmalloc(precision, 1, nb_columns);
-				osl_relation_set_attributes(contribution, bound->nb_output_dims,
+					contribution = clan_relation_greater(bound2, constraint, 0);
+				osl_relation_remove_row(contribution, i);
+
+				//     * 4 Put c at the end of the constraint set.
+				// osl_relation_insert_constraints(contribution, constraint, -1);
+
+				if (stride > 0 && contribution->nb_rows > 0) {
+					clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
+				}
+
+//**********************************************************************
+
+				if ((stride != 1) && (stride != -1))
+					contribution2 = osl_relation_pmalloc(precision, 2, nb_columns);
+				else
+					contribution2 = osl_relation_pmalloc(precision, 1, nb_columns);
+				osl_relation_set_attributes(contribution2, bound->nb_output_dims,
 						bound->nb_input_dims, bound->nb_local_dims, bound->nb_parameters);
 				for (j = CLAN_MAX_SCAT_DIMS + 1; j < bound->nb_columns; j++) {
-					osl_int_set_si(precision, &contribution->m[0][j],
+					osl_int_set_si(precision, &contribution2->m[0][j],
 							osl_int_get_si(precision, bound->m[i][j]) * grain * coef);
 
 					if ((stride != 1) && (stride != -1))
-						osl_int_set_si(precision, &contribution->m[1][j],
+						osl_int_set_si(precision, &contribution2->m[1][j],
 								osl_int_get_si(precision, bound->m[i][j]) * coef);
 
 				}
 
 				//stride*ci==grain * (i-binf)
 
-				osl_int_set_si(precision, &contribution->m[0][current_comlumn], grain );
-				osl_int_set_si(precision, &contribution->m[0][2 * depth],
+				osl_int_set_si(precision, &contribution2->m[0][current_comlumn], grain );
+				osl_int_set_si(precision, &contribution2->m[0][2 * depth],
 						stride * (-1));
 
 				if ((stride != 1) && (stride != -1)) {
-					osl_int_set_si(precision, &contribution->m[1][current_comlumn], 1);
-					osl_int_set_si(precision, &contribution->m[1][locald + depth], stride * (-1));
+					osl_int_set_si(precision, &contribution2->m[1][current_comlumn], 1);
+					osl_int_set_si(precision, &contribution2->m[1][locald + depth], stride * (-1));
 				}
-			    //clan_relation_and(contribution, contribution2);	//***
-				//osl_relation_free(contribution2); //***
+			    clan_relation_and(contribution, contribution2);	//***
+				osl_relation_free(contribution2); //***
 				osl_relation_add(&part, contribution);
 			}
 
 			osl_relation_add(&full, part);
 			// osl_relation_free(part);
-			//osl_relation_free(bound2); //***
+			osl_relation_free(bound2); //***
 			bound = bound->next;
 		}
 
@@ -1454,41 +1442,39 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 					for (k = 0; k < offset->nb_rows; k++) {
 
 						//**********************************************************************
-									      // -1. Extract the contributing constraint c.
-									      constraint = clan_relation_extract_constraint(offset2, k);
+						// -1. Extract the contributing constraint c.
+						constraint = clan_relation_extract_constraint(offset2, k);
 
-									      // -2. For every constaint before c, ensure the comparison at step 3
-									      //     will be strictly greater, by adding 1: since the different
-									      //     sets must be disjoint, we don't want a >= b then b >= a but
-									      //     a >= b then b > a to avoid a == b to be in both sets.
-									      //     (Resp. adding -1 for the upper case.)
-									      if (k > 0) {
-									          osl_int_add_si(precision,
-									                         &offset2->m[k - 1][offset2->nb_columns - 1],
-									                         offset2->m[k - 1][offset2->nb_columns - 1], -1);
-									      }
+						// -2. For every constaint before c, ensure the comparison at step 3
+						//     will be strictly greater, by adding 1: since the different
+						//     sets must be disjoint, we don't want a >= b then b >= a but
+						//     a >= b then b > a to avoid a == b to be in both sets.
+						if (k > 0) {
+							osl_int_add_si(precision, &offset2->m[k - 1][offset2->nb_columns - 1],
+									offset2->m[k - 1][offset2->nb_columns - 1], -1);
+						}
 
-									      // -3. Compute c > a && c > b && c >= c && c >= d ...
-									      //     We remove the c >= c row which corresponds to a trivial 0 >= 0.
-									      //     (Resp. c < a && c <b && c <= c && c <=d ... for the upper case.)
-									      if ( lower && !coeff )
-									        contribution = clan_relation_greater(constraint, offset2, 0);
-									      else
-									        contribution = clan_relation_greater(offset2, constraint, 0);
-									      osl_relation_remove_row(contribution, k);
+						// -3. Compute c > a && c > b && c >= c && c >= d ...
+						//     We remove the c >= c row which corresponds to a trivial 0 >= 0.
+						//     (Resp. c < a && c <b && c <= c && c <=d ... for the upper case.)
+						if (!coeff) //( lower && !coeff )
+							contribution = clan_relation_greater(constraint, offset2, 0);
+						else
+							contribution = clan_relation_greater(offset2, constraint, 0);
+						osl_relation_remove_row(contribution, k);
 
+						/*if ( lower) {
+						 clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
+						 }*/
 
-									      if ( lower) {
-									        clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
-									      }
 						contribution2 = osl_relation_pmalloc(precision, contribution->nb_rows, nb_columns);
 
 						for (y = 0; y < contribution->nb_rows; y++) {
 							osl_int_set_si(precision, &contribution2->m[y][0],
 									osl_int_get_si(precision, contribution->m[y][0]));
-							for (z = CLAN_MAX_SCAT_DIMS + 1; z <nb_columns; z++)
+							for (z = CLAN_MAX_SCAT_DIMS + 1; z < nb_columns; z++)
 								osl_int_set_si(precision, &contribution2->m[y][z],
-										osl_int_get_si(precision, contribution->m[y][z - CLAN_MAX_SCAT_DIMS]));
+										osl_int_get_si(precision, contribution->m[y][z- CLAN_MAX_SCAT_DIMS]));
 						}
 						osl_relation_free(contribution); //***
 
