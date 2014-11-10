@@ -342,21 +342,32 @@ void clan_domain_for(clan_domain_p domain,
   osl_vector_free(iterator_term);
   osl_relation_free(iterator_relation);
 
+  printf(" 11111111111 \n");
+
   // Add the contribution of the initialization to the current domain.
   clan_domain_and(domain, init_constraints);
+
+  printf(" 222222 \n");
 
   // Add the contribution of the stride to the current domain.
   /* else Strides will be treated on the scattering relations */
   if ( ! options->normalize )
     clan_domain_stride(domain, depth, stride);
 
+  printf(" 333333 \n");
+
   // Add the contribution of the condition to the current domain.
   if (!options->noloopcontext)
     clan_relation_loop_context(condition, init_constraints, depth);
 
+  printf(" 44444444 \n");
+
   clan_domain_and(domain, condition);
 
+  printf(" 5555555 \n");
+
   osl_relation_free(init_constraints);
+  printf(" 66666 \n");
 }
 
 
