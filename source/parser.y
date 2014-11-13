@@ -257,8 +257,7 @@ scop_list:
 // Rules for a scop
 scop:
     statement_list IGNORE
-    { printf("  besmellah   \n");
-      int nb_parameters;
+    { int nb_parameters;
       osl_scop_p scop;
       osl_generic_p arrays;
 
@@ -305,7 +304,6 @@ scop:
       clan_symbol_free(parser_symbol);
       clan_parser_state_initialize(parser_options);
       CLAN_debug_call(osl_scop_dump(stderr, scop));
-printf("  hamdellah   \n");
     } 
   ;
 
@@ -340,8 +338,7 @@ statement:
   | compound_statement       { $$ = $1; }
   | expression_statement     { $$ = $1; }
   | selection_statement      { $$ = $1; }
-  | {
-      if (parser_options->autoscop && !parser_autoscop && !parser_loop_depth) {
+  | { if (parser_options->autoscop && !parser_autoscop && !parser_loop_depth) {
         parser_line_start = scanner_line;
         parser_column_start = scanner_column_LALR;
         parser_autoscop = CLAN_TRUE;
@@ -362,7 +359,7 @@ statement:
         if (CLAN_DEBUG)
           fprintf(stderr, "Autoscop found: line %3d column %3d\n",
                   parser_line_end, parser_column_end);
-      } printf(" aaaaaaa \n");
+      } 
     }
 ;
 
@@ -371,8 +368,7 @@ statement_with_no_label:
     compound_statement       { $$ = $1; }
   | expression_statement     { $$ = $1; }
   | selection_statement      { $$ = $1; }
-  | {
-      if (parser_options->autoscop && !parser_autoscop && !parser_loop_depth) {
+  | { if (parser_options->autoscop && !parser_autoscop && !parser_loop_depth) {
         parser_line_start = scanner_line;
         parser_column_start = scanner_column_LALR;
         parser_autoscop = CLAN_TRUE;
@@ -445,8 +441,7 @@ labeled_statement:
       parser_xfor_nb_nests++;
     }
     statement_with_no_label
-    { printf( "statement_with_no_label DEBUT \n " );
-      int val ;
+    { int val ;
       clan_domain_p top;
       top = clan_domain_pop(&parser_scatt_stack);
       val = osl_int_get_si(parser_options->precision, 
@@ -470,7 +465,6 @@ labeled_statement:
       parser_xfor_labels[parser_xfor_nb_nests] = CLAN_UNDEFINED;
       $$ = $4;
       CLAN_debug("labeled_statement.1.2: ... <stmt>");
-printf( "statement_with_no_label \n " );
     }
   ;
 
@@ -668,7 +662,7 @@ iteration_statement:
       CLAN_debug("rule iteration_statement.2.2: for ( init cond stride ) "
 	         "body");
       $$ = $8;
-      CLAN_debug_call(osl_statement_dump(stderr, $$)); printf (" --------\n ");
+      CLAN_debug_call(osl_statement_dump(stderr, $$)); 
     }
   | loop_infinite
     {
@@ -902,7 +896,7 @@ loop_infinite:
 
 loop_body:
     statement
-    { printf(" DEBUT loop_body \n");
+    { 
       CLAN_debug("rule loop_body.1: <stmt>");
       parser_loop_depth--;
       clan_symbol_free(parser_iterators[parser_loop_depth]);
@@ -927,7 +921,7 @@ loop_body:
       }
       parser_nb_local_dims[parser_loop_depth + parser_if_depth] = 0;
       scatt_nb_local_dims[parser_loop_depth ] = 0;
-      CLAN_debug_call(osl_statement_dump(stderr, $$)); printf(" FIIIN loop_body \n");
+      CLAN_debug_call(osl_statement_dump(stderr, $$)); 
     }
   ;
 
@@ -1848,8 +1842,6 @@ expression_statement:
     }
     expression ';'
     { 
-printf ( " avant expression statement \n" );
-
       osl_statement_p statement;
       osl_body_p body;
       osl_generic_p gen;
@@ -1924,8 +1916,6 @@ printf ( " avant expression statement \n" );
       }
       $$ = statement;
       CLAN_debug_call(osl_statement_dump(stderr, $$));
-printf ( " APRES expression statement \n" );
-
     }
   ;
 
@@ -2705,12 +2695,8 @@ osl_scop_p clan_parse(FILE* input, clan_options_p options) {
 
   CLAN_debug("parsing done");
 
-printf("parsing done !!!!!! \n");
-
   clan_scanner_free();
 
-printf("  clan_scanner_free(); !!!!!! \n");
-  
   if (!parser_error)
     scop = parser_scop;
   else
@@ -2718,11 +2704,6 @@ printf("  clan_scanner_free(); !!!!!! \n");
 
   clan_parser_state_free();
 
-printf("parser state successfully freed °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°° \n");
-
   CLAN_debug("parser state successfully freed");
-
-osl_scop_dump(stdout,  scop);
-
   return scop;
 }

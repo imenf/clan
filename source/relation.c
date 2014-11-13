@@ -1073,7 +1073,7 @@ void clan_relation_simplify_parts(osl_relation_p relation) {
       if (osl_relation_part_equal(relation, test)) {
         temp = test;
         test = test->next;
-        if (relation->next == temp)
+    //    if (relation->next == temp) else ?! what to do ?
           relation->next = test;
         temp->next = NULL;
         osl_relation_free(temp);
