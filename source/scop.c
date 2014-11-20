@@ -158,7 +158,7 @@ void clan_scop_print(FILE* file, osl_scop_p scop, clan_options_p options) {
  * names some beta vector elements (the Xth beta element is called bX).
  * \param[in,out] scop The scop to add a scatnames extension to.
  */
-void clan_scop_generate_scatnames(osl_scop_p scop) {
+void clan_scop_generate_scatnames(osl_scop_p scop, int normalize) {
   osl_statement_p current, deepest;
   osl_scatnames_p scatnames;
   osl_strings_p iterators = NULL;
@@ -186,15 +186,29 @@ void clan_scop_generate_scatnames(osl_scop_p scop) {
   if (max_depth <= 0)
     return;
 
-  // Create the NULL-terminated list of scattering dimension names.
-  names = osl_strings_malloc();
-  for (i = 0; i < max_depth; i++) {
-    sprintf(buffer, "b%d", i);
+  if (normalize==0) {
+    // Create the NULL-terminated list of scattering dimension names.
+    names = osl_strings_malloc();
+    for (i = 0; i < max_depth; i++) {
+      sprintf(buffer, "b%d", i);
+      osl_strings_add(names, buffer);
+      osl_strings_add(names, iterators->string[i]);
+    }
+    sprintf(buffer, "b%d", max_depth);
     osl_strings_add(names, buffer);
-    osl_strings_add(names, iterators->string[i]);
+  } else {
+	// Create the NULL-terminated list of scattering dimension names.
+	  names = osl_strings_malloc();
+	  for (i = 0; i < max_depth; i++) {
+	    sprintf(buffer, "b%d", i);
+	    osl_strings_add(names, buffer);
+	    sprintf(buffer, "_mfr_ref%d", i);
+	    osl_strings_add(names, buffer);
+	  }
+	  sprintf(buffer, "b%d", max_depth);
+	  osl_strings_add(names, buffer);
   }
-  sprintf(buffer, "b%d", max_depth);
-  osl_strings_add(names, buffer);
+
 
   // Build the scatnames extension.
   scatnames = osl_scatnames_malloc();

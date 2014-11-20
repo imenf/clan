@@ -321,7 +321,7 @@ void clan_domain_for(clan_domain_p domain,
                      clan_symbol_p iterator,
                      osl_relation_p initialization,
                      osl_relation_p condition,
-		     int stride,
+		             int stride,
                      clan_options_p options) {
   osl_vector_p iterator_term;
   osl_relation_p iterator_relation;
@@ -342,6 +342,9 @@ void clan_domain_for(clan_domain_p domain,
   osl_vector_free(iterator_term);
   osl_relation_free(iterator_relation);
 
+  printf(" init_constraints ............................................. \n ");
+    osl_relation_dump(stdout,  init_constraints);
+
   // Add the contribution of the initialization to the current domain.
   clan_domain_and(domain, init_constraints);
 
@@ -351,8 +354,14 @@ void clan_domain_for(clan_domain_p domain,
     clan_domain_stride(domain, depth, stride);
 
   // Add the contribution of the condition to the current domain.
+  printf(" clan_relation_loop_context --------- \n ");
+  osl_relation_dump(stdout,  condition);
+
   if (!options->noloopcontext)
     clan_relation_loop_context(condition, init_constraints, depth);
+
+  printf(" clan_relation_loop_context \n ");
+  osl_relation_dump(stdout,  condition);
 
   clan_domain_and(domain, condition);
   osl_relation_free(init_constraints);

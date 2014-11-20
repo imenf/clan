@@ -293,7 +293,7 @@ scop:
 
       // Add extensions.
       scop->registry = osl_interface_get_default_registry();
-      clan_scop_generate_scatnames(scop);
+      clan_scop_generate_scatnames(scop, parser_options->normalize);
       arrays = clan_symbol_to_arrays(parser_symbol);
       osl_generic_add(&scop->extension, arrays);
       clan_scop_generate_coordinates(scop, parser_options->name);
@@ -556,6 +556,8 @@ iteration_statement:
 	osl_relation_list_free($3);
         osl_relation_list_free($4);
 	free($5);
+        free($7); 
+        osl_relation_list_free($8);
         YYABORT;
       }
       CLAN_debug("rule iteration_statement.1.1: xfor ( init cond stride ) ...");
@@ -563,9 +565,9 @@ iteration_statement:
       clan_parser_increment_loop_depth();
        
       // Check loop bounds and stride consistency and reset sanity sentinels.
-      if (!clan_parser_is_loop_sane($3, $4, $5)) // Add offset and grain
+      if (!clan_parser_is_loop_sane($3, $4, $5)) {
         YYABORT;
-
+      }
       // Check that either an xfor loop is the first one or have the same
       // number of indices than the previous one.
       if ((clan_relation_list_nb_elements(parser_stack->constraints) != 1) &&
@@ -575,6 +577,8 @@ iteration_statement:
 	osl_relation_list_free($3);
         osl_relation_list_free($4);
 	free($5);
+        free($7); 
+        osl_relation_list_free($8);
         YYABORT;
       }
 
@@ -594,7 +598,8 @@ iteration_statement:
 */
       // Add the constraints contributed by the xfor loop to the scattering stack.
       clan_domain_dup(&parser_scatt_stack);
-      clan_scattering_relation_xfor(parser_scatt_stack, parser_loop_depth, parser_symbol, $3, $5, $7, $8, parser_options); 
+      clan_scattering_relation_xfor(parser_scatt_stack, parser_loop_depth, parser_symbol, $3, $5, $7, $8, 
+                              parser_ceild, parser_floord, parser_min, parser_max, parser_options); 
       osl_relation_list_free($3);
       osl_relation_list_free($4);
       $3 = NULL; // To avoid conflicts with the destructor TODO: avoid that.
@@ -645,7 +650,7 @@ iteration_statement:
 */
       // Add the constraints contributed by the xfor loop to the scattering stack.
       clan_domain_dup(&parser_scatt_stack);
-      clan_scattering_relation_for(parser_scatt_stack, parser_loop_depth, parser_symbol, $3->elt, $5[0], 1, NULL, parser_options); 
+      clan_scattering_relation_for(parser_scatt_stack, parser_loop_depth, parser_symbol, $3->elt, $5[0], 1, NULL, 0, parser_options); 
 
       parser_xfor_index = 0;
       parser_xfor_grain = 0;
@@ -730,7 +735,7 @@ loop_initialization_list:
       $$ = $3;
     }
   | loop_initialization ';'
-    {
+    { printf(" loop init parser_xfor_offset=%d  \n ",parser_xfor_offset);
       CLAN_debug("rule initialization_list.2: initialization ;");
       parser_xfor_index = 0;
       $$ = osl_relation_list_malloc();
@@ -782,7 +787,7 @@ loop_condition_list:
 
 loop_condition:
     affine_condition
-    {
+    { printf(" looop COND !! parser_xfor_index =%d  parser_xfor_offset=%d \n",parser_xfor_index,parser_xfor_offset );
       CLAN_debug("rule condition.1: <setex>");
       parser_xfor_index++;
       $$ = $1;
@@ -792,7 +797,7 @@ loop_condition:
 
 loop_grain_list:
     INTEGER ',' loop_grain_list
-    { 
+    {  
       parser_xfor_grain++;
       int i;
       $$ = malloc((parser_xfor_grain) * sizeof(int));
@@ -803,7 +808,7 @@ loop_grain_list:
 
     }
   | INTEGER ';'
-    {
+    { printf(" Grain LISt !!   \n");
       parser_xfor_grain++;
       if ($1 == 0) {
 	yyerror("The grain must be greater than or equal to 1");
@@ -816,7 +821,7 @@ loop_grain_list:
 
 loop_offset_list:
     loop_offset ',' loop_offset_list
-    {
+    { 
       osl_relation_list_p new = osl_relation_list_malloc();
       CLAN_debug("rule offset_list.1: offset , offset_list");
       new->elt = $1;
@@ -825,7 +830,7 @@ loop_offset_list:
       parser_xfor_offset++;
     }
   | loop_offset
-    {
+    { printf(" Offset LISt !!   \n");
       CLAN_debug("rule offset_list.2: offset ;");
       parser_xfor_offset = 0;
       $$ = osl_relation_list_malloc();
@@ -952,8 +957,8 @@ affine_minmax_expression:
 
 
 minmax:
-    MIN { parser_min[parser_xfor_index] = 1; }
-  | MAX { parser_max[parser_xfor_index] = 1; }
+    MIN { parser_min[parser_xfor_index+parser_xfor_offset] = 1; }
+  | MAX { parser_max[parser_xfor_index+parser_xfor_offset] = 1; }
   ;
 
 
@@ -1345,8 +1350,8 @@ affine_ceildfloord_expression:
 
 
 ceildfloord:
-    CEILD  { parser_ceild[parser_xfor_index]  = 1; }
-  | FLOORD { parser_floord[parser_xfor_index] = 1; }
+    CEILD  { parser_ceild[parser_xfor_index+parser_xfor_offset]  = 1; }
+  | FLOORD { parser_floord[parser_xfor_index+parser_xfor_offset] = 1; }
   ;
 
 
@@ -2404,6 +2409,20 @@ int clan_parser_is_loop_sane(osl_relation_list_p initialization,
 	yyerror("illegal min or floord in forward loop initialization");
       else
 	yyerror("illegal max or ceild in backward loop initialization");
+      return 0;
+    }
+    if ((parser_min[parser_xfor_index+i]==1) && (parser_max[parser_xfor_index+i] ==1)) {
+      osl_relation_list_free(initialization);
+      osl_relation_list_free(condition);
+      free(stride);
+      yyerror("illegal min and max in forward loop offset");
+      return 0;
+    }
+    if ((parser_ceild[parser_xfor_index+i]==1) || (parser_floord[parser_xfor_index+i]==1)) {
+      osl_relation_list_free(initialization);
+      osl_relation_list_free(condition);
+      free(stride);
+      yyerror("illegal ceild or floord in forward loop offset");
       return 0;
     }
     parser_ceild[i]  = 0;
