@@ -857,11 +857,7 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
       } else
     	coef_cf = 1;
 
-
       constraint = clan_relation_extract_constraint(bound, i);
-
-
-  	printf(" coef_cf = %d  =====================================================  \n",coef_cf);
 
       // -2. For every constaint before c, ensure the comparison at step 3
       //     will be strictly greater, by adding 1: since the different
@@ -1256,27 +1252,14 @@ void clan_relation_loop_context(osl_relation_p condition,
 				if(osl_int_pos(condition->precision, initialization->m[i][depth]))
 				   clan_relation_oppose_row(temp, 0) 	;
 			}
-			printf(" temp temp temp temp temp temp --------- \n ");
-			  osl_relation_dump(stdout,  temp);
-			  printf(" temp temp temp temp temp temp --------- \n ");
 
 			clan_relation_tag_equality(temp, 1);
-
-			printf(" temp temp temp temp temp temp --------- \n ");
-			  osl_relation_dump(stdout,  temp);
-			  printf(" temp temp temp temp temp temp --------- \n ");
-
-
 
 			if (condition->nb_rows > 1) {
 				for (k = 0; k < condition->nb_rows; k++)
 					clan_relation_gaussian_elimination(temp, k, depth); //1
 			} else
 				clan_relation_gaussian_elimination(temp, 1, depth);
-
-			printf(" temp temp temp temp temp temp --------- \n ");
-			  osl_relation_dump(stdout,  temp);
-			  printf(" temp temp temp temp temp temp --------- \n ");
 
 			osl_relation_remove_row(temp, 1);
 
@@ -1336,8 +1319,6 @@ osl_relation_p clan_relation_init_constraints(osl_relation_p initialization,
 
 	for (i = 0; i < init_constraints->nb_rows; i++) {
 		  cf= osl_int_get_si(options->precision, initialization->m[i][0])  ;
-		  printf(" *** cf = %d  ***  \n",cf);
-
 		osl_relation_insert_blank_row(relation, i);
 		osl_int_set_si(options->precision, &relation->m[i][0], cf); //1
 
@@ -1393,12 +1374,9 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 			bound2 = osl_relation_clone(bound); //***
 			for (i = 0; i < bound->nb_rows; i++) {
 				 cf= osl_int_get_si(bound->precision, bound->m[i][0])  ;
-				  printf(" *** cf = %d  bound boundboundbound bound***  \n",cf);
 				  cf = (cf != 0) ? cf : 1;
 
 				  for(l=0 ; l<cf ; l++) {
-
-
 //**********************************************************************
 				// -1. Extract the contributing constraint c.
 				constraint = clan_relation_extract_constraint(bound2, i);
@@ -1473,18 +1451,12 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 		}
 
 	} else {
-		  if(code_offset%10==1) printf("heeyyyyy c'est un minn MIN !!!!!!!!!!!!!!!! \n  ");
-
-
-		printf(" OFFSET \n");
-		osl_relation_dump(stdout, offset);
 		offset_save=offset;
 		while (bound != NULL) {
 
 			bound2 = osl_relation_clone(bound); //***
 			for (i = 0; i < bound->nb_rows; i++) {
 				cf = osl_int_get_si(bound->precision, bound->m[i][0]);
-				printf(" *** cf = %d  bound boundboundbound bound* AAAAAA **  \n",cf);
 				cf = (cf != 0) ? cf : 1;
 
 				//**********************************************************************
@@ -1520,10 +1492,6 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 							bound_contribution->nb_rows - 1);
 				}
 
-				printf(" bound_contribution i-loop \n ");
-				osl_relation_dump(stdout, bound_contribution);
-			printf(" bound_contribution i-loop \n ");
-
 				//**********************************************************************
 
 				for (l = 0; l < cf; l++) {
@@ -1536,16 +1504,13 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 
 
 							cf_offset = osl_int_get_si(bound->precision, offset->m[i][0]);
-							printf(" *** cf_offset = %d  OFFSET offsetoffsetoffsetoffsetoffset OFFSET* BBBBBBBBBBB **  \n",cf_offset);
 							cf_offset = (cf_offset != 0) ? cf_offset : 1;
 
 							coeff = osl_int_one(precision, offset2->m[0][0]);
-							printf("  0000 coef=%d \n",coef);
 
 							//**********************************************************************
 							// -1. Extract the contributing constraint c.
 							constraint = clan_relation_extract_constraint(offset2, k);
-							printf("  1111111111  \n");
 
 							// -2. For every constaint before c, ensure the comparison at step 3
 							//     will be strictly greater, by adding 1: since the different
@@ -1559,7 +1524,6 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 									osl_int_add_si(precision, &offset2->m[k-1][offset2->nb_columns-1],
 										offset2->m[k-1][offset2->nb_columns-1], 1);
 							}
-							printf("  22222222  \n");
 
 							// -3. Compute c > a && c > b && c >= c && c >= d ...
 							//     We remove the c >= c row which corresponds to a trivial 0 >= 0.
@@ -1567,20 +1531,17 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 
 							if ((code_offset%10==1) || (coeff)) {//( lower && !coeff )
 								contribution = clan_relation_greater(offset2, constraint, 0);
-								printf(" 888888888888888888888888888 MIIIIIIIIIIn  \n");
 							}
 							else
 								contribution = clan_relation_greater(constraint, offset2, 0);
 
 							osl_relation_remove_row(contribution, k);
-							printf("  333333  \n");
 
 							/*if ( lower) {
 							 clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
 							 }*/
 
 							contribution2 = osl_relation_pmalloc(precision, contribution->nb_rows, nb_columns);
-							printf("  444444  \n");
 
 							for (y = 0; y < contribution->nb_rows; y++) {
 								osl_int_set_si(precision, &contribution2->m[y][0], osl_int_get_si(precision, contribution->m[y][0]));
@@ -1588,9 +1549,7 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 									osl_int_set_si(precision, &contribution2->m[y][z],
 											osl_int_get_si(precision, contribution->m[y][z - CLAN_MAX_SCAT_DIMS]));
 							}
-							printf("  5555555  \n");
 							osl_relation_free(contribution); //***
-							printf("  666666666  \n");
 							clan_relation_and(contribution2, bound_contribution);
 
 							//**********************************************************************
@@ -1599,11 +1558,9 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 								contribution = osl_relation_pmalloc(precision, 2, nb_columns);
 							else
 								contribution = osl_relation_pmalloc(precision, 1, nb_columns);
-							printf("  77777777  \n");
 
 							osl_relation_set_attributes(contribution, bound->nb_output_dims, bound->nb_input_dims,
 									bound->nb_local_dims, bound->nb_parameters);
-							printf("  8888888  \n");
 							for (j = CLAN_MAX_SCAT_DIMS + 1 ; j < bound->nb_columns ; j++) {
 								//stride*ci==grain*i-grain*binf+offset*stride
 								val = osl_int_get_si(precision, bound->m[i][j]) * grain * coef * cf_offset
@@ -1615,15 +1572,12 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 									osl_int_set_si(precision, &contribution->m[1][j], osl_int_get_si(precision, bound->m[i][j]) * coef);
 
 							}
-							printf("  99999  \n");
 
 							//stride*ci==grain*i-grain*binf+offset*stride
 							osl_int_set_si(precision, &contribution->m[0][current_comlumn], grain * cf * cf_offset);
 							osl_int_set_si(precision, &contribution->m[0][2 * depth], stride * (-1) * cf * cf_offset);
-							printf("  1010101010101010101  \n");
 							val = osl_int_get_si(precision, contribution->m[0][contribution->nb_columns - 1]) - l;
 							osl_int_set_si(precision, &contribution->m[0][contribution->nb_columns - 1], val);
-							printf("  11  11  11  11  11  \n");
 
 							if ((stride != 1) && (stride != -1)) {
 								osl_int_set_si(precision, &contribution->m[1][current_comlumn], cf );
@@ -1631,57 +1585,24 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 								val = osl_int_get_si(precision, contribution->m[1][contribution->nb_columns-1]) - l ;
 								osl_int_set_si(precision, &contribution->m[1][contribution->nb_columns-1], val );
 							}
-							printf("  12  12  12  12  11  12  11  12  12  1  \n");
-
 
 							clan_relation_and(contribution2, contribution);	//***
 							osl_relation_free(contribution); //***
 
 							osl_relation_add(&part, contribution2);
-							printf(" part part part part part part part part part part  \n ");
-							osl_relation_dump(stdout, part );
-							printf(" part part part part part part part part part part  \n ");
-
-							printf(" k-loop \n");
-						} //*****
+						} //***** k-loop
 						osl_relation_add(&full, part);
 						// osl_relation_free(part);
 						offset = offset->next;
 						osl_relation_free(offset2); //***
-						printf(" while offset \n");
-					}
+					} // while offset
 				}//cf-loop
-				/*
-				printf(" bound_contribution 2222222222222222222 \n ");
-								osl_relation_dump(stdout, bound_contribution);
-									printf(" bound_contribution 22222222222222222222222 \n ");
-*/
-
-
-
-/*
-			clan_relation_and(bound_contribution, fullp);	//***
-										osl_relation_free(fullp); //***
-
-										osl_relation_add(&part2, bound_contribution);
-
-*/
-
-
-
-				printf(" i-loop \n");
-			}
-
-			//osl_relation_add(&full, part2);
+			} //i-loop
 			bound = bound->next;
 			osl_relation_free(bound2); //***
-			printf(" while bound \n");
-		}
+		} // while bound
 	}
-	printf(" &&&&&&&&& \n");
 	clan_parser_scatt_add_ld();
-	 osl_relation_dump(stdout, full);
-	printf(" $$$$$$$$$$$$$$$$$$$ \n");
 	return full;
 }
 
@@ -1849,18 +1770,8 @@ void clan_scattering_relation_xfor(clan_domain_p domain,
     // 100  ceild
     // 1000 floord
 
-printf("// in The offset is there a min, a max, ceild or floord. Calculate the corresponding code : \n"
-    "// 0    expression \n"
-    "// 1    min \n"
-    "// 10   max \n"
-    "// 100  ceild \n"
-    "// 1000 floord \n");
-
-
     code_offset= tab_min[nb_indices+i] + tab_max[nb_indices+i] * 10
     		+ tab_ceild[nb_indices+i] * 100 + tab_floord[nb_indices+i] * 1000 ;
-
-    printf("code_offset=%d \n", code_offset);
 
     // -2.2 Apply the contribution of the loop to it.
     clan_scattering_relation_for(shell, depth, iterator, initialization->elt, stride[i], grain[i], offset->elt, code_offset, options);

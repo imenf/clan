@@ -735,8 +735,7 @@ loop_initialization_list:
       $$ = $3;
     }
   | loop_initialization ';'
-    { printf(" loop init parser_xfor_offset=%d  \n ",parser_xfor_offset);
-      CLAN_debug("rule initialization_list.2: initialization ;");
+    { CLAN_debug("rule initialization_list.2: initialization ;");
       parser_xfor_index = 0;
       $$ = osl_relation_list_malloc();
       $$->elt = $1;
@@ -787,7 +786,7 @@ loop_condition_list:
 
 loop_condition:
     affine_condition
-    { printf(" looop COND !! parser_xfor_index =%d  parser_xfor_offset=%d \n",parser_xfor_index,parser_xfor_offset );
+    { 
       CLAN_debug("rule condition.1: <setex>");
       parser_xfor_index++;
       $$ = $1;
@@ -808,7 +807,7 @@ loop_grain_list:
 
     }
   | INTEGER ';'
-    { printf(" Grain LISt !!   \n");
+    { 
       parser_xfor_grain++;
       if ($1 == 0) {
 	yyerror("The grain must be greater than or equal to 1");
@@ -830,7 +829,7 @@ loop_offset_list:
       parser_xfor_offset++;
     }
   | loop_offset
-    { printf(" Offset LISt !!   \n");
+    { 
       CLAN_debug("rule offset_list.2: offset ;");
       parser_xfor_offset = 0;
       $$ = osl_relation_list_malloc();
