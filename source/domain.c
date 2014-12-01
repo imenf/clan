@@ -346,13 +346,13 @@ void clan_domain_for(clan_domain_p domain,
   // Add the contribution of the initialization to the current domain.
   clan_domain_and(domain, init_constraints);
 
+  // Add the contribution of the stride to the current domain.
+  
+  clan_domain_stride(domain, depth, stride);
   // Add the contribution of the condition to the current domain.
   if (!options->noloopcontext)
     clan_relation_loop_context(condition, init_constraints, depth);
   clan_domain_and(domain, condition);
-
-  // Add the contribution of the stride to the current domain.
-  clan_domain_stride(domain, depth, stride);
 
   osl_relation_free(init_constraints);
 }

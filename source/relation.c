@@ -786,7 +786,7 @@ void clan_relation_to_expressions(osl_relation_p r, int depth) {
  * \param[in] stride The loop stride value.
  */
 osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
-  int i, lower, precision;
+  int i, lower, precision, coef, coef_cf;
   osl_relation_p contribution;
   osl_relation_p constraint;
   osl_relation_p bound, notbound;
@@ -809,6 +809,7 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
     // Separate the bounding constraints (bound) which are impacted by the
     // stride from others (notbound) which will be reinjected later.
     clan_relation_extract_bounding(r, &bound, &notbound, depth, lower);
+    coef = osl_int_one ( bound->precision, bound->m[0][0]) ;
   
     // Change the bounding constraints to a set of linear expressions
     // to make it easy to manipulate them through existing functions.
@@ -817,6 +818,11 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
     // Each bound constraint contributes along with the stride.
     for (i = 0; i < bound->nb_rows; i++) {
       // -1. Extract the contributing constraint c.
+      coef_cf = osl_int_get_si(bound->precision, bound->m[i][0]) ;
+      if (coef_cf != 0) {
+    	osl_int_set_si(bound->precision, &bound->m[i][0], 0);
+      } else
+    	coef_cf = 1;
       constraint = clan_relation_extract_constraint(bound, i);
 
       // -2. For every constaint before c, ensure the comparison at step 3
@@ -828,18 +834,18 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
         if (lower) {
           osl_int_add_si(precision,
                          &bound->m[i - 1][bound->nb_columns - 1],
-                         bound->m[i - 1][bound->nb_columns - 1], 1);
+                         bound->m[i - 1][bound->nb_columns - 1], -1);
         } else {
           osl_int_add_si(precision,
                          &bound->m[i - 1][bound->nb_columns - 1],
-                         bound->m[i - 1][bound->nb_columns - 1], -1);
+                         bound->m[i - 1][bound->nb_columns - 1], 1);
         }
       }
 
       // -3. Compute c > a && c > b && c >= c && c >= d ...
       //     We remove the c >= c row which corresponds to a trivial 0 >= 0.
       //     (Resp. c < a && c <b && c <= c && c <=d ... for the upper case.)
-      if (lower)
+      if ( lower && !coef  ) //if (lower)
         contribution = clan_relation_greater(constraint, bound, 0);
       else
         contribution = clan_relation_greater(bound, constraint, 0);
@@ -851,17 +857,17 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
       osl_relation_insert_constraints(contribution, constraint, -1);
       //     * 4.2 Oppose so we have -c.
       //           (Resp. do nothing so we have c for the upper case.)
-      if (lower) {
+      if (  lower && coef_cf>1 ) {
         clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
       }
       //     * 4.3 Put the loop iterator so we have i - c.
       //           (Resp. -i + c for the upper case.)
       if (lower) {
         osl_int_set_si(precision,
-                       &contribution->m[contribution->nb_rows - 1][depth], 1);
+                       &contribution->m[contribution->nb_rows - 1][depth], 1 * coef_cf);
       } else {
         osl_int_set_si(precision,
-                       &contribution->m[contribution->nb_rows - 1][depth], -1);
+                       &contribution->m[contribution->nb_rows - 1][depth], -1 * coef_cf);
       }
       //     * 4.4 Set the inequality marker so we have i - c >= 0.
       //           (Resp. -i + c >= 0 for the upper case.)
@@ -871,14 +877,17 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
       // -5. Add the contribution of the stride (same for lower and upper).
       //     * 5.1 Put c at the end of the constraint set.
       osl_relation_insert_constraints(contribution, constraint, -1);
+      if ( lower && coef_cf==1) {
+        clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
+      }
       //     * 5.2 Put the opposed loop iterator so we have -i + c.
       osl_int_set_si(precision,
-                     &contribution->m[contribution->nb_rows - 1][depth], -1);
+                     &contribution->m[contribution->nb_rows - 1][depth], -1 * coef_cf);
       //     * 5.3 Put stride * local dimension so we have -i + c + stride*ld.
       //           The equality marker is set so we have i == c + stride*ld.
       osl_int_set_si(precision,
           &contribution->m[contribution->nb_rows - 1]
-                          [CLAN_MAX_DEPTH + 1 + clan_parser_nb_ld()], stride);
+                          [CLAN_MAX_DEPTH + 1 + clan_parser_nb_ld()], stride * coef_cf);
     
       osl_relation_free(constraint);
       osl_relation_add(&part, contribution);
@@ -1030,7 +1039,7 @@ void clan_relation_simplify_parts(osl_relation_p relation) {
       if (osl_relation_part_equal(relation, test)) {
         temp = test;
         test = test->next;
-        if (relation->next == temp)
+    //    if (relation->next == temp) else ?! what to do ?
           relation->next = test;
         temp->next = NULL;
         osl_relation_free(temp);
@@ -1160,9 +1169,8 @@ void clan_relation_simplify(osl_relation_p relation) {
  * \param[in]     depth          Current loop depth.
  */
 void clan_relation_loop_context(osl_relation_p condition,
-                                osl_relation_p initialization,
-                                int depth) {
-  int i, j;
+		osl_relation_p initialization, int depth) {
+	int i, j, k ;
   osl_relation_p contextual = NULL, temp, first_condition, new_condition;
 
   if ((condition == NULL) || (initialization == NULL))
@@ -1186,14 +1194,34 @@ void clan_relation_loop_context(osl_relation_p condition,
     while (condition != NULL) {
       // Build the loop context (i.e. the loop condition where the
       // iterator is replaced by its initial value).
+			if (osl_int_one(condition->precision, condition->m[0][depth])
+					|| osl_int_neg(condition->precision, condition->m[0][depth])) {
+				temp = osl_relation_nclone(condition, 1);
+				osl_relation_insert_blank_row(temp, 1);
+				for (j = 0; j < temp->nb_columns; j++)
+					osl_int_assign(temp->precision, &temp->m[1][j],
+							initialization->m[i][j]);
+				if(osl_int_neg(condition->precision, initialization->m[i][depth]))
+					clan_relation_oppose_row(temp, 1) 	;
+			} else { printf(" else else else else else else  \n");
       temp = osl_relation_nclone(condition, 1);
       osl_relation_insert_blank_row(temp, 0);
       for (j = 0; j < temp->nb_columns; j++)
-        osl_int_assign(temp->precision,
-                       &temp->m[0][j], initialization->m[i][j]);
-      clan_relation_tag_equality(temp, 0);
-      clan_relation_gaussian_elimination(temp, 0, depth);
-      osl_relation_remove_row(temp, 0);
+					osl_int_assign(temp->precision, &temp->m[0][j],
+							initialization->m[i][j]);
+				if(osl_int_pos(condition->precision, initialization->m[i][depth]))
+				   clan_relation_oppose_row(temp, 0) 	;
+			}
+
+			clan_relation_tag_equality(temp, 1);
+
+			if (condition->nb_rows > 1) {
+				for (k = 0; k < condition->nb_rows; k++)
+					clan_relation_gaussian_elimination(temp, k, depth); //1
+			} else
+				clan_relation_gaussian_elimination(temp, 1, depth);
+
+			osl_relation_remove_row(temp, 1);
       
       // Intersect the union part of the condition with its loop context.
       new_condition = osl_relation_nclone(condition, 1);
