@@ -39,7 +39,9 @@
 #ifndef CLAN_relation_H
 # define CLAN_relation_H
 
+# include <clan/symbol.h>
 # include <clan/options.h>
+#include <clan/domain.h>
 
 # if defined(__cplusplus)
 extern "C"
@@ -57,21 +59,25 @@ struct osl_vector;
 void                 clan_relation_tag_array(struct osl_relation*, int);
 struct osl_relation* clan_relation_build_context(int, clan_options_p);
 struct osl_relation* clan_relation_scattering(int*, int, int);
-void                 clan_relation_new_output_vector(struct osl_relation*,
-                                                     struct osl_vector*);
+void clan_relation_new_output_vector(struct osl_relation*, struct osl_vector*);
 void                 clan_relation_new_output_scalar(struct osl_relation*, int);
 void                 clan_relation_compact(struct osl_relation*, int);
-struct osl_relation* clan_relation_greater(struct osl_relation*,
-                                           struct osl_relation*, int);
+struct osl_relation* clan_relation_greater(struct osl_relation*, struct osl_relation*, int);
 struct osl_relation* clan_relation_not(struct osl_relation*);
-void                 clan_relation_and(struct osl_relation*,
-                                       struct osl_relation*);
+void clan_relation_and(struct osl_relation*, struct osl_relation*);
 int                  clan_relation_existential(struct osl_relation*);
 void                 clan_relation_oppose_row(struct osl_relation*, int);
 struct osl_relation* clan_relation_stride(struct osl_relation*, int, int);
 void                 clan_relation_simplify(struct osl_relation*);
-void                 clan_relation_loop_context(struct osl_relation*,
-                                                struct osl_relation*, int);
+void clan_relation_loop_context(struct osl_relation*, struct osl_relation*, int);
+void clan_scattering_relation_for (clan_domain_p, int, clan_symbol_p, struct osl_relation*,
+		int, int, struct osl_relation*, int, clan_options_p);
+void clan_scattering_relation_xfor(clan_domain_p, int, clan_symbol_p, struct osl_relation_list*,
+		int*, int*, struct osl_relation_list*, int*, int*, int*, int*, clan_options_p);
+struct osl_relation* clan_relation_init_constraints ( struct osl_relation*, clan_symbol_p,	int,
+		int, clan_options_p);
+void clan_scattering_stride(clan_domain_p, struct osl_relation*, struct osl_relation*, int, int, int, int);
+struct osl_relation* clan_scattering_relation_stride( struct osl_relation*, struct osl_relation*, int, int, int, int);
 
 # if defined(__cplusplus)
   }

@@ -58,7 +58,7 @@ struct osl_scop;
 struct osl_scop* clan_scop_extract(FILE*, clan_options_p);
 void             clan_scop_compact(struct osl_scop*);
 void             clan_scop_print(FILE*, struct osl_scop*, clan_options_p);
-void             clan_scop_generate_scatnames(struct osl_scop*);
+void             clan_scop_generate_scatnames(struct osl_scop*, int);
 void             clan_scop_generate_coordinates(struct osl_scop*, char*);
 void             clan_scop_generate_clay(struct osl_scop*, char*);
 void             clan_scop_fill_options(struct osl_scop*, int*, int*);

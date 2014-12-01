@@ -347,8 +347,10 @@ void clan_domain_for(clan_domain_p domain,
   clan_domain_and(domain, init_constraints);
 
   // Add the contribution of the stride to the current domain.
-  
-  clan_domain_stride(domain, depth, stride);
+  /* else Strides will be treated on the scattering relations */
+  if ( ! options->normalize )
+    clan_domain_stride(domain, depth, stride);
+
   // Add the contribution of the condition to the current domain.
   if (!options->noloopcontext)
     clan_relation_loop_context(condition, init_constraints, depth);

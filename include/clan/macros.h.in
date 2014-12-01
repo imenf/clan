@@ -53,6 +53,7 @@
 # define CLAN_MAX_DEPTH                50 // Max loop + if depth
 # define CLAN_MAX_PARAMETERS          128 // Max parameter number
 # define CLAN_MAX_LOCAL_DIMS          128 // Max local dims number
+# define CLAN_MAX_SCAT_DIMS           200 // Max scattering dims number
 # define CLAN_MAX_CONSTRAINTS         256 // Max contraint number for a domain
 # define CLAN_MAX_SCOPS               256 // Max number of SCoPs for autoscop
 # define CLAN_MAX_XFOR_INDICES         10 // Max number of indices in (x)for

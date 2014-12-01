@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
         scop = osl_scop_read(input);
       }
       else {
-        // Input is a source code.
+        // Input is a source code
         if (scop)
           osl_scop_free(scop);
         scop = clan_scop_extract(input, options);

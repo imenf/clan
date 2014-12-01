@@ -44,12 +44,17 @@
 #include <osl/macros.h>
 #include <osl/int.h>
 #include <osl/relation.h>
+#include <osl/relation_list.h>
+#include <clan/relation_list.h>
 #include <clan/macros.h>
 #include <clan/options.h>
 #include <clan/relation.h>
+#include <clan/vector.h>
 
 int clan_parser_nb_ld(void);
 void clan_parser_add_ld(void);
+void clan_parser_scatt_add_ld(void);
+int  clan_parser_scatt_nb_ld(void);
 
 
 /*+****************************************************************************
@@ -256,21 +261,60 @@ void clan_relation_compact(osl_relation_p relation,
   int nb_output_dims, nb_input_dims, nb_local_dims, nb_out_in_loc;
   osl_relation_p compacted;
 
-  while (relation != NULL) {
-    nb_output_dims = relation->nb_output_dims;
-    nb_input_dims  = relation->nb_input_dims;
-    nb_local_dims  = relation->nb_local_dims;
-    nb_out_in_loc  = nb_output_dims + nb_input_dims + nb_local_dims;
+  if (relation->type == OSL_TYPE_SCATTERING) {
+    while (relation != NULL) {
+      nb_output_dims = relation->nb_output_dims;
+      nb_input_dims  = relation->nb_input_dims;
+      nb_local_dims  = relation->nb_local_dims;
+      nb_out_in_loc  = nb_output_dims + nb_input_dims + nb_local_dims;
 
     nb_columns = nb_out_in_loc  + nb_parameters + 2;
     compacted = osl_relation_pmalloc(relation->precision,
                                      relation->nb_rows, nb_columns);
 
-    for (i = 0; i < relation->nb_rows; i++) {
-      // We copy the equ/inequ tag, the output and input coefficients.
-      for (j = 0; j <= nb_output_dims + nb_input_dims; j++)
+      for (i = 0; i < relation->nb_rows; i++) {
+        // We copy the equ/inequ tag and the output  coefficients.
+        for (j = 0; j <= nb_output_dims; j++)
+          osl_int_assign(relation->precision, &compacted->m[i][j], relation->m[i][j]);
+        // We copy the input coefficients.
+        for (j = 0; j <= nb_input_dims; j++)
+          osl_int_assign(relation->precision, &compacted->m[i][nb_output_dims + 1 + j],
+                         relation->m[i][CLAN_MAX_SCAT_DIMS + 1 + j]);
+        // Then we copy the local dimension coefficients.
+        for (j = 0; j < nb_local_dims; j++)
+          osl_int_assign(relation->precision,
+                         &compacted->m[i][nb_output_dims + nb_input_dims + 1	+ j],
+                         relation->m[i][CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH	+ 1 + j]);
+        // Then we copy the parameter coefficients.
+        for (j = 0; j < nb_parameters; j++)
+          osl_int_assign(relation->precision, &compacted->m[i][j + nb_out_in_loc + 1],
+                         relation->m[i][relation->nb_columns - CLAN_MAX_PARAMETERS - 1 + j]);
+        // Lastly the scalar coefficient.
         osl_int_assign(relation->precision,
-                       &compacted->m[i][j], relation->m[i][j]);
+                       &compacted->m[i][nb_columns - 1], relation->m[i][relation->nb_columns - 1]);
+      }
+      osl_relation_free_inside(relation);
+      // Replace the inside of relation.
+      relation->nb_rows = compacted->nb_rows;
+      relation->nb_columns = compacted->nb_columns;
+      relation->m = compacted->m;
+      relation->nb_parameters = nb_parameters;
+      // Free the compacted "container".
+      free(compacted);
+      relation = relation->next;
+    }
+  } else {
+    while (relation != NULL) {
+      nb_output_dims = relation->nb_output_dims;
+      nb_input_dims = relation->nb_input_dims;
+      nb_local_dims = relation->nb_local_dims;
+      nb_out_in_loc = nb_output_dims + nb_input_dims + nb_local_dims;
+      nb_columns = nb_out_in_loc + nb_parameters + 2;
+      compacted = osl_relation_pmalloc(relation->precision, relation->nb_rows, nb_columns);
+      for (i = 0; i < relation->nb_rows; i++) {
+        // We copy the equ/inequ tag, the output and the input coefficients.
+        for (j = 0; j <= nb_output_dims + nb_input_dims; j++)
+          osl_int_assign(relation->precision, &compacted->m[i][j], relation->m[i][j]);
 
       // Then we copy the local dimension coefficients.
       for (j = 0; j < nb_local_dims; j++)
@@ -278,30 +322,29 @@ void clan_relation_compact(osl_relation_p relation,
             &compacted->m[i][nb_output_dims + nb_input_dims + 1 + j],
             relation->m[i][CLAN_MAX_DEPTH + 1 + j]);
 
-      // Then we copy the parameter coefficients.
-      for (j = 0; j < nb_parameters; j++)
+        // Then we copy the parameter coefficients.
+        for (j = 0; j < nb_parameters; j++)
+          osl_int_assign(relation->precision, &compacted->m[i][j + nb_out_in_loc + 1],
+                         relation->m[i][relation->nb_columns - CLAN_MAX_PARAMETERS -1 + j]);
+
+        // Lastly the scalar coefficient.
         osl_int_assign(relation->precision,
-            &compacted->m[i][j + nb_out_in_loc + 1],
-            relation->m[i][relation->nb_columns - CLAN_MAX_PARAMETERS -1 + j]);
+                       &compacted->m[i][nb_columns - 1], relation->m[i][relation->nb_columns - 1]);
+      }
 
-      // Lastly the scalar coefficient.
-      osl_int_assign(relation->precision,
-          &compacted->m[i][nb_columns - 1],
-          relation->m[i][relation->nb_columns - 1]);
+      osl_relation_free_inside(relation);
+
+      // Replace the inside of relation.
+      relation->nb_rows       = compacted->nb_rows;
+      relation->nb_columns    = compacted->nb_columns;
+      relation->m             = compacted->m;
+      relation->nb_parameters = nb_parameters;
+
+      // Free the compacted "container".
+      free(compacted);
+
+      relation = relation->next;
     }
-
-    osl_relation_free_inside(relation);
-
-    // Replace the inside of relation.
-    relation->nb_rows       = compacted->nb_rows;
-    relation->nb_columns    = compacted->nb_columns;
-    relation->m             = compacted->m;
-    relation->nb_parameters = nb_parameters;
-
-    // Free the compacted "container".
-    free(compacted);
-
-    relation = relation->next;
   }
 }
 
@@ -810,7 +853,7 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
     // stride from others (notbound) which will be reinjected later.
     clan_relation_extract_bounding(r, &bound, &notbound, depth, lower);
     coef = osl_int_one ( bound->precision, bound->m[0][0]) ;
-  
+
     // Change the bounding constraints to a set of linear expressions
     // to make it easy to manipulate them through existing functions.
     clan_relation_to_expressions(bound, depth);
@@ -820,9 +863,9 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
       // -1. Extract the contributing constraint c.
       coef_cf = osl_int_get_si(bound->precision, bound->m[i][0]) ;
       if (coef_cf != 0) {
-    	osl_int_set_si(bound->precision, &bound->m[i][0], 0);
+        osl_int_set_si(bound->precision, &bound->m[i][0], 0);
       } else
-    	coef_cf = 1;
+        coef_cf = 1;
       constraint = clan_relation_extract_constraint(bound, i);
 
       // -2. For every constaint before c, ensure the comparison at step 3
@@ -886,9 +929,9 @@ osl_relation_p clan_relation_stride(osl_relation_p r, int depth, int stride) {
       //     * 5.3 Put stride * local dimension so we have -i + c + stride*ld.
       //           The equality marker is set so we have i == c + stride*ld.
       osl_int_set_si(precision,
-          &contribution->m[contribution->nb_rows - 1]
-                          [CLAN_MAX_DEPTH + 1 + clan_parser_nb_ld()], stride * coef_cf);
-    
+                     &contribution->m[contribution->nb_rows - 1]
+                     [CLAN_MAX_DEPTH + 1 + clan_parser_nb_ld()], stride * coef_cf);
+
       osl_relation_free(constraint);
       osl_relation_add(&part, contribution);
     }
@@ -1039,8 +1082,8 @@ void clan_relation_simplify_parts(osl_relation_p relation) {
       if (osl_relation_part_equal(relation, test)) {
         temp = test;
         test = test->next;
-    //    if (relation->next == temp) else ?! what to do ?
-          relation->next = test;
+        //if (relation->next == temp) else ?! what to do ?
+        relation->next = test;
         temp->next = NULL;
         osl_relation_free(temp);
       } else {
@@ -1169,8 +1212,8 @@ void clan_relation_simplify(osl_relation_p relation) {
  * \param[in]     depth          Current loop depth.
  */
 void clan_relation_loop_context(osl_relation_p condition,
-		osl_relation_p initialization, int depth) {
-	int i, j, k ;
+                                osl_relation_p initialization, int depth) {
+  int i, j, k ;
   osl_relation_p contextual = NULL, temp, first_condition, new_condition;
 
   if ((condition == NULL) || (initialization == NULL))
@@ -1194,35 +1237,36 @@ void clan_relation_loop_context(osl_relation_p condition,
     while (condition != NULL) {
       // Build the loop context (i.e. the loop condition where the
       // iterator is replaced by its initial value).
-			if (osl_int_one(condition->precision, condition->m[0][depth])
-					|| osl_int_neg(condition->precision, condition->m[0][depth])) {
-				temp = osl_relation_nclone(condition, 1);
-				osl_relation_insert_blank_row(temp, 1);
-				for (j = 0; j < temp->nb_columns; j++)
-					osl_int_assign(temp->precision, &temp->m[1][j],
-							initialization->m[i][j]);
-				if(osl_int_neg(condition->precision, initialization->m[i][depth]))
-					clan_relation_oppose_row(temp, 1) 	;
-			} else { printf(" else else else else else else  \n");
-      temp = osl_relation_nclone(condition, 1);
-      osl_relation_insert_blank_row(temp, 0);
-      for (j = 0; j < temp->nb_columns; j++)
-					osl_int_assign(temp->precision, &temp->m[0][j],
-							initialization->m[i][j]);
-				if(osl_int_pos(condition->precision, initialization->m[i][depth]))
-				   clan_relation_oppose_row(temp, 0) 	;
-			}
+      if (osl_int_one(condition->precision, condition->m[0][depth])
+          || osl_int_neg(condition->precision, condition->m[0][depth])) {
+        temp = osl_relation_nclone(condition, 1);
+        osl_relation_insert_blank_row(temp, 1);
+        for (j = 0; j < temp->nb_columns; j++)
+          osl_int_assign(temp->precision, &temp->m[1][j],
+                         initialization->m[i][j]);
+        if(osl_int_neg(condition->precision, initialization->m[i][depth]))
+          clan_relation_oppose_row(temp, 1) 	;
+      } else {
+        printf(" else else else else else else  \n");
+        temp = osl_relation_nclone(condition, 1);
+        osl_relation_insert_blank_row(temp, 0);
+        for (j = 0; j < temp->nb_columns; j++)
+          osl_int_assign(temp->precision, &temp->m[0][j],
+                         initialization->m[i][j]);
+        if(osl_int_pos(condition->precision, initialization->m[i][depth]))
+          clan_relation_oppose_row(temp, 0) 	;
+      }
 
-			clan_relation_tag_equality(temp, 1);
+      clan_relation_tag_equality(temp, 1);
 
-			if (condition->nb_rows > 1) {
-				for (k = 0; k < condition->nb_rows; k++)
-					clan_relation_gaussian_elimination(temp, k, depth); //1
-			} else
-				clan_relation_gaussian_elimination(temp, 1, depth);
+      if (condition->nb_rows > 1) {
+        for (k = 0; k < condition->nb_rows; k++)
+          clan_relation_gaussian_elimination(temp, k, depth); //1
+      } else
+        clan_relation_gaussian_elimination(temp, 1, depth);
 
-			osl_relation_remove_row(temp, 1);
-      
+      osl_relation_remove_row(temp, 1);
+
       // Intersect the union part of the condition with its loop context.
       new_condition = osl_relation_nclone(condition, 1);
       osl_relation_insert_constraints(new_condition, temp, -1);
@@ -1244,4 +1288,514 @@ void clan_relation_loop_context(osl_relation_p condition,
 
   // Free the contextual "shell".
   free(contextual);
+}
+osl_relation_p clan_relation_init_constraints(osl_relation_p initialization,
+    clan_symbol_p iterator,
+    int depth,
+    int stride,
+    clan_options_p options) {
+  int i, j, nb_columns, cf;
+  osl_relation_p relation=NULL;
+  osl_vector_p iterator_term;
+  osl_relation_p iterator_relation;
+  osl_relation_p init_constraints;
+
+  nb_columns = CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH + CLAN_MAX_LOCAL_DIMS + CLAN_MAX_PARAMETERS + 2;
+  // Generate the set of constraints contributed by the initialization
+  iterator_term = clan_vector_term(iterator, 0, NULL, options->precision);
+  osl_int_set_si(options->precision, &iterator_term->v[depth], 1);
+  iterator_relation = osl_relation_from_vector(iterator_term);
+  if (stride > 0) {
+    init_constraints = clan_relation_greater(iterator_relation,
+                       initialization, 0);
+  } else {
+    init_constraints = clan_relation_greater(initialization,
+                       iterator_relation, 0);
+  }
+  osl_vector_free(iterator_term);
+  osl_relation_free(iterator_relation);
+
+  relation = osl_relation_pmalloc(options->precision, 0, nb_columns);
+  osl_relation_set_attributes(relation,
+                              initialization->nb_output_dims,
+                              initialization->nb_input_dims,
+                              initialization->nb_local_dims,
+                              initialization->nb_parameters);
+
+  for (i = 0; i < init_constraints->nb_rows; i++) {
+    cf= osl_int_get_si(options->precision, initialization->m[i][0])  ;
+    osl_relation_insert_blank_row(relation, i);
+    osl_int_set_si(options->precision, &relation->m[i][0], cf); //1
+
+    for (j = 1; j < init_constraints->nb_columns; j++) {
+      osl_int_set_si(options->precision, &relation->m[i][CLAN_MAX_SCAT_DIMS + j],
+                     osl_int_get_si(options->precision, init_constraints->m[i][j]) );
+    }
+  }
+  osl_relation_free(init_constraints);
+
+  return relation;
+}
+
+/**
+ * clan_scattering_relation_stride:
+ * this function computes and returns a relation built from an input
+ * relation modified by the contribution of a loop stride at a given
+ * depth. Basically, the input relation corresponds to an iteration
+ * domain with a loop stride of 1 for the input depth. It returns the
+ * new iteration domain when we take into account a non-unit stride at
+ * this depth.
+ * \param[in] r      The relation without the stride.
+ * \param[in] depth  The depth of the strided loop to take into account.
+ * \param[in] stride The loop stride value.
+ */
+osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
+    osl_relation_p offset, int grain, int depth, int stride, int code_offset) {
+  int i, j, k, y, z, l, current_comlumn, nb_columns ;
+  int locald, val, coef, coeff, precision, cf, cf_offset;
+  osl_relation_p contribution, contribution2;
+  osl_relation_p constraint, bound_constraint, bound_contribution, offset2, bound2;
+  osl_relation_p part;
+  osl_relation_p full = NULL, offset_save=NULL;
+
+  precision = bound->precision;
+
+  current_comlumn = CLAN_MAX_SCAT_DIMS + depth;
+  nb_columns = CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH + CLAN_MAX_LOCAL_DIMS
+               + CLAN_MAX_PARAMETERS + 2;
+  locald = CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH;
+
+  if (depth < 1)
+    CLAN_error("invalid loop depth");
+  else if (stride == 0)
+    CLAN_error("unsupported zero stride");
+
+  coef = (stride > 0) ? 1 : -1;
+
+
+  if (offset == NULL) {
+    while (bound != NULL) {
+      part = NULL;
+      bound2 = osl_relation_clone(bound); //***
+      for (i = 0; i < bound->nb_rows; i++) {
+        cf= osl_int_get_si(bound->precision, bound->m[i][0])  ;
+        cf = (cf != 0) ? cf : 1;
+
+        for(l=0 ; l<cf ; l++) {
+//**********************************************************************
+          // -1. Extract the contributing constraint c.
+          constraint = clan_relation_extract_constraint(bound2, i);
+
+          // -2. For every constaint before c, ensure the comparison at step 3
+          //     will be strictly greater, by adding 1: since the different
+          //     sets must be disjoint, we don't want a >= b then b >= a but
+          //     a >= b then b > a to avoid a == b to be in both sets.
+          if (i > 0) {
+            osl_int_add_si(precision, &bound2->m[i - 1][bound2->nb_columns - 1],
+                           bound2->m[i - 1][bound2->nb_columns - 1], -1);
+          }
+
+          // -3. Compute c > a && c > b && c >= c && c >= d ...
+          //     We remove the c >= c row which corresponds to a trivial 0 >= 0.
+          //     (Resp. c < a && c <b && c <= c && c <=d ... for the upper case.)
+          if (stride > 0) //( lower && !coeff )
+            contribution = clan_relation_greater(constraint, bound2, 0);
+          else
+            contribution = clan_relation_greater(bound2, constraint, 0);
+          osl_relation_remove_row(contribution, i);
+
+          //     * 4 Put c at the end of the constraint set.
+          // osl_relation_insert_constraints(contribution, constraint, -1);
+
+          if (stride > 0 && contribution->nb_rows > 0) {
+            clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
+          }
+
+//**********************************************************************
+
+          if ((stride != 1) && (stride != -1))
+            contribution2 = osl_relation_pmalloc(precision, 2, nb_columns);
+          else
+            contribution2 = osl_relation_pmalloc(precision, 1, nb_columns);
+          osl_relation_set_attributes(contribution2, bound->nb_output_dims,
+                                      bound->nb_input_dims, bound->nb_local_dims, bound->nb_parameters);
+          for (j = CLAN_MAX_SCAT_DIMS + 1; j < bound->nb_columns; j++) {
+            osl_int_set_si(precision, &contribution2->m[0][j],
+                           osl_int_get_si(precision, bound->m[i][j]) * grain * coef);
+
+            if ((stride != 1) && (stride != -1))
+              osl_int_set_si(precision, &contribution2->m[1][j],
+                             osl_int_get_si(precision, bound->m[i][j]) * coef);
+
+          }
+
+          //stride*ci==grain * (i-binf)
+
+          osl_int_set_si(precision, &contribution2->m[0][current_comlumn], grain * cf );
+          osl_int_set_si(precision, &contribution2->m[0][2 * depth], stride * (-1) * cf);
+
+          val = osl_int_get_si(precision, contribution2->m[0][contribution2->nb_columns-1]) - l ;
+          osl_int_set_si(precision, &contribution2->m[0][contribution2->nb_columns-1], val );
+
+          if ((stride != 1) && (stride != -1)) {
+            osl_int_set_si(precision, &contribution2->m[1][current_comlumn], cf);
+            osl_int_set_si(precision, &contribution2->m[1][locald + depth], stride * (-1) * cf );
+            val = osl_int_get_si(precision, contribution2->m[1][contribution2->nb_columns-1]) - l ;
+            osl_int_set_si(precision, &contribution2->m[1][contribution2->nb_columns-1], val );
+          }
+          clan_relation_and(contribution, contribution2);	//***
+          osl_relation_free(contribution2); //***
+          osl_relation_add(&part, contribution);
+        }
+      }
+
+      osl_relation_add(&full, part);
+      // osl_relation_free(part);
+      osl_relation_free(bound2); //***
+      bound = bound->next;
+    }
+
+  } else {
+    offset_save=offset;
+    while (bound != NULL) {
+
+      bound2 = osl_relation_clone(bound); //***
+      for (i = 0; i < bound->nb_rows; i++) {
+        cf = osl_int_get_si(bound->precision, bound->m[i][0]);
+        cf = (cf != 0) ? cf : 1;
+
+        //**********************************************************************
+        // -1. Extract the contributing constraint c.
+        bound_constraint = clan_relation_extract_constraint(bound2, i);
+
+        // -2. For every constaint before c, ensure the comparison at step 3
+        //     will be strictly greater, by adding 1: since the different
+        //     sets must be disjoint, we don't want a >= b then b >= a but
+        //     a >= b then b > a to avoid a == b to be in both sets.
+        if (i > 0) {
+          osl_int_add_si(precision,
+                         &bound2->m[i - 1][bound2->nb_columns - 1],
+                         bound2->m[i - 1][bound2->nb_columns - 1], -1);
+        }
+
+        // -3. Compute c > a && c > b && c >= c && c >= d ...
+        //     We remove the c >= c row which corresponds to a trivial 0 >= 0.
+        //     (Resp. c < a && c <b && c <= c && c <=d ... for the upper case.)
+        if (stride > 0) //( lower && !coeff )
+          bound_contribution = clan_relation_greater(bound_constraint,
+                               bound2, 0);
+        else
+          bound_contribution = clan_relation_greater(bound2,
+                               bound_constraint, 0);
+        osl_relation_remove_row(bound_contribution, i);
+
+        //     * 4 Put c at the end of the constraint set.
+        // osl_relation_insert_constraints(contribution, constraint, -1);
+
+        if (stride > 0 && bound_contribution->nb_rows > 0) {
+          clan_relation_oppose_row(bound_contribution,
+                                   bound_contribution->nb_rows - 1);
+        }
+
+        //**********************************************************************
+
+        for (l = 0; l < cf; l++) {
+          offset=offset_save;
+          while (offset != NULL) {
+            part = NULL;
+            offset2 = osl_relation_clone(offset); //***
+
+            for (k = 0; k < offset->nb_rows; k++) {
+
+
+              cf_offset = osl_int_get_si(bound->precision, offset->m[i][0]);
+              cf_offset = (cf_offset != 0) ? cf_offset : 1;
+
+              coeff = osl_int_one(precision, offset2->m[0][0]);
+
+              //**********************************************************************
+              // -1. Extract the contributing constraint c.
+              constraint = clan_relation_extract_constraint(offset2, k);
+
+              // -2. For every constaint before c, ensure the comparison at step 3
+              //     will be strictly greater, by adding 1: since the different
+              //     sets must be disjoint, we don't want a >= b then b >= a but
+              //     a >= b then b > a to avoid a == b to be in both sets.
+              if (k > 0) {
+                if (code_offset%10==1)
+                  osl_int_add_si(precision, &offset2->m[k-1][offset2->nb_columns-1],
+                                 offset2->m[k-1][offset2->nb_columns-1], -1);
+                else
+                  osl_int_add_si(precision, &offset2->m[k-1][offset2->nb_columns-1],
+                                 offset2->m[k-1][offset2->nb_columns-1], 1);
+              }
+
+              // -3. Compute c > a && c > b && c >= c && c >= d ...
+              //     We remove the c >= c row which corresponds to a trivial 0 >= 0.
+              //     (Resp. c < a && c <b && c <= c && c <=d ... for the upper case.)
+
+              if ((code_offset%10==1) || (coeff)) {//( lower && !coeff )
+                contribution = clan_relation_greater(offset2, constraint, 0);
+              } else
+                contribution = clan_relation_greater(constraint, offset2, 0);
+
+              osl_relation_remove_row(contribution, k);
+
+              /*if ( lower) {
+               clan_relation_oppose_row(contribution, contribution->nb_rows - 1);
+               }*/
+
+              contribution2 = osl_relation_pmalloc(precision, contribution->nb_rows, nb_columns);
+
+              for (y = 0; y < contribution->nb_rows; y++) {
+                osl_int_set_si(precision, &contribution2->m[y][0], osl_int_get_si(precision, contribution->m[y][0]));
+                for (z = CLAN_MAX_SCAT_DIMS + 1; z < nb_columns; z++)
+                  osl_int_set_si(precision, &contribution2->m[y][z],
+                                 osl_int_get_si(precision, contribution->m[y][z - CLAN_MAX_SCAT_DIMS]));
+              }
+              osl_relation_free(contribution); //***
+              clan_relation_and(contribution2, bound_contribution);
+
+              //**********************************************************************
+
+              if ((stride != 1) && (stride != -1))
+                contribution = osl_relation_pmalloc(precision, 2, nb_columns);
+              else
+                contribution = osl_relation_pmalloc(precision, 1, nb_columns);
+
+              osl_relation_set_attributes(contribution, bound->nb_output_dims, bound->nb_input_dims,
+                                          bound->nb_local_dims, bound->nb_parameters);
+              for (j = CLAN_MAX_SCAT_DIMS + 1 ; j < bound->nb_columns ; j++) {
+                //stride*ci==grain*i-grain*binf+offset*stride
+                val = osl_int_get_si(precision, bound->m[i][j]) * grain * coef * cf_offset
+                      - osl_int_get_si(precision, offset->m[k][j - CLAN_MAX_SCAT_DIMS]) * stride * cf * (-1);
+
+                osl_int_set_si(precision, &contribution->m[0][j], val);
+
+                if ((stride != 1) && (stride != -1))
+                  osl_int_set_si(precision, &contribution->m[1][j], osl_int_get_si(precision, bound->m[i][j]) * coef);
+
+              }
+
+              //stride*ci==grain*i-grain*binf+offset*stride
+              osl_int_set_si(precision, &contribution->m[0][current_comlumn], grain * cf * cf_offset);
+              osl_int_set_si(precision, &contribution->m[0][2 * depth], stride * (-1) * cf * cf_offset);
+              val = osl_int_get_si(precision, contribution->m[0][contribution->nb_columns - 1]) - l;
+              osl_int_set_si(precision, &contribution->m[0][contribution->nb_columns - 1], val);
+
+              if ((stride != 1) && (stride != -1)) {
+                osl_int_set_si(precision, &contribution->m[1][current_comlumn], cf );
+                osl_int_set_si(precision, &contribution->m[1][locald + depth], stride * (-1) * cf );
+                val = osl_int_get_si(precision, contribution->m[1][contribution->nb_columns-1]) - l ;
+                osl_int_set_si(precision, &contribution->m[1][contribution->nb_columns-1], val );
+              }
+
+              clan_relation_and(contribution2, contribution);	//***
+              osl_relation_free(contribution); //***
+
+              osl_relation_add(&part, contribution2);
+            } //***** k-loop
+            osl_relation_add(&full, part);
+            // osl_relation_free(part);
+            offset = offset->next;
+            osl_relation_free(offset2); //***
+          } // while offset
+        }//cf-loop
+      } //i-loop
+      bound = bound->next;
+      osl_relation_free(bound2); //***
+    } // while bound
+  }
+  clan_parser_scatt_add_ld();
+  return full;
+}
+
+
+
+
+/**
+ * clan_scattering_stride function:
+ * this function applies the contribution of a loop stride to every set of
+ * constraint set of the domain.
+ * \param[in,out] domain The set of constraint set to update.
+ * \param[in]     init_constraints  The constraint set
+ * \param[in]     depth  The loop depth corresponding to the stride.
+ * \param[in]     stride The loop stride value.
+ */
+void clan_scattering_stride(clan_domain_p domain,
+                            osl_relation_p init_constraints,
+                            osl_relation_p offset, int grain,
+                            int depth, int stride , int code_offset) {
+
+  osl_relation_list_p base_constraints = domain->constraints;
+  osl_relation_p stride_constraints = NULL;
+  //if ((stride != 1) && (stride != -1)) {
+  while (base_constraints != NULL) {
+    stride_constraints = clan_scattering_relation_stride(init_constraints, offset, grain,
+                         depth, stride, code_offset);
+    clan_domain_and(domain, stride_constraints);
+    base_constraints = base_constraints->next;
+  }
+//	}
+}
+
+
+/**
+ * clan_scattering_relation_for function:
+ * this function adds the contribution of a for loop to a a scattering relation.
+ * \param[in,out] domain         The set of constraint set to update.
+ * \param[in]     depth          The loop depth.
+ * \param[in]     iterator       The loop iterator symbol.
+ * \param[in]     initialization The loop initialization right part constraints.
+ * \param[in]     stride         The loop stride value.
+ * \param[in]     grain          The loop grain values.
+ * \param[in]     offset         The loop offset values.
+ * \param[in]     options        Clan's options.
+ */
+void clan_scattering_relation_for(clan_domain_p domain,
+                                  int depth,
+                                  clan_symbol_p iterator,
+                                  osl_relation_p initialization,
+                                  int stride,
+                                  int grain,
+                                  osl_relation_p offset,
+                                  int code_offset,
+                                  clan_options_p options) {
+
+  osl_relation_p init_constraints, relation;
+  int  nb_columns, current_comlumn, coef ;
+
+
+
+  coef = (stride > 0) ? 1 : -1;
+  nb_columns = CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH + CLAN_MAX_LOCAL_DIMS
+               + CLAN_MAX_PARAMETERS + 2;
+  current_comlumn = CLAN_MAX_SCAT_DIMS + depth ;
+
+  relation = domain->constraints->elt;
+
+  if ( options->normalize ) {
+    // Generate the set of constraints contributed by the initialization
+    init_constraints = clan_relation_init_constraints (initialization, iterator, depth, stride, options);
+
+    // Add the contribution of the stride to the current domain.
+    clan_scattering_stride(domain, init_constraints, offset, grain, depth, stride, code_offset);
+
+    // The constante ci==0
+    relation = osl_relation_pmalloc(options->precision, 1, nb_columns);
+    osl_relation_set_attributes(relation, domain->constraints->elt->nb_output_dims,
+                                domain->constraints->elt->nb_input_dims,
+                                domain->constraints->elt->nb_local_dims,
+                                domain->constraints->elt->nb_parameters);
+    osl_int_set_si(options->precision, &relation->m[0][2*depth+1], -1);
+    clan_domain_and(domain, relation);
+
+    osl_relation_free(relation);
+    osl_relation_free(init_constraints);
+
+  } else {
+    relation = osl_relation_pmalloc(options->precision, 2, nb_columns);
+    osl_relation_set_attributes(relation,
+                                domain->constraints->elt->nb_output_dims,
+                                domain->constraints->elt->nb_input_dims,
+                                domain->constraints->elt->nb_local_dims,
+                                domain->constraints->elt->nb_parameters);
+    osl_int_set_si(options->precision, &relation->m[0][current_comlumn], coef);
+    osl_int_set_si(options->precision, &relation->m[0][2 * depth], -1);
+    osl_int_set_si(options->precision, &relation->m[1][2 * depth + 1], -1);
+    clan_domain_and(domain, relation);
+    osl_relation_free(relation);
+  }
+}
+
+
+/**
+ * clan_scattering_relation_xfor function:
+ * this function adds the contribution of a xfor loop to a scattering relation.
+ * \param[in,out] domain         The set of constraint set to update.
+ * \param[in]     depth          The loop depth.
+ * \param[in]     iterator       The loop iterator symbols.
+ * \param[in]     initialization The loop initialiation right part constraints.
+ * \param[in]     stride         The loop stride values.
+ * \param[in]     grain          The loop grain values.
+ * \param[in]     offset         The loop offset values.
+ * \param[in]     options        Clan's options.
+ */
+void clan_scattering_relation_xfor(clan_domain_p domain,
+                                   int depth,
+                                   clan_symbol_p iterator,
+                                   osl_relation_list_p initialization,
+                                   int* stride,
+                                   int* grain,
+                                   osl_relation_list_p offset,
+                                   int* tab_ceild,
+                                   int* tab_floord,
+                                   int* tab_min,
+                                   int* tab_max,
+                                   clan_options_p options) {
+  int i, code_offset=0;
+  int nb_indices = clan_relation_list_nb_elements(initialization);
+  int nb_constraint_sets = clan_relation_list_nb_elements(domain->constraints);
+  osl_relation_list_p base, new = NULL;
+  clan_domain_p shell = NULL;
+
+  // Three possible cases:
+  // 1. the number of constraint sets in the domain is 1 ("first xfor"),
+  //    then we duplicate the constraint sets to match the number of xfor
+  //    indices, then each constraint set receives the contribution of the
+  //    corresponding xfor index,
+  // 2. the number of constraints sets in the domain is equal to
+  //    the number of xfor indices, then each constraint set
+  //    receives the contribution of the corresponding xfor index,
+  // 3. an error is reported (this should be checked in the parser for
+  //    reporting through yyerror).
+
+  if (nb_constraint_sets == 1) {
+    for (i = 0; i < nb_indices - 1; i++) {
+      osl_relation_list_dup(&domain->constraints);
+    }
+  } else if (nb_constraint_sets != nb_indices) {
+    CLAN_error("incorrect number of indices in an xfor loop");
+  }
+
+  // -1. Prepare a domain "shell" to process the xfor indices one by one.
+  shell = clan_domain_malloc();
+  shell->constraints = osl_relation_list_malloc();
+  base = domain->constraints;
+  // -2. For each xfor index
+  for (i = 0; i < nb_indices; i++) {
+    // -2.1 Put the corresponding base constraints in the domain shell.
+    shell->constraints->elt = osl_relation_clone(base->elt);
+
+    // in The offset is there a min, a max, ceild or floord. Calculate the corresponding code :
+    // 0    expression
+    // 1    min
+    // 10   max
+    // 100  ceild
+    // 1000 floord
+
+    code_offset= tab_min[nb_indices+i] + tab_max[nb_indices+i] * 10
+                 + tab_ceild[nb_indices+i] * 100 + tab_floord[nb_indices+i] * 1000 ;
+
+    // -2.2 Apply the contribution of the loop to it.
+    clan_scattering_relation_for(shell, depth, iterator, initialization->elt, stride[i], grain[i], offset->elt, code_offset, options);
+
+    // -2.3 Add the final constraint set to a new list.
+    osl_relation_list_add(&new, shell->constraints);
+
+    // -2.4 Prepare the variables to process the next xfor index.
+    initialization = initialization->next;
+    offset = offset->next;
+    shell->constraints = osl_relation_list_malloc();
+    base = base->next;
+    tab_min[nb_indices+i] = 0 ;
+    tab_max[nb_indices+i] = 0 ;
+    tab_ceild[nb_indices+i] = 0 ;
+    tab_floord[nb_indices+i] = 0 ;
+  }
+  // -3. Replace the original set of constraint set with the new one.
+  osl_relation_list_free(domain->constraints);
+  domain->constraints = new;
+
+  clan_domain_free(shell);
 }
