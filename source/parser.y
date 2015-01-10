@@ -2391,6 +2391,9 @@ int clan_parser_is_loop_sane(osl_relation_list_p initialization,
     return 0;
   }
 
+  if (parser_xfor_index > CLAN_MAX_XFOR_INDICES)
+	  CLAN_error("CLAN_MAX_XFOR_INDICES reached, recompile with a higher value");
+
   // Check that all bounds and strides are consistent.
   for (i = 0; i < parser_xfor_index; i++) {
     step = stride[i];
