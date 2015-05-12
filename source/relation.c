@@ -1494,6 +1494,7 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 
 				//**********************************************************************
 
+
 				for (l = 0; l < cf; l++) {
 					offset=offset_save;
 					while (offset != NULL) {
@@ -1502,8 +1503,8 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 
 						for (k = 0; k < offset->nb_rows; k++) {
 
-
 							cf_offset = osl_int_get_si(bound->precision, offset->m[i][0]);
+
 							cf_offset = (cf_offset != 0) ? cf_offset : 1;
 
 							coeff = osl_int_one(precision, offset2->m[0][0]);
@@ -1561,6 +1562,7 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 
 							osl_relation_set_attributes(contribution, bound->nb_output_dims, bound->nb_input_dims,
 									bound->nb_local_dims, bound->nb_parameters);
+
 							for (j = CLAN_MAX_SCAT_DIMS + 1 ; j < bound->nb_columns ; j++) {
 								//stride*ci==grain*i-grain*binf+offset*stride
 								val = osl_int_get_si(precision, bound->m[i][j]) * grain * coef * cf_offset
@@ -1574,7 +1576,13 @@ osl_relation_p clan_scattering_relation_stride(osl_relation_p bound,
 							}
 
 							//stride*ci==grain*i-grain*binf+offset*stride
-							osl_int_set_si(precision, &contribution->m[0][current_comlumn], grain * cf * cf_offset);
+
+							// Correction Coef ICI
+
+							osl_int_set_si(precision, &contribution->m[0][current_comlumn], grain * cf * cf_offset + osl_int_get_si(precision, offset->m[k][current_comlumn - CLAN_MAX_SCAT_DIMS] ) );
+
+							//osl_int_set_si(precision, &contribution->m[0][current_comlumn], grain * cf * cf_offset);
+
 							osl_int_set_si(precision, &contribution->m[0][2 * depth], stride * (-1) * cf * cf_offset);
 							val = osl_int_get_si(precision, contribution->m[0][contribution->nb_columns - 1]) - l;
 							osl_int_set_si(precision, &contribution->m[0][contribution->nb_columns - 1], val);
