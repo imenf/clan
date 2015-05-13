@@ -1243,7 +1243,7 @@ void clan_relation_loop_context(osl_relation_p condition,
 							initialization->m[i][j]);
 				if(osl_int_neg(condition->precision, initialization->m[i][depth]))
 					clan_relation_oppose_row(temp, 1) 	;
-			} else { printf(" else else else else else else  \n");
+			} else { 
 				temp = osl_relation_nclone(condition, 1);
 				osl_relation_insert_blank_row(temp, 0);
 				for (j = 0; j < temp->nb_columns; j++)
