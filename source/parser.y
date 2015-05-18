@@ -143,10 +143,12 @@
    osl_extbody_p  parser_access_extbody; /**< The extbody struct */
    int            parser_access_start;   /**< Start coordinates */
    int            parser_access_length;  /**< Length of the access string*/
+   
+   int            parser_depth_it_pragma_scop = 0;
 %}
 
 /* We expect the if-then-else shift/reduce to be there, nothing else. */
-%expect  8 // 7 // TODO: should be 1 !!! (cause : labeled_statement)
+%expect   7 // TODO: should be 1 !!! (cause : labeled_statement)
 
 %union { int value;                      /**< An integer value */
          int* vecint;                    /**< A vector of integer values */
@@ -257,30 +259,70 @@ scop_list:
 // Rules for a scop
 
 iterators_list:
-    iterators_list ',' ID { CLAN_debug("rule iterators_list.1: iterators_list ID"); 
+    iterators_list ',' ID 
+    { CLAN_debug("rule iterators_list.1: iterators_list ID"); 
       if ( parser_options->normalize ) {
         if (!clan_symbol_new_iterator(&parser_symbol, parser_iterators, $3,
-   	                            parser_loop_depth))
+        		parser_depth_it_pragma_scop))
    	    YYABORT;
       }
+      printf (" parser_depth_it_pragma_scop = %d  ID = %s \n",parser_depth_it_pragma_scop, $3);
     } 
-  | ID { CLAN_debug("rule iterators_list.2: ID"); 
-    if ( parser_options->normalize ) {
-      if (!clan_symbol_new_iterator(&parser_symbol, parser_iterators, $1,
- 	                            parser_loop_depth))
- 	  YYABORT;
-    }
-  } 
+  | ID 
+    { CLAN_debug("rule iterators_list.2: ID"); 
+      if ( parser_options->normalize ) {
+        if (!clan_symbol_new_iterator(&parser_symbol, parser_iterators, $1,
+        		parser_depth_it_pragma_scop))
+ 	    YYABORT;
+      }
+      printf (" parser_depth_it_pragma_scop = %d  ID = %s \n",parser_depth_it_pragma_scop , $1 );
+    } 
   ;
   
+list_of_iterators_list:
+      list_of_iterators_list ',' '[' iterators_list ']' 
+      { CLAN_debug("rule list_of_iterators_list.1: list_of_iterators_list '[' iterators_list ']'");
+      
+      printf("rule list_of_iterators_list.1: list_of_iterators_list '[' iterators_list ']'\n");
+      
+        parser_depth_it_pragma_scop ++ ;
+      
+        printf (" parser_depth_it_pragma_scop +++++++++++++++++ = %d \n",parser_depth_it_pragma_scop);
+      
+      } 
+    | '[' iterators_list ']' { CLAN_debug("rule list_of_iterators_list.2: '[' iterators_list ']'");
+    
+    printf ("rule list_of_iterators_list.2: '[' iterators_list ']'\n");
+    
+    parser_depth_it_pragma_scop ++ ;
+          
+            printf (" parser_depth_it_pragma_scop +++++++++++++++++ = %d \n",parser_depth_it_pragma_scop);
+    
+    }
+    ;   
   
 xfor_iterators:
-    '(' iterators_list ')' { CLAN_debug("rule xfor_iterators.1: '(' iterators_list ')'"); } 
-  | { CLAN_debug("rule xfor_iterators.2: "); }
+    '[' list_of_iterators_list ']' { CLAN_debug("rule xfor_iterators.1: '[' list_of_iterators_list ']'"); 
+    
+    printf("rule xfor_iterators.1: '[' list_of_iterators_list ']'\n");
+    
+    } 
+  | '[' iterators_list ']' { CLAN_debug("rule xfor_iterators.2: '[' iterators_list ']'"); 
+  
+  printf("rule xfor_iterators.2: '[' iterators_list ']'\n");
+  
+  } 
+  |  { CLAN_debug("rule xfor_iterators.3: "); }
   ;  
   
 pragma_scop:
-    PRAGMASCOP xfor_iterators { CLAN_debug("rule pragma_scop.1: PRAGMASCOP xfor_iterators"); } 
+    PRAGMASCOP xfor_iterators { CLAN_debug("rule pragma_scop.1: PRAGMASCOP xfor_iterators");
+    
+    printf ("rule pragma_scop.1: PRAGMASCOP xfor_iterators\n");
+    
+    printf (" parser_depth_it_pragma_scop = %d \n",parser_depth_it_pragma_scop);
+    parser_depth_it_pragma_scop = 1; 
+  } 
   ;
   
   
