@@ -146,7 +146,7 @@
 %}
 
 /* We expect the if-then-else shift/reduce to be there, nothing else. */
-%expect 7 // TODO: should be 1 !!! (cause : labeled_statement)
+%expect  8 // 7 // TODO: should be 1 !!! (cause : labeled_statement)
 
 %union { int value;                      /**< An integer value */
          int* vecint;                    /**< A vector of integer values */
@@ -171,7 +171,7 @@
 
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO XFOR FOR GOTO CONTINUE BREAK RETURN
 
-%token IGNORE PRAGMA
+%token IGNORE PRAGMA PRAGMASCOP
 %token MIN MAX CEILD FLOORD
 %token <symbol> ID
 %token <value>  INTEGER
@@ -255,13 +255,42 @@ scop_list:
 
 
 // Rules for a scop
+
+iterators_list:
+    iterators_list ',' ID { CLAN_debug("rule iterators_list.1: iterators_list ID"); 
+      if ( parser_options->normalize ) {
+        if (!clan_symbol_new_iterator(&parser_symbol, parser_iterators, $3,
+   	                            parser_loop_depth))
+   	    YYABORT;
+      }
+    } 
+  | ID { CLAN_debug("rule iterators_list.2: ID"); 
+    if ( parser_options->normalize ) {
+      if (!clan_symbol_new_iterator(&parser_symbol, parser_iterators, $1,
+ 	                            parser_loop_depth))
+ 	  YYABORT;
+    }
+  } 
+  ;
+  
+  
+xfor_iterators:
+    '(' iterators_list ')' { CLAN_debug("rule xfor_iterators.1: '(' iterators_list ')'"); } 
+  | { CLAN_debug("rule xfor_iterators.2: "); }
+  ;  
+  
+pragma_scop:
+    PRAGMASCOP xfor_iterators { CLAN_debug("rule pragma_scop.1: PRAGMASCOP xfor_iterators"); } 
+  ;
+  
+  
 scop:
-    statement_list IGNORE
+    pragma_scop statement_list IGNORE
     { int nb_parameters;
       osl_scop_p scop;
       osl_generic_p arrays;
 
-      CLAN_debug("rule scop.1: statement_list IGNORE");
+      CLAN_debug("rule scop.1: pragma_scop statement_list IGNORE");
       scop = osl_scop_malloc();
       CLAN_strdup(scop->language, "C");
 
@@ -274,7 +303,7 @@ scop:
                                                   parser_options);
       
       // Set the statements.
-      scop->statement = $1;
+      scop->statement = $2;
 
       // Compact the SCoP relations.
       if (CLAN_DEBUG) {

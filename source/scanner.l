@@ -209,7 +209,8 @@ IS ((u|U)|(u|U)?(l|L|ll|LL)|(l|L|ll|LL)(u|U))
                                 return PRAGMA; // Force a parse error.
                               } else {
                                 scanner_parsing = CLAN_TRUE;
-                                CLAN_debug("pragma scop: start parsing");
+                                CLAN_debug("pragma scop: start parsing");  
+                                return clan_scanner(PRAGMASCOP, "#pragma scop");
                               }
                             }
 "#pragma"[ ]+"endscop"      {
