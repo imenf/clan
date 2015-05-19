@@ -266,7 +266,6 @@ iterators_list:
         		parser_depth_it_pragma_scop))
    	    YYABORT;
       }
-      printf (" parser_depth_it_pragma_scop = %d  ID = %s \n",parser_depth_it_pragma_scop, $3);
     } 
   | ID 
     { CLAN_debug("rule iterators_list.2: ID"); 
@@ -275,52 +274,27 @@ iterators_list:
         		parser_depth_it_pragma_scop))
  	    YYABORT;
       }
-      printf (" parser_depth_it_pragma_scop = %d  ID = %s \n",parser_depth_it_pragma_scop , $1 );
     } 
   ;
   
 list_of_iterators_list:
       list_of_iterators_list ',' '[' iterators_list ']' 
       { CLAN_debug("rule list_of_iterators_list.1: list_of_iterators_list '[' iterators_list ']'");
-      
-      printf("rule list_of_iterators_list.1: list_of_iterators_list '[' iterators_list ']'\n");
-      
-        parser_depth_it_pragma_scop ++ ;
-      
-        printf (" parser_depth_it_pragma_scop +++++++++++++++++ = %d \n",parser_depth_it_pragma_scop);
-      
+        parser_depth_it_pragma_scop ++ ;      
       } 
     | '[' iterators_list ']' { CLAN_debug("rule list_of_iterators_list.2: '[' iterators_list ']'");
-    
-    printf ("rule list_of_iterators_list.2: '[' iterators_list ']'\n");
-    
-    parser_depth_it_pragma_scop ++ ;
-          
-            printf (" parser_depth_it_pragma_scop +++++++++++++++++ = %d \n",parser_depth_it_pragma_scop);
-    
+       parser_depth_it_pragma_scop ++ ;    
     }
     ;   
   
 xfor_iterators:
-    '[' list_of_iterators_list ']' { CLAN_debug("rule xfor_iterators.1: '[' list_of_iterators_list ']'"); 
-    
-    printf("rule xfor_iterators.1: '[' list_of_iterators_list ']'\n");
-    
-    } 
-  | '[' iterators_list ']' { CLAN_debug("rule xfor_iterators.2: '[' iterators_list ']'"); 
-  
-  printf("rule xfor_iterators.2: '[' iterators_list ']'\n");
-  
-  } 
+    '[' list_of_iterators_list ']' { CLAN_debug("rule xfor_iterators.1: '[' list_of_iterators_list ']'"); } 
+  | '[' iterators_list ']' { CLAN_debug("rule xfor_iterators.2: '[' iterators_list ']'"); } 
   |  { CLAN_debug("rule xfor_iterators.3: "); }
   ;  
   
 pragma_scop:
     PRAGMASCOP xfor_iterators { CLAN_debug("rule pragma_scop.1: PRAGMASCOP xfor_iterators");
-    
-    printf ("rule pragma_scop.1: PRAGMASCOP xfor_iterators\n");
-    
-    printf (" parser_depth_it_pragma_scop = %d \n",parser_depth_it_pragma_scop);
     parser_depth_it_pragma_scop = 1; 
   } 
   ;
