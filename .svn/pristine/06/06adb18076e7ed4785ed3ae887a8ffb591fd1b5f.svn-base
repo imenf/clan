@@ -1,0 +1,5168 @@
+/* A Bison parser, made by GNU Bison 3.0.2.  */
+
+/* Bison implementation for Yacc-like parsers in C
+
+   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+
+/* As a special exception, you may create a larger work that contains
+   part or all of the Bison parser skeleton and distribute that work
+   under terms of your choice, so long as that work isn't itself a
+   parser generator using the skeleton or a modified version thereof
+   as a parser skeleton.  Alternatively, if you modify or redistribute
+   the parser skeleton itself, you may (at your option) remove this
+   special exception, which will cause the skeleton and the resulting
+   Bison output files to be licensed under the GNU General Public
+   License without this special exception.
+
+   This special exception was added by the Free Software Foundation in
+   version 2.2 of Bison.  */
+
+/* C LALR(1) parser skeleton written by Richard Stallman, by
+   simplifying the original so-called "semantic" parser.  */
+
+/* All symbols defined below should begin with yy or YY, to avoid
+   infringing on user name space.  This should be done even for local
+   variables, as they might otherwise be expanded by user macros.
+   There are some unavoidable exceptions within include files to
+   define necessary library symbols; they are noted "INFRINGES ON
+   USER NAME SPACE" below.  */
+
+/* Identify Bison output.  */
+#define YYBISON 1
+
+/* Bison version.  */
+#define YYBISON_VERSION "3.0.2"
+
+/* Skeleton name.  */
+#define YYSKELETON_NAME "yacc.c"
+
+/* Pure parsers.  */
+#define YYPURE 0
+
+/* Push parsers.  */
+#define YYPUSH 0
+
+/* Pull parsers.  */
+#define YYPULL 1
+
+
+
+
+/* Copy the first part of user declarations.  */
+#line 46 "source/parser.y" /* yacc.c:339  */
+
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <assert.h>
+   
+   #include <osl/macros.h>
+   #include <osl/int.h>
+   #include <osl/vector.h>
+   #include <osl/relation.h>
+   #include <osl/statement.h>
+   #include <osl/strings.h>
+   #include <osl/generic.h>
+   #include <osl/body.h>
+   #include <osl/extensions/arrays.h>
+   #include <osl/extensions/extbody.h>
+   #include <osl/scop.h>
+   #include <clan/macros.h>
+   #include <clan/vector.h>
+   #include <clan/relation.h>
+   #include <clan/relation_list.h>
+   #include <clan/domain.h>
+   #include <clan/scop.h>
+   #include <clan/symbol.h>
+   #include <clan/statement.h>
+   #include <clan/options.h>
+
+   int  yylex(void);
+   void yyerror(char*);
+   void yyrestart(FILE*);
+   void clan_scanner_initialize();
+   void clan_scanner_reinitialize(int, int, int);
+   void clan_scanner_free();
+
+   void clan_parser_add_ld();
+   int  clan_parser_nb_ld();
+   void clan_parser_scatt_add_ld();
+   int  clan_parser_scatt_nb_ld();
+   void clan_parser_log(char*);
+   void clan_parser_increment_loop_depth();
+   void clan_parser_state_print(FILE*);
+   int  clan_parser_is_loop_sane(osl_relation_list_p,osl_relation_list_p,int*);
+   void clan_parser_state_initialize(clan_options_p);
+   osl_scop_p clan_parse(FILE*, clan_options_p);
+
+   extern FILE*   yyin;                 /**< File to be read by Lex */
+   extern int     scanner_parsing;      /**< Do we parse or not? */
+   extern char*   scanner_latest_text;  /**< Latest text read by Lex */
+   extern char*   scanner_clay;         /**< Data for the Clay software */
+   extern int     scanner_line;         /**< Current scanned line */
+   extern int     scanner_column;       /**< Scanned column (current) */
+   extern int     scanner_column_LALR;  /**< Scanned column (before token) */
+   extern int     scanner_scop_start;   /**< Scanned SCoP starting line */
+   extern int     scanner_scop_end;     /**< Scanned SCoP ending line */
+   extern int     scanner_pragma;       /**< Between SCoP pragmas or not? */
+
+   // This is the "parser state", a collection of variables that vary
+   // during the parsing and thanks to we can extract all SCoP informations.
+   osl_scop_p     parser_scop;          /**< SCoP in construction */
+   clan_symbol_p  parser_symbol;        /**< Top of the symbol table */
+   int            parser_recording;     /**< Boolean: do we record or not? */
+   char*          parser_record;        /**< What we record (statement body)*/
+   int            parser_loop_depth;    /**< Current loop depth */
+   int            parser_if_depth;      /**< Current if depth */
+// int*           parser_scattering;    /**< Current statement scattering */
+   clan_symbol_p* parser_iterators;     /**< Current iterator list */
+   clan_domain_p  parser_stack;         /**< Iteration domain stack */
+   clan_domain_p  parser_scatt_stack;   /**< scattering relation stack */
+   int*           parser_nb_local_dims; /**< Nb of local dims per depth */
+   int*           scatt_nb_local_dims;  /**< Nb of local dims per depth */
+   int            parser_nb_parameters; /**< Nb of parameter symbols */
+   int*           parser_valid_else;    /**< Boolean: OK for else per depth */
+   int            parser_indent;        /**< SCoP indentation */
+   int            parser_error;         /**< Boolean: parse error */
+
+   int            parser_xfor_nb_nests; /**< Current number of xfor nests */
+   int*           parser_xfor_depths;   /**< Current xfor nest depth list */
+   int*           parser_xfor_labels;   /**< Current xfor label list */
+   int            parser_xfor_index;    /**< Nb of current (x)for loop index */
+   int            parser_xfor_grain;    /**< Nb of current (x)for loop grain */
+   int            parser_xfor_offset;   /**< Nb of current (x)for loop offset */
+   int*           parser_ceild;         /**< Booleans: ith index used ceild */
+   int*           parser_floord;        /**< Booleans: ith index used floord */
+   int*           parser_min;           /**< Booleans: ith index used min */
+   int*           parser_max;           /**< Booleans: ith index used max */
+
+   // Autoscop-relative variables.
+   int            parser_autoscop;      /**< Boolean: autoscop in progress */
+   int            parser_line_start;    /**< Autoscop start line, inclusive */
+   int            parser_line_end;      /**< Autoscop end line, inclusive */
+   int            parser_column_start;  /**< Autoscop start column, inclus. */
+   int            parser_column_end;    /**< Autoscop end column, exclusive */
+
+   // Ugly global variable to keep/read Clan options during parsing.
+   clan_options_p parser_options;
+
+   // Variables to generate the extbody
+   osl_extbody_p  parser_access_extbody; /**< The extbody struct */
+   int            parser_access_start;   /**< Start coordinates */
+   int            parser_access_length;  /**< Length of the access string*/
+   
+   int            parser_depth_it_pragma_scop = 0;
+
+#line 170 "parser.c" /* yacc.c:339  */
+
+# ifndef YY_NULLPTR
+#  if defined __cplusplus && 201103L <= __cplusplus
+#   define YY_NULLPTR nullptr
+#  else
+#   define YY_NULLPTR 0
+#  endif
+# endif
+
+/* Enabling verbose error messages.  */
+#ifdef YYERROR_VERBOSE
+# undef YYERROR_VERBOSE
+# define YYERROR_VERBOSE 1
+#else
+# define YYERROR_VERBOSE 0
+#endif
+
+/* In a future release of Bison, this section will be replaced
+   by #include "y.tab.h".  */
+#ifndef YY_YY_PARSER_H_INCLUDED
+# define YY_YY_PARSER_H_INCLUDED
+/* Debug traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 0
+#endif
+#if YYDEBUG
+extern int yydebug;
+#endif
+
+/* Token type.  */
+#ifndef YYTOKENTYPE
+# define YYTOKENTYPE
+  enum yytokentype
+  {
+    CONSTANT = 258,
+    STRING_LITERAL = 259,
+    SIZEOF = 260,
+    PTR_OP = 261,
+    INC_OP = 262,
+    DEC_OP = 263,
+    LEFT_OP = 264,
+    RIGHT_OP = 265,
+    LE_OP = 266,
+    GE_OP = 267,
+    EQ_OP = 268,
+    NE_OP = 269,
+    AND_OP = 270,
+    OR_OP = 271,
+    MUL_ASSIGN = 272,
+    DIV_ASSIGN = 273,
+    MOD_ASSIGN = 274,
+    ADD_ASSIGN = 275,
+    SUB_ASSIGN = 276,
+    LEFT_ASSIGN = 277,
+    RIGHT_ASSIGN = 278,
+    AND_ASSIGN = 279,
+    XOR_ASSIGN = 280,
+    OR_ASSIGN = 281,
+    TYPE_NAME = 282,
+    TYPEDEF = 283,
+    EXTERN = 284,
+    STATIC = 285,
+    AUTO = 286,
+    REGISTER = 287,
+    INLINE = 288,
+    RESTRICT = 289,
+    CHAR = 290,
+    SHORT = 291,
+    INT = 292,
+    LONG = 293,
+    SIGNED = 294,
+    UNSIGNED = 295,
+    FLOAT = 296,
+    DOUBLE = 297,
+    CONST = 298,
+    VOLATILE = 299,
+    VOID = 300,
+    BOOL = 301,
+    COMPLEX = 302,
+    IMAGINARY = 303,
+    STRUCT = 304,
+    UNION = 305,
+    ENUM = 306,
+    ELLIPSIS = 307,
+    CASE = 308,
+    DEFAULT = 309,
+    IF = 310,
+    ELSE = 311,
+    SWITCH = 312,
+    WHILE = 313,
+    DO = 314,
+    XFOR = 315,
+    FOR = 316,
+    GOTO = 317,
+    CONTINUE = 318,
+    BREAK = 319,
+    RETURN = 320,
+    IGNORE = 321,
+    PRAGMA = 322,
+    PRAGMASCOP = 323,
+    MIN = 324,
+    MAX = 325,
+    CEILD = 326,
+    FLOORD = 327,
+    ID = 328,
+    INTEGER = 329
+  };
+#endif
+/* Tokens.  */
+#define CONSTANT 258
+#define STRING_LITERAL 259
+#define SIZEOF 260
+#define PTR_OP 261
+#define INC_OP 262
+#define DEC_OP 263
+#define LEFT_OP 264
+#define RIGHT_OP 265
+#define LE_OP 266
+#define GE_OP 267
+#define EQ_OP 268
+#define NE_OP 269
+#define AND_OP 270
+#define OR_OP 271
+#define MUL_ASSIGN 272
+#define DIV_ASSIGN 273
+#define MOD_ASSIGN 274
+#define ADD_ASSIGN 275
+#define SUB_ASSIGN 276
+#define LEFT_ASSIGN 277
+#define RIGHT_ASSIGN 278
+#define AND_ASSIGN 279
+#define XOR_ASSIGN 280
+#define OR_ASSIGN 281
+#define TYPE_NAME 282
+#define TYPEDEF 283
+#define EXTERN 284
+#define STATIC 285
+#define AUTO 286
+#define REGISTER 287
+#define INLINE 288
+#define RESTRICT 289
+#define CHAR 290
+#define SHORT 291
+#define INT 292
+#define LONG 293
+#define SIGNED 294
+#define UNSIGNED 295
+#define FLOAT 296
+#define DOUBLE 297
+#define CONST 298
+#define VOLATILE 299
+#define VOID 300
+#define BOOL 301
+#define COMPLEX 302
+#define IMAGINARY 303
+#define STRUCT 304
+#define UNION 305
+#define ENUM 306
+#define ELLIPSIS 307
+#define CASE 308
+#define DEFAULT 309
+#define IF 310
+#define ELSE 311
+#define SWITCH 312
+#define WHILE 313
+#define DO 314
+#define XFOR 315
+#define FOR 316
+#define GOTO 317
+#define CONTINUE 318
+#define BREAK 319
+#define RETURN 320
+#define IGNORE 321
+#define PRAGMA 322
+#define PRAGMASCOP 323
+#define MIN 324
+#define MAX 325
+#define CEILD 326
+#define FLOORD 327
+#define ID 328
+#define INTEGER 329
+
+/* Value type.  */
+#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+typedef union YYSTYPE YYSTYPE;
+union YYSTYPE
+{
+#line 153 "source/parser.y" /* yacc.c:355  */
+ int value;                      /**< An integer value */
+         int* vecint;                    /**< A vector of integer values */
+         char* symbol;                   /**< A string for identifiers */
+         osl_vector_p affex;             /**< An affine expression */
+         osl_relation_p setex;           /**< A set of affine expressions */
+         osl_relation_list_p list;       /**< List of array accesses */
+         osl_statement_p stmt;           /**< List of statements */
+       
+
+#line 368 "parser.c" /* yacc.c:355  */
+};
+# define YYSTYPE_IS_TRIVIAL 1
+# define YYSTYPE_IS_DECLARED 1
+#endif
+
+
+extern YYSTYPE yylval;
+
+int yyparse (void);
+
+#endif /* !YY_YY_PARSER_H_INCLUDED  */
+
+/* Copy the second part of user declarations.  */
+
+#line 383 "parser.c" /* yacc.c:358  */
+
+#ifdef short
+# undef short
+#endif
+
+#ifdef YYTYPE_UINT8
+typedef YYTYPE_UINT8 yytype_uint8;
+#else
+typedef unsigned char yytype_uint8;
+#endif
+
+#ifdef YYTYPE_INT8
+typedef YYTYPE_INT8 yytype_int8;
+#else
+typedef signed char yytype_int8;
+#endif
+
+#ifdef YYTYPE_UINT16
+typedef YYTYPE_UINT16 yytype_uint16;
+#else
+typedef unsigned short int yytype_uint16;
+#endif
+
+#ifdef YYTYPE_INT16
+typedef YYTYPE_INT16 yytype_int16;
+#else
+typedef short int yytype_int16;
+#endif
+
+#ifndef YYSIZE_T
+# ifdef __SIZE_TYPE__
+#  define YYSIZE_T __SIZE_TYPE__
+# elif defined size_t
+#  define YYSIZE_T size_t
+# elif ! defined YYSIZE_T
+#  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
+#  define YYSIZE_T size_t
+# else
+#  define YYSIZE_T unsigned int
+# endif
+#endif
+
+#define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
+
+#ifndef YY_
+# if defined YYENABLE_NLS && YYENABLE_NLS
+#  if ENABLE_NLS
+#   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
+#   define YY_(Msgid) dgettext ("bison-runtime", Msgid)
+#  endif
+# endif
+# ifndef YY_
+#  define YY_(Msgid) Msgid
+# endif
+#endif
+
+#ifndef YY_ATTRIBUTE
+# if (defined __GNUC__                                               \
+      && (2 < __GNUC__ || (__GNUC__ == 2 && 96 <= __GNUC_MINOR__)))  \
+     || defined __SUNPRO_C && 0x5110 <= __SUNPRO_C
+#  define YY_ATTRIBUTE(Spec) __attribute__(Spec)
+# else
+#  define YY_ATTRIBUTE(Spec) /* empty */
+# endif
+#endif
+
+#ifndef YY_ATTRIBUTE_PURE
+# define YY_ATTRIBUTE_PURE   YY_ATTRIBUTE ((__pure__))
+#endif
+
+#ifndef YY_ATTRIBUTE_UNUSED
+# define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
+#endif
+
+#if !defined _Noreturn \
+     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
+# if defined _MSC_VER && 1200 <= _MSC_VER
+#  define _Noreturn __declspec (noreturn)
+# else
+#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
+# endif
+#endif
+
+/* Suppress unused-variable warnings by "using" E.  */
+#if ! defined lint || defined __GNUC__
+# define YYUSE(E) ((void) (E))
+#else
+# define YYUSE(E) /* empty */
+#endif
+
+#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+/* Suppress an incorrect diagnostic about yylval being uninitialized.  */
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
+    _Pragma ("GCC diagnostic push") \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")\
+    _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END \
+    _Pragma ("GCC diagnostic pop")
+#else
+# define YY_INITIAL_VALUE(Value) Value
+#endif
+#ifndef YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END
+#endif
+#ifndef YY_INITIAL_VALUE
+# define YY_INITIAL_VALUE(Value) /* Nothing. */
+#endif
+
+
+#if ! defined yyoverflow || YYERROR_VERBOSE
+
+/* The parser invokes alloca or malloc; define the necessary symbols.  */
+
+# ifdef YYSTACK_USE_ALLOCA
+#  if YYSTACK_USE_ALLOCA
+#   ifdef __GNUC__
+#    define YYSTACK_ALLOC __builtin_alloca
+#   elif defined __BUILTIN_VA_ARG_INCR
+#    include <alloca.h> /* INFRINGES ON USER NAME SPACE */
+#   elif defined _AIX
+#    define YYSTACK_ALLOC __alloca
+#   elif defined _MSC_VER
+#    include <malloc.h> /* INFRINGES ON USER NAME SPACE */
+#    define alloca _alloca
+#   else
+#    define YYSTACK_ALLOC alloca
+#    if ! defined _ALLOCA_H && ! defined EXIT_SUCCESS
+#     include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
+      /* Use EXIT_SUCCESS as a witness for stdlib.h.  */
+#     ifndef EXIT_SUCCESS
+#      define EXIT_SUCCESS 0
+#     endif
+#    endif
+#   endif
+#  endif
+# endif
+
+# ifdef YYSTACK_ALLOC
+   /* Pacify GCC's 'empty if-body' warning.  */
+#  define YYSTACK_FREE(Ptr) do { /* empty */; } while (0)
+#  ifndef YYSTACK_ALLOC_MAXIMUM
+    /* The OS might guarantee only one guard page at the bottom of the stack,
+       and a page size can be as small as 4096 bytes.  So we cannot safely
+       invoke alloca (N) if N exceeds 4096.  Use a slightly smaller number
+       to allow for a few compiler-allocated temporary stack slots.  */
+#   define YYSTACK_ALLOC_MAXIMUM 4032 /* reasonable circa 2006 */
+#  endif
+# else
+#  define YYSTACK_ALLOC YYMALLOC
+#  define YYSTACK_FREE YYFREE
+#  ifndef YYSTACK_ALLOC_MAXIMUM
+#   define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
+#  endif
+#  if (defined __cplusplus && ! defined EXIT_SUCCESS \
+       && ! ((defined YYMALLOC || defined malloc) \
+             && (defined YYFREE || defined free)))
+#   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
+#   ifndef EXIT_SUCCESS
+#    define EXIT_SUCCESS 0
+#   endif
+#  endif
+#  ifndef YYMALLOC
+#   define YYMALLOC malloc
+#   if ! defined malloc && ! defined EXIT_SUCCESS
+void *malloc (YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
+#   endif
+#  endif
+#  ifndef YYFREE
+#   define YYFREE free
+#   if ! defined free && ! defined EXIT_SUCCESS
+void free (void *); /* INFRINGES ON USER NAME SPACE */
+#   endif
+#  endif
+# endif
+#endif /* ! defined yyoverflow || YYERROR_VERBOSE */
+
+
+#if (! defined yyoverflow \
+     && (! defined __cplusplus \
+         || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+
+/* A type that is properly aligned for any stack member.  */
+union yyalloc
+{
+  yytype_int16 yyss_alloc;
+  YYSTYPE yyvs_alloc;
+};
+
+/* The size of the maximum gap between one aligned stack and the next.  */
+# define YYSTACK_GAP_MAXIMUM (sizeof (union yyalloc) - 1)
+
+/* The size of an array large to enough to hold all stacks, each with
+   N elements.  */
+# define YYSTACK_BYTES(N) \
+     ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE)) \
+      + YYSTACK_GAP_MAXIMUM)
+
+# define YYCOPY_NEEDED 1
+
+/* Relocate STACK from its old location to the new one.  The
+   local variables YYSIZE and YYSTACKSIZE give the old and new number of
+   elements in the stack, and YYPTR gives the new location of the
+   stack.  Advance YYPTR to a properly aligned location for the next
+   stack.  */
+# define YYSTACK_RELOCATE(Stack_alloc, Stack)                           \
+    do                                                                  \
+      {                                                                 \
+        YYSIZE_T yynewbytes;                                            \
+        YYCOPY (&yyptr->Stack_alloc, Stack, yysize);                    \
+        Stack = &yyptr->Stack_alloc;                                    \
+        yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
+        yyptr += yynewbytes / sizeof (*yyptr);                          \
+      }                                                                 \
+    while (0)
+
+#endif
+
+#if defined YYCOPY_NEEDED && YYCOPY_NEEDED
+/* Copy COUNT objects from SRC to DST.  The source and destination do
+   not overlap.  */
+# ifndef YYCOPY
+#  if defined __GNUC__ && 1 < __GNUC__
+#   define YYCOPY(Dst, Src, Count) \
+      __builtin_memcpy (Dst, Src, (Count) * sizeof (*(Src)))
+#  else
+#   define YYCOPY(Dst, Src, Count)              \
+      do                                        \
+        {                                       \
+          YYSIZE_T yyi;                         \
+          for (yyi = 0; yyi < (Count); yyi++)   \
+            (Dst)[yyi] = (Src)[yyi];            \
+        }                                       \
+      while (0)
+#  endif
+# endif
+#endif /* !YYCOPY_NEEDED */
+
+/* YYFINAL -- State number of the termination state.  */
+#define YYFINAL  8
+/* YYLAST -- Last index in YYTABLE.  */
+#define YYLAST   780
+
+/* YYNTOKENS -- Number of terminals.  */
+#define YYNTOKENS  99
+/* YYNNTS -- Number of nonterminals.  */
+#define YYNNTS  106
+/* YYNRULES -- Number of rules.  */
+#define YYNRULES  281
+/* YYNSTATES -- Number of states.  */
+#define YYNSTATES  482
+
+/* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
+   by yylex, with out-of-bounds checking.  */
+#define YYUNDEFTOK  2
+#define YYMAXUTOK   329
+
+#define YYTRANSLATE(YYX)                                                \
+  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+
+/* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
+   as returned by yylex, without out-of-bounds checking.  */
+static const yytype_uint8 yytranslate[] =
+{
+       0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,    89,     2,     2,     2,    90,    94,     2,
+      81,    82,    91,    85,    75,    86,    93,    92,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    78,    83,
+      87,    84,    88,    98,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,    76,     2,    77,    96,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,    79,    97,    80,    95,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
+      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
+      65,    66,    67,    68,    69,    70,    71,    72,    73,    74
+};
+
+#if YYDEBUG
+  /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
+static const yytype_uint16 yyrline[] =
+{
+       0,   252,   252,   253,   254,   255,   262,   270,   281,   285,
+     291,   292,   293,   297,   304,   359,   360,   368,   368,   382,
+     383,   384,   385,   386,   386,   413,   414,   415,   416,   416,
+     444,   443,   521,   522,   533,   532,   546,   555,   564,   554,
+     597,   596,   668,   667,   718,   717,   773,   782,   793,   792,
+     810,   811,   816,   823,   833,   843,   854,   867,   876,   888,
+     898,   907,   922,   923,   924,   925,   926,   928,   930,   931,
+     935,   936,   941,   942,   947,   984,   991,  1004,  1005,  1017,
+    1027,  1047,  1057,  1080,  1091,  1102,  1113,  1124,  1147,  1156,
+    1171,  1188,  1194,  1207,  1213,  1225,  1255,  1261,  1272,  1278,
+    1284,  1295,  1302,  1326,  1350,  1357,  1366,  1379,  1385,  1397,
+    1398,  1403,  1409,  1421,  1427,  1444,  1479,  1481,  1483,  1485,
+    1491,  1493,  1506,  1520,  1519,  1534,  1550,  1566,  1593,  1595,
+    1603,  1605,  1629,  1631,  1633,  1638,  1639,  1640,  1641,  1642,
+    1643,  1647,  1648,  1652,  1654,  1659,  1661,  1666,  1671,  1679,
+    1681,  1686,  1694,  1696,  1701,  1709,  1711,  1716,  1721,  1726,
+    1734,  1736,  1741,  1749,  1751,  1759,  1761,  1769,  1771,  1779,
+    1781,  1789,  1791,  1799,  1801,  1810,  1817,  1847,  1849,  1854,
+    1855,  1856,  1857,  1858,  1859,  1860,  1861,  1862,  1863,  1867,
+    1869,  1877,  1884,  1884,  1978,  1982,  1983,  1984,  1985,  1986,
+    1987,  1991,  1992,  1993,  1994,  1995,  1999,  2000,  2001,  2002,
+    2003,  2004,  2005,  2006,  2007,  2008,  2009,  2010,  2014,  2015,
+    2016,  2020,  2021,  2025,  2026,  2030,  2034,  2035,  2036,  2037,
+    2041,  2042,  2046,  2047,  2048,  2052,  2053,  2054,  2058,  2059,
+    2063,  2064,  2068,  2069,  2073,  2074,  2078,  2079,  2080,  2081,
+    2082,  2083,  2084,  2088,  2089,  2090,  2091,  2095,  2096,  2101,
+    2102,  2106,  2107,  2111,  2112,  2113,  2117,  2118,  2122,  2123,
+    2127,  2128,  2129,  2133,  2134,  2135,  2136,  2137,  2138,  2139,
+    2140,  2141
+};
+#endif
+
+#if YYDEBUG || YYERROR_VERBOSE || 0
+/* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
+   First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
+static const char *const yytname[] =
+{
+  "$end", "error", "$undefined", "CONSTANT", "STRING_LITERAL", "SIZEOF",
+  "PTR_OP", "INC_OP", "DEC_OP", "LEFT_OP", "RIGHT_OP", "LE_OP", "GE_OP",
+  "EQ_OP", "NE_OP", "AND_OP", "OR_OP", "MUL_ASSIGN", "DIV_ASSIGN",
+  "MOD_ASSIGN", "ADD_ASSIGN", "SUB_ASSIGN", "LEFT_ASSIGN", "RIGHT_ASSIGN",
+  "AND_ASSIGN", "XOR_ASSIGN", "OR_ASSIGN", "TYPE_NAME", "TYPEDEF",
+  "EXTERN", "STATIC", "AUTO", "REGISTER", "INLINE", "RESTRICT", "CHAR",
+  "SHORT", "INT", "LONG", "SIGNED", "UNSIGNED", "FLOAT", "DOUBLE", "CONST",
+  "VOLATILE", "VOID", "BOOL", "COMPLEX", "IMAGINARY", "STRUCT", "UNION",
+  "ENUM", "ELLIPSIS", "CASE", "DEFAULT", "IF", "ELSE", "SWITCH", "WHILE",
+  "DO", "XFOR", "FOR", "GOTO", "CONTINUE", "BREAK", "RETURN", "IGNORE",
+  "PRAGMA", "PRAGMASCOP", "MIN", "MAX", "CEILD", "FLOORD", "ID", "INTEGER",
+  "','", "'['", "']'", "':'", "'{'", "'}'", "'('", "')'", "';'", "'='",
+  "'+'", "'-'", "'<'", "'>'", "'!'", "'%'", "'*'", "'/'", "'.'", "'&'",
+  "'~'", "'^'", "'|'", "'?'", "$accept", "scop_list", "iterators_list",
+  "list_of_iterators_list", "xfor_iterators", "pragma_scop", "scop",
+  "statement_list", "statement_indented", "$@1", "statement", "$@2",
+  "statement_with_no_label", "$@3", "labeled_statement", "$@4",
+  "compound_statement", "selection_else_statement", "$@5",
+  "selection_statement", "$@6", "$@7", "iteration_statement", "$@8", "$@9",
+  "$@10", "loop_initialization_list", "loop_initialization", "$@11",
+  "loop_declaration", "loop_condition_list", "loop_condition",
+  "loop_grain_list", "loop_offset_list", "loop_offset", "loop_stride_list",
+  "loop_stride", "idparent", "loop_infinite", "loop_body",
+  "affine_minmax_expression", "minmax", "affine_min_expression",
+  "affine_max_expression", "affine_relation",
+  "affine_logical_and_expression", "affine_condition",
+  "affine_primary_expression", "affine_unary_expression",
+  "affine_multiplicative_expression", "affine_expression",
+  "affine_ceildfloord_expression", "ceildfloord",
+  "affine_ceild_expression", "affine_floord_expression",
+  "primary_expression", "postfix_expression", "$@12",
+  "argument_expression_list", "unary_expression", "unary_operator",
+  "unary_increment_operator", "cast_expression",
+  "multiplicative_expression", "additive_expression", "shift_expression",
+  "relational_expression", "equality_expression", "and_expression",
+  "exclusive_or_expression", "inclusive_or_expression",
+  "logical_and_expression", "logical_or_expression",
+  "conditional_expression", "assignment_expression", "assignment_operator",
+  "assignment_rdwr_operator", "expression", "expression_statement", "$@13",
+  "constant_expression", "declaration_specifiers",
+  "storage_class_specifier", "type_specifier", "struct_or_union_specifier",
+  "struct_or_union", "struct_declaration_list", "struct_declaration",
+  "specifier_qualifier_list", "struct_declarator_list",
+  "struct_declarator", "enum_specifier", "enumerator_list", "enumerator",
+  "type_qualifier", "declarator", "direct_declarator", "pointer",
+  "type_qualifier_list", "parameter_type_list", "parameter_list",
+  "parameter_declaration", "identifier_list", "type_name",
+  "abstract_declarator", "direct_abstract_declarator", YY_NULLPTR
+};
+#endif
+
+# ifdef YYPRINT
+/* YYTOKNUM[NUM] -- (External) token number corresponding to the
+   (internal) symbol number NUM (which must be that of a token).  */
+static const yytype_uint16 yytoknum[] =
+{
+       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
+     265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
+     275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
+     285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
+     295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
+     305,   306,   307,   308,   309,   310,   311,   312,   313,   314,
+     315,   316,   317,   318,   319,   320,   321,   322,   323,   324,
+     325,   326,   327,   328,   329,    44,    91,    93,    58,   123,
+     125,    40,    41,    59,    61,    43,    45,    60,    62,    33,
+      37,    42,    47,    46,    38,   126,    94,   124,    63
+};
+# endif
+
+#define YYPACT_NINF -406
+
+#define yypact_value_is_default(Yystate) \
+  (!!((Yystate) == (-406)))
+
+#define YYTABLE_NINF -114
+
+#define yytable_value_is_error(Yytable_value) \
+  0
+
+  /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
+     STATE-NUM.  */
+static const yytype_int16 yypact[] =
+{
+       8,  -406,    79,    70,  -406,  -406,   188,  -406,  -406,  -406,
+    -406,   180,  -406,   620,  -406,   189,   292,   303,  -406,  -406,
+     193,   220,   228,  -406,  -406,   109,  -406,  -406,  -406,  -406,
+     333,   315,   275,  -406,   246,  -406,   182,  -406,  -406,   264,
+     320,   342,   351,  -406,  -406,  -406,  -406,   395,  -406,  -406,
+    -406,  -406,   184,  -406,  -406,  -406,  -406,  -406,  -406,  -406,
+      48,   271,   333,   426,  -406,   294,   -40,   411,    55,   381,
+     257,   319,   266,   420,    -3,  -406,  -406,    -6,  -406,  -406,
+     189,   379,   398,   401,   402,  -406,  -406,   182,   122,   122,
+     406,    29,    46,  -406,   451,    -4,  -406,  -406,   334,    49,
+    -406,  -406,   627,  -406,   421,   459,     2,   620,   184,  -406,
+    -406,  -406,  -406,  -406,  -406,  -406,  -406,  -406,  -406,  -406,
+    -406,  -406,  -406,  -406,    17,   -35,   729,  -406,   270,   -32,
+    -406,   729,   415,   425,   331,   419,   429,  -406,  -406,  -406,
+    -406,  -406,  -406,  -406,  -406,  -406,  -406,  -406,  -406,   333,
+    -406,  -406,  -406,   333,  -406,   333,   333,   333,   333,   333,
+     333,   333,   333,   333,   333,   333,   333,   333,   333,   333,
+     333,   333,   333,   333,   333,  -406,   336,   273,   508,   331,
+     331,    27,    76,   331,  -406,  -406,   182,   508,   508,   273,
+     273,   182,   182,  -406,   331,   331,   331,   331,   331,   430,
+    -406,   109,  -406,  -406,  -406,   423,  -406,   182,   126,   433,
+     427,   182,  -406,  -406,   431,   435,   436,  -406,  -406,   437,
+     729,   240,   495,   -12,   105,  -406,   242,  -406,   333,  -406,
+     -14,  -406,   333,  -406,  -406,  -406,  -406,  -406,   294,   294,
+     -40,   -40,   411,   411,   411,   411,    55,    55,   381,   257,
+     319,   266,   420,   255,  -406,  -406,   443,   352,   444,   352,
+     -33,    -2,  -406,  -406,   385,    65,  -406,  -406,  -406,  -406,
+    -406,   451,   620,  -406,  -406,   352,   334,   334,   515,  -406,
+    -406,   169,   135,   492,   459,  -406,  -406,   447,   169,  -406,
+     436,   457,   282,  -406,   729,   590,  -406,   158,  -406,  -406,
+     465,  -406,  -406,  -406,  -406,  -406,  -406,    99,   710,   710,
+     710,   461,   472,  -406,   466,  -406,  -406,   -12,   242,   279,
+     571,  -406,  -406,    75,  -406,   333,   273,   508,   475,   482,
+    -406,  -406,   483,   199,   199,  -406,   199,   486,   500,    30,
+     182,  -406,  -406,   496,  -406,   488,   286,   333,   436,  -406,
+     622,  -406,  -406,  -406,   333,   121,   244,  -406,   505,   301,
+     247,  -406,   412,  -406,    98,  -406,  -406,  -406,  -406,  -406,
+     684,  -406,  -406,  -406,  -406,   507,  -406,   503,   333,  -406,
+    -406,   506,   509,   510,   513,   531,  -406,  -406,  -406,   522,
+     516,   169,  -406,  -406,   544,   545,   199,  -406,   230,  -406,
+    -406,  -406,  -406,  -406,  -406,   541,   158,  -406,   333,   302,
+     523,   301,  -406,  -406,  -406,  -406,  -406,  -406,  -406,  -406,
+    -406,  -406,  -406,  -406,   249,   230,  -406,  -406,  -406,   360,
+    -406,  -406,  -406,  -406,  -406,   543,   352,  -406,   555,   620,
+    -406,  -406,  -406,  -406,   520,  -406,  -406,   556,   155,   620,
+     516,  -406,   560,   562,  -406,   569,   570,   230,   331,  -406,
+    -406,  -406,   572,  -406,  -406,  -406,  -406,   230,  -406,  -406,
+     573,   191,  -406,   620,  -406,   230,   576,  -406,   564,   565,
+    -406,  -406
+};
+
+  /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
+     Performed when YYTABLE does not specify something else to do.  Zero
+     means the default is an error.  */
+static const yytype_uint16 yydefact[] =
+{
+       0,     5,    12,     0,    17,     2,     0,    13,     1,     4,
+       3,    17,    15,   192,     7,     0,     0,     0,    14,    16,
+       0,     0,    17,   191,    18,     0,    19,    20,    22,    21,
+       0,     0,     0,    11,     0,    10,     0,    30,    32,    17,
+       0,     0,     0,    24,    44,   116,   118,     0,   141,   142,
+     115,   117,     0,   137,   138,   140,   136,   135,   139,   120,
+     130,   143,     0,     0,   145,   149,   152,   155,   160,   163,
+     165,   167,   169,   171,   173,   175,   189,     0,     9,     6,
+       0,     0,     0,     0,     0,    95,    96,     0,     0,     0,
+       0,     0,     0,    91,    93,     0,    98,   101,   104,   111,
+      81,    79,   192,    33,     0,    51,    51,   192,     0,   133,
+     217,   207,   208,   209,   210,   213,   214,   211,   212,   242,
+     243,   206,   221,   222,     0,     0,   227,   215,     0,   268,
+     216,   229,     0,     0,     0,   123,     0,   127,   179,   180,
+     181,   182,   183,   184,   185,   186,   187,   188,   177,     0,
+     178,   143,   132,     0,   131,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,   193,     0,     0,     0,     0,
+       0,     0,   111,     0,    99,   100,     0,     0,     0,     0,
+       0,     0,     0,    37,     0,     0,     0,     0,     0,     0,
+      31,     0,    25,    27,    26,     0,    50,     0,     0,     0,
+       0,     0,    74,    45,     0,   237,     0,   119,   226,   220,
+       0,     0,     0,   253,   270,   269,   271,   228,     0,   126,
+       0,   122,     0,   125,   176,   148,   146,   147,   150,   151,
+     153,   154,   158,   159,   156,   157,   161,   162,   164,   166,
+     168,   170,   172,     0,   190,     8,     0,   113,     0,   111,
+       0,     0,    88,    97,     0,     0,    86,    84,    85,    83,
+      92,    94,   192,   102,   103,    87,   105,   106,     0,    29,
+      72,     0,     0,    54,    51,    47,    48,     0,     0,   134,
+       0,   240,     0,   238,     0,     0,   223,     0,   274,   194,
+       0,   201,   202,   203,   204,   205,   278,   265,   195,   197,
+     199,     0,   259,   261,     0,   257,   255,   254,   272,     0,
+       0,   144,   121,     0,   128,     0,     0,     0,     0,     0,
+      89,    38,     0,     0,     0,    70,     0,     0,    61,     0,
+       0,    53,    46,     0,    73,     0,     0,     0,     0,   235,
+       0,   219,   224,   246,     0,     0,     0,   230,   232,   245,
+       0,   275,     0,   263,   270,   264,   196,   198,   200,   279,
+       0,   273,   258,   256,   276,     0,   280,     0,     0,   124,
+     174,     0,     0,     0,     0,    36,    90,    64,    65,     0,
+       0,     0,    62,    63,     0,     0,     0,    52,     0,    42,
+     236,   241,   239,   218,   233,     0,     0,   225,     0,     0,
+       0,   244,   260,   262,   277,   281,   129,    80,    82,   112,
+     114,    34,    39,    71,     0,     0,    60,    68,    69,     0,
+      77,    78,   109,   110,    49,     0,   107,    75,     0,   192,
+     247,   231,   234,   249,     0,   266,   252,     0,     0,   192,
+       0,    56,     0,    58,    59,     0,     0,     0,     0,    43,
+     248,   250,     0,   251,    35,    55,    40,     0,    66,    67,
+       0,     0,   267,   192,    57,     0,     0,    41,     0,     0,
+      76,   108
+};
+
+  /* YYPGOTO[NTERM-NUM].  */
+static const yytype_int16 yypgoto[] =
+{
+    -406,  -406,     7,  -406,  -406,  -406,   648,   630,    25,  -406,
+     -13,  -406,  -406,  -406,  -406,  -406,   552,  -406,  -406,   553,
+    -406,  -406,   455,  -406,  -406,  -406,  -102,  -406,  -406,  -406,
+    -200,  -406,   218,   202,  -406,  -259,  -406,  -136,  -406,  -405,
+    -375,  -406,  -163,  -171,   485,   487,   -27,   370,   278,   267,
+     -86,  -406,  -406,  -406,  -406,  -406,  -406,  -406,  -406,   -28,
+    -406,   614,   -29,   316,   317,    52,   325,   518,   514,   519,
+     521,   512,  -406,  -203,  -146,  -406,  -406,   -20,   575,  -406,
+    -289,   100,  -406,  -197,  -406,  -406,   396,  -143,    23,  -406,
+     285,  -406,   403,   347,  -202,  -177,   -79,  -124,  -406,  -305,
+    -406,   326,  -406,   589,  -123,  -216
+};
+
+  /* YYDEFGOTO[NTERM-NUM].  */
+static const yytype_int16 yydefgoto[] =
+{
+      -1,     3,    16,    17,     7,     4,     5,    11,    12,    13,
+     212,    25,   200,   201,    26,   102,    27,   422,   449,    28,
+     272,   385,    43,   473,   439,   107,   207,   208,   343,   209,
+     281,   282,   425,   452,   453,   337,   338,   339,    44,   213,
+     454,   435,    91,    92,    93,    94,   283,    96,    97,    98,
+      99,   437,   438,   100,   101,    59,    60,   232,   323,   151,
+      62,    63,    64,    65,    66,    67,    68,    69,    70,    71,
+      72,    73,    74,    75,    76,   149,   150,   125,    29,    30,
+     300,   307,   308,   126,   127,   128,   295,   296,   297,   356,
+     357,   130,   292,   293,   131,   358,   359,   360,   317,   311,
+     312,   313,   448,   132,   314,   226
+};
+
+  /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
+     positive, shift that token.  If negative, reduce the rule whose
+     number is the opposite.  If YYTABLE_NINF, syntax error.  */
+static const yytype_int16 yytable[] =
+{
+      24,   182,    61,   234,   211,   224,   225,   258,   318,    95,
+      77,   288,   192,   172,   256,   377,   266,   267,   299,   109,
+     310,   315,    31,   434,    61,   309,   268,   269,   254,   345,
+     375,   119,   120,   152,   459,   154,    19,   392,   393,   206,
+     174,   187,   328,   192,   221,   158,   159,   217,   230,   222,
+     394,   395,   197,   198,   133,    48,    49,   189,   401,   223,
+     181,  -113,   196,   322,    19,   404,   162,   163,   477,   174,
+       8,   197,   198,   329,     1,   129,     2,   175,   193,   223,
+      61,   192,   470,   197,   198,   210,   324,   176,  -113,   196,
+     215,   257,   259,   260,   261,   173,   216,   264,   224,   316,
+     478,   259,   259,   257,   257,   447,   310,   310,   310,   262,
+     275,   309,   309,   309,   396,   372,   299,   188,   310,   442,
+     444,    61,   380,   309,   134,    61,   235,   236,   237,   135,
+     363,   129,   426,   190,   197,   198,     9,  -113,     2,   199,
+     397,   136,   164,   165,   299,    61,    61,   330,   318,   218,
+     378,   299,   352,   253,   227,     6,   382,   379,   263,   265,
+     310,   197,   198,   381,  -113,   309,   199,    40,   310,    41,
+      42,   353,   353,   309,   221,   221,   333,   334,   405,   362,
+     362,   221,   342,   364,   365,   405,   222,    45,    46,    47,
+     223,    48,    49,   373,   353,    85,    86,   387,   388,   321,
+     389,   284,   355,   183,    61,   299,   299,   352,   310,   285,
+     340,   110,   223,   309,   242,   243,   244,   245,   341,   111,
+     112,   113,   114,   115,   116,   117,   118,   119,   120,   121,
+     462,   353,   416,   122,   123,   124,   354,   463,   364,   355,
+     257,   259,   335,    45,    46,    47,    18,    48,    49,   223,
+     336,    81,    82,    83,    84,    85,    86,    50,    51,   331,
+     429,    14,    14,    87,    15,    52,   476,    88,    89,    53,
+      54,    90,   335,    55,    36,    56,   197,   198,    57,    58,
+     336,   411,    45,    46,    47,   411,    48,    49,   138,   139,
+     140,   141,   142,   143,   144,   145,   146,   147,    37,   430,
+     431,   432,   433,    85,    86,    45,    46,    47,    38,    48,
+      49,   183,   436,    50,    51,    88,    89,   298,   319,   406,
+     353,    52,    80,   320,   450,    53,    54,   407,   355,    55,
+     174,    56,   451,   325,    57,    58,    45,    46,    47,   436,
+      48,    49,    81,   219,   103,    84,    85,    86,    79,   220,
+      61,   168,    50,    51,   183,   148,   374,   348,    88,    89,
+      52,   348,   349,   170,    53,    54,   400,    32,    55,    33,
+      56,   436,   471,    57,    58,    50,    51,   409,    34,   443,
+      35,   436,   410,    52,   155,   156,   157,    53,    54,   436,
+      32,    55,    78,    56,   166,   167,    57,    58,    45,    46,
+      47,   104,    48,    49,    85,    86,    50,    51,   366,   367,
+     368,    32,   183,   255,    52,   169,    88,    89,    53,    54,
+     160,   161,    55,   105,    56,   194,   195,    57,    58,    45,
+      46,    47,   106,    48,    49,   171,   464,   197,   198,   110,
+     301,   302,   303,   304,   305,   455,   456,   111,   112,   113,
+     114,   115,   116,   117,   118,   119,   120,   121,   184,   185,
+     177,   122,   123,   124,   276,   277,   191,   263,    50,    51,
+     197,   198,   273,   274,   238,   239,   108,   240,   241,   178,
+      53,    54,   179,   180,    55,   353,    56,   186,   221,    57,
+      58,   246,   247,   362,   306,   205,   206,   228,   229,    50,
+      51,   231,   233,   223,   278,   280,   286,   153,   192,   291,
+     287,    53,    54,   289,   290,    55,   294,    56,   326,   327,
+      57,    58,   110,   301,   302,   303,   304,   305,   332,   344,
+     111,   112,   113,   114,   115,   116,   117,   118,   119,   120,
+     121,   347,   361,   369,   122,   123,   124,   370,   371,   383,
+     110,   301,   302,   303,   304,   305,   384,   386,   111,   112,
+     113,   114,   115,   116,   117,   118,   119,   120,   121,   390,
+     399,   221,   122,   123,   124,   391,   222,   306,    82,    83,
+     398,    85,    86,   408,   414,   415,   223,   421,   417,   183,
+     424,   418,   419,    88,    89,   420,   445,   460,   110,   301,
+     302,   303,   304,   305,   423,   446,   111,   112,   113,   114,
+     115,   116,   117,   118,   119,   120,   121,   110,   427,   428,
+     122,   123,   124,   440,   457,   111,   112,   113,   114,   115,
+     116,   117,   118,   119,   120,   121,   458,   467,   461,   122,
+     123,   124,   466,   468,   469,   472,   480,   481,   475,   110,
+     479,    10,    39,   376,   202,   203,   279,   111,   112,   113,
+     114,   115,   116,   117,   118,   119,   120,   121,   465,   474,
+     351,   122,   123,   124,   137,    20,   270,   204,   -23,   271,
+     -23,   -23,    20,   249,   252,   -28,   248,   -28,   -28,   250,
+     350,   441,   251,   346,    21,   402,   413,   214,     0,    22,
+       0,     0,   403,    23,     0,     0,    22,     0,     0,     0,
+      23,   110,   301,   302,   303,   304,   305,     0,     0,   111,
+     112,   113,   114,   115,   116,   117,   118,   119,   120,   121,
+       0,     0,     0,   122,   123,   124,   412,   110,   301,   302,
+     303,   304,   305,     0,     0,   111,   112,   113,   114,   115,
+     116,   117,   118,   119,   120,   121,   110,     0,     0,   122,
+     123,   124,     0,     0,   111,   112,   113,   114,   115,   116,
+     117,   118,   119,   120,   121,     0,     0,     0,   122,   123,
+     124
+};
+
+static const yytype_int16 yycheck[] =
+{
+      13,    87,    30,   149,   106,   129,   129,   178,   224,    36,
+      30,   211,    16,    16,   177,   320,   187,   188,   221,    47,
+     222,   223,    15,   398,    52,   222,   189,   190,   174,   288,
+     319,    43,    44,    62,   439,    63,    11,     7,     8,    37,
+      75,    12,    75,    16,    76,    85,    86,    82,   134,    81,
+      20,    21,    85,    86,     6,     7,     8,    11,   347,    91,
+      87,    12,    13,    77,    39,   354,    11,    12,   473,    75,
+       0,    85,    86,    75,    66,    52,    68,    83,    82,    91,
+     108,    16,   457,    85,    86,    83,   232,    80,    12,    13,
+      73,   177,   178,   179,   180,    98,    79,   183,   222,   223,
+     475,   187,   188,   189,   190,   410,   308,   309,   310,    82,
+     196,   308,   309,   310,    84,   317,   319,    88,   320,   408,
+     409,   149,   325,   320,    76,   153,   155,   156,   157,    81,
+     307,   108,   391,    87,    85,    86,    66,    88,    68,    90,
+     340,    93,    87,    88,   347,   173,   174,    82,   364,   126,
+      75,   354,   295,   173,   131,    76,   327,    82,    82,   186,
+     362,    85,    86,   326,    88,   362,    90,    58,   370,    60,
+      61,    73,    73,   370,    76,    76,     7,     8,   355,    81,
+      81,    76,   284,   307,   307,   362,    81,     3,     4,     5,
+      91,     7,     8,   317,    73,    73,    74,   333,   334,   228,
+     336,    75,    81,    81,   232,   408,   409,   350,   410,    83,
+      75,    27,    91,   410,   162,   163,   164,   165,    83,    35,
+      36,    37,    38,    39,    40,    41,    42,    43,    44,    45,
+      75,    73,   378,    49,    50,    51,    78,    82,   362,    81,
+     326,   327,    73,     3,     4,     5,    66,     7,     8,    91,
+      81,    69,    70,    71,    72,    73,    74,    73,    74,   272,
+     396,    73,    73,    81,    76,    81,    75,    85,    86,    85,
+      86,    89,    73,    89,    81,    91,    85,    86,    94,    95,
+      81,   360,     3,     4,     5,   364,     7,     8,    17,    18,
+      19,    20,    21,    22,    23,    24,    25,    26,    78,    69,
+      70,    71,    72,    73,    74,     3,     4,     5,    80,     7,
+       8,    81,   398,    73,    74,    85,    86,    77,    76,    75,
+      73,    81,    76,    81,    75,    85,    86,    83,    81,    89,
+      75,    91,    83,    78,    94,    95,     3,     4,     5,   425,
+       7,     8,    69,    73,    80,    72,    73,    74,    73,    79,
+     378,    94,    73,    74,    81,    84,    77,    75,    85,    86,
+      81,    75,    80,    97,    85,    86,    80,    75,    89,    77,
+      91,   457,   458,    94,    95,    73,    74,    76,    75,    77,
+      77,   467,    81,    81,    90,    91,    92,    85,    86,   475,
+      75,    89,    77,    91,    13,    14,    94,    95,     3,     4,
+       5,    81,     7,     8,    73,    74,    73,    74,   308,   309,
+     310,    75,    81,    77,    81,    96,    85,    86,    85,    86,
+       9,    10,    89,    81,    91,    91,    92,    94,    95,     3,
+       4,     5,    81,     7,     8,    15,   449,    85,    86,    27,
+      28,    29,    30,    31,    32,    85,    86,    35,    36,    37,
+      38,    39,    40,    41,    42,    43,    44,    45,    88,    89,
+      81,    49,    50,    51,   197,   198,    15,    82,    73,    74,
+      85,    86,   194,   195,   158,   159,    81,   160,   161,    81,
+      85,    86,    81,    81,    89,    73,    91,    81,    76,    94,
+      95,   166,   167,    81,    82,    74,    37,    82,    73,    73,
+      74,    82,    73,    91,    74,    82,    73,    81,    16,    73,
+      83,    85,    86,    82,    79,    89,    79,    91,    75,    75,
+      94,    95,    27,    28,    29,    30,    31,    32,    13,    82,
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    84,    77,    82,    49,    50,    51,    75,    82,    74,
+      27,    28,    29,    30,    31,    32,    74,    74,    35,    36,
+      37,    38,    39,    40,    41,    42,    43,    44,    45,    83,
+      82,    76,    49,    50,    51,    75,    81,    82,    70,    71,
+      84,    73,    74,    78,    77,    82,    91,    56,    82,    81,
+      74,    82,    82,    85,    86,    82,    73,    77,    27,    28,
+      29,    30,    31,    32,    82,    82,    35,    36,    37,    38,
+      39,    40,    41,    42,    43,    44,    45,    27,    74,    74,
+      49,    50,    51,    82,    81,    35,    36,    37,    38,    39,
+      40,    41,    42,    43,    44,    45,    81,    75,    82,    49,
+      50,    51,    82,    74,    74,    73,    82,    82,    75,    27,
+      74,     3,    22,    82,   102,   102,   201,    35,    36,    37,
+      38,    39,    40,    41,    42,    43,    44,    45,   450,   467,
+      80,    49,    50,    51,    60,    55,   191,   102,    58,   192,
+      60,    61,    55,   169,   172,    58,   168,    60,    61,   170,
+     294,   406,   171,   290,    74,   348,   370,   108,    -1,    79,
+      -1,    -1,    80,    83,    -1,    -1,    79,    -1,    -1,    -1,
+      83,    27,    28,    29,    30,    31,    32,    -1,    -1,    35,
+      36,    37,    38,    39,    40,    41,    42,    43,    44,    45,
+      -1,    -1,    -1,    49,    50,    51,    52,    27,    28,    29,
+      30,    31,    32,    -1,    -1,    35,    36,    37,    38,    39,
+      40,    41,    42,    43,    44,    45,    27,    -1,    -1,    49,
+      50,    51,    -1,    -1,    35,    36,    37,    38,    39,    40,
+      41,    42,    43,    44,    45,    -1,    -1,    -1,    49,    50,
+      51
+};
+
+  /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
+     symbol of state STATE-NUM.  */
+static const yytype_uint8 yystos[] =
+{
+       0,    66,    68,   100,   104,   105,    76,   103,     0,    66,
+     105,   106,   107,   108,    73,    76,   101,   102,    66,   107,
+      55,    74,    79,    83,   109,   110,   113,   115,   118,   177,
+     178,   101,    75,    77,    75,    77,    81,    78,    80,   106,
+      58,    60,    61,   121,   137,     3,     4,     5,     7,     8,
+      73,    74,    81,    85,    86,    89,    91,    94,    95,   154,
+     155,   158,   159,   160,   161,   162,   163,   164,   165,   166,
+     167,   168,   169,   170,   171,   172,   173,   176,    77,    73,
+      76,    69,    70,    71,    72,    73,    74,    81,    85,    86,
+      89,   141,   142,   143,   144,   145,   146,   147,   148,   149,
+     152,   153,   114,    80,    81,    81,    81,   124,    81,   158,
+      27,    35,    36,    37,    38,    39,    40,    41,    42,    43,
+      44,    45,    49,    50,    51,   176,   182,   183,   184,   187,
+     190,   193,   202,     6,    76,    81,    93,   160,    17,    18,
+      19,    20,    21,    22,    23,    24,    25,    26,    84,   174,
+     175,   158,   161,    81,   158,    90,    91,    92,    85,    86,
+       9,    10,    11,    12,    87,    88,    13,    14,    94,    96,
+      97,    15,    16,    98,    75,    83,   101,    81,    81,    81,
+      81,   145,   149,    81,   146,   146,    81,    12,    88,    11,
+      87,    15,    16,    82,    91,    92,    13,    85,    86,    90,
+     111,   112,   115,   118,   177,    74,    37,   125,   126,   128,
+      83,   125,   109,   138,   202,    73,    79,    82,   187,    73,
+      79,    76,    81,    91,   196,   203,   204,   187,    82,    73,
+     149,    82,   156,    73,   173,   161,   161,   161,   162,   162,
+     163,   163,   164,   164,   164,   164,   165,   165,   166,   167,
+     168,   169,   170,   176,   173,    77,   141,   149,   142,   149,
+     149,   149,    82,    82,   149,   145,   142,   142,   141,   141,
+     143,   144,   119,   147,   147,   149,   148,   148,    74,   121,
+      82,   129,   130,   145,    75,    83,    73,    83,   129,    82,
+      79,    73,   191,   192,    79,   185,   186,   187,    77,   172,
+     179,    28,    29,    30,    31,    32,    82,   180,   181,   182,
+     193,   198,   199,   200,   203,   193,   196,   197,   204,    76,
+      81,   161,    77,   157,   173,    78,    75,    75,    75,    75,
+      82,   109,    13,     7,     8,    73,    81,   134,   135,   136,
+      75,    83,   125,   127,    82,   134,   191,    84,    75,    80,
+     185,    80,   186,    73,    78,    81,   188,   189,   194,   195,
+     196,    77,    81,   194,   196,   203,   180,   180,   180,    82,
+      75,    82,   193,   196,    77,   179,    82,   198,    75,    82,
+     172,   141,   142,    74,    74,   120,    74,   136,   136,   136,
+      83,    75,     7,     8,    20,    21,    84,   129,    84,    82,
+      80,   179,   192,    80,   179,   194,    75,    83,    78,    76,
+      81,   195,    52,   200,    77,    82,   173,    82,    82,    82,
+      82,    56,   116,    82,    74,   131,   134,    74,    74,   136,
+      69,    70,    71,    72,   139,   140,   149,   150,   151,   123,
+      82,   189,   179,    77,   179,    73,    82,   198,   201,   117,
+      75,    83,   132,   133,   139,    85,    86,    81,    81,   138,
+      77,    82,    75,    82,   109,   131,    82,    75,    74,    74,
+     139,   149,    73,   122,   132,    75,    75,   138,   139,    74,
+      82,    82
+};
+
+  /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
+static const yytype_uint8 yyr1[] =
+{
+       0,    99,   100,   100,   100,   100,   101,   101,   102,   102,
+     103,   103,   103,   104,   105,   106,   106,   108,   107,   109,
+     109,   109,   109,   110,   109,   111,   111,   111,   112,   111,
+     114,   113,   115,   115,   117,   116,   116,   119,   120,   118,
+     122,   121,   123,   121,   124,   121,   125,   125,   127,   126,
+     128,   128,   129,   129,   130,   131,   131,   132,   132,   133,
+     134,   134,   135,   135,   135,   135,   135,   135,   135,   135,
+     136,   136,   137,   137,   138,   139,   139,   140,   140,   141,
+     141,   142,   142,   143,   143,   143,   143,   143,   143,   143,
+     143,   144,   144,   145,   145,   146,   146,   146,   147,   147,
+     147,   148,   148,   148,   149,   149,   149,   150,   150,   151,
+     151,   152,   152,   153,   153,   154,   154,   154,   154,   154,
+     155,   155,   155,   156,   155,   155,   155,   155,   157,   157,
+     158,   158,   158,   158,   158,   159,   159,   159,   159,   159,
+     159,   160,   160,   161,   161,   162,   162,   162,   162,   163,
+     163,   163,   164,   164,   164,   165,   165,   165,   165,   165,
+     166,   166,   166,   167,   167,   168,   168,   169,   169,   170,
+     170,   171,   171,   172,   172,   173,   173,   174,   174,   175,
+     175,   175,   175,   175,   175,   175,   175,   175,   175,   176,
+     176,   177,   178,   177,   179,   180,   180,   180,   180,   180,
+     180,   181,   181,   181,   181,   181,   182,   182,   182,   182,
+     182,   182,   182,   182,   182,   182,   182,   182,   183,   183,
+     183,   184,   184,   185,   185,   186,   187,   187,   187,   187,
+     188,   188,   189,   189,   189,   190,   190,   190,   191,   191,
+     192,   192,   193,   193,   194,   194,   195,   195,   195,   195,
+     195,   195,   195,   196,   196,   196,   196,   197,   197,   198,
+     198,   199,   199,   200,   200,   200,   201,   201,   202,   202,
+     203,   203,   203,   204,   204,   204,   204,   204,   204,   204,
+     204,   204
+};
+
+  /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
+static const yytype_uint8 yyr2[] =
+{
+       0,     2,     1,     2,     2,     1,     3,     1,     5,     3,
+       3,     3,     0,     2,     3,     1,     2,     0,     2,     1,
+       1,     1,     1,     0,     2,     1,     1,     1,     0,     2,
+       0,     4,     2,     3,     0,     3,     0,     0,     0,     8,
+       0,    11,     0,     8,     0,     3,     3,     2,     0,     5,
+       1,     0,     3,     2,     1,     3,     2,     3,     1,     1,
+       3,     1,     2,     2,     2,     2,     5,     5,     3,     3,
+       1,     3,     4,     5,     1,     1,     6,     1,     1,     1,
+       6,     1,     6,     3,     3,     3,     3,     3,     3,     4,
+       5,     1,     3,     1,     3,     1,     1,     3,     1,     2,
+       2,     1,     3,     3,     1,     3,     3,     1,     6,     1,
+       1,     1,     6,     1,     6,     1,     1,     1,     1,     3,
+       1,     4,     3,     0,     5,     3,     3,     2,     1,     3,
+       1,     2,     2,     2,     4,     1,     1,     1,     1,     1,
+       1,     1,     1,     1,     4,     1,     3,     3,     3,     1,
+       3,     3,     1,     3,     3,     1,     3,     3,     3,     3,
+       1,     3,     3,     1,     3,     1,     3,     1,     3,     1,
+       3,     1,     3,     1,     5,     1,     3,     1,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+       3,     1,     0,     3,     1,     1,     2,     1,     2,     1,
+       2,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     1,     5,     4,
+       2,     1,     1,     1,     2,     3,     2,     1,     2,     1,
+       1,     3,     1,     2,     3,     4,     5,     2,     1,     3,
+       1,     3,     1,     1,     2,     1,     1,     3,     4,     3,
+       4,     4,     3,     1,     2,     2,     3,     1,     2,     1,
+       3,     1,     3,     2,     2,     1,     1,     3,     1,     2,
+       1,     1,     2,     3,     2,     3,     3,     4,     2,     3,
+       3,     4
+};
+
+
+#define yyerrok         (yyerrstatus = 0)
+#define yyclearin       (yychar = YYEMPTY)
+#define YYEMPTY         (-2)
+#define YYEOF           0
+
+#define YYACCEPT        goto yyacceptlab
+#define YYABORT         goto yyabortlab
+#define YYERROR         goto yyerrorlab
+
+
+#define YYRECOVERING()  (!!yyerrstatus)
+
+#define YYBACKUP(Token, Value)                                  \
+do                                                              \
+  if (yychar == YYEMPTY)                                        \
+    {                                                           \
+      yychar = (Token);                                         \
+      yylval = (Value);                                         \
+      YYPOPSTACK (yylen);                                       \
+      yystate = *yyssp;                                         \
+      goto yybackup;                                            \
+    }                                                           \
+  else                                                          \
+    {                                                           \
+      yyerror (YY_("syntax error: cannot back up")); \
+      YYERROR;                                                  \
+    }                                                           \
+while (0)
+
+/* Error token number */
+#define YYTERROR        1
+#define YYERRCODE       256
+
+
+
+/* Enable debugging if requested.  */
+#if YYDEBUG
+
+# ifndef YYFPRINTF
+#  include <stdio.h> /* INFRINGES ON USER NAME SPACE */
+#  define YYFPRINTF fprintf
+# endif
+
+# define YYDPRINTF(Args)                        \
+do {                                            \
+  if (yydebug)                                  \
+    YYFPRINTF Args;                             \
+} while (0)
+
+/* This macro is provided for backward compatibility. */
+#ifndef YY_LOCATION_PRINT
+# define YY_LOCATION_PRINT(File, Loc) ((void) 0)
+#endif
+
+
+# define YY_SYMBOL_PRINT(Title, Type, Value, Location)                    \
+do {                                                                      \
+  if (yydebug)                                                            \
+    {                                                                     \
+      YYFPRINTF (stderr, "%s ", Title);                                   \
+      yy_symbol_print (stderr,                                            \
+                  Type, Value); \
+      YYFPRINTF (stderr, "\n");                                           \
+    }                                                                     \
+} while (0)
+
+
+/*----------------------------------------.
+| Print this symbol's value on YYOUTPUT.  |
+`----------------------------------------*/
+
+static void
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+{
+  FILE *yyo = yyoutput;
+  YYUSE (yyo);
+  if (!yyvaluep)
+    return;
+# ifdef YYPRINT
+  if (yytype < YYNTOKENS)
+    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
+# endif
+  YYUSE (yytype);
+}
+
+
+/*--------------------------------.
+| Print this symbol on YYOUTPUT.  |
+`--------------------------------*/
+
+static void
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+{
+  YYFPRINTF (yyoutput, "%s %s (",
+             yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
+
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep);
+  YYFPRINTF (yyoutput, ")");
+}
+
+/*------------------------------------------------------------------.
+| yy_stack_print -- Print the state stack from its BOTTOM up to its |
+| TOP (included).                                                   |
+`------------------------------------------------------------------*/
+
+static void
+yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
+{
+  YYFPRINTF (stderr, "Stack now");
+  for (; yybottom <= yytop; yybottom++)
+    {
+      int yybot = *yybottom;
+      YYFPRINTF (stderr, " %d", yybot);
+    }
+  YYFPRINTF (stderr, "\n");
+}
+
+# define YY_STACK_PRINT(Bottom, Top)                            \
+do {                                                            \
+  if (yydebug)                                                  \
+    yy_stack_print ((Bottom), (Top));                           \
+} while (0)
+
+
+/*------------------------------------------------.
+| Report that the YYRULE is going to be reduced.  |
+`------------------------------------------------*/
+
+static void
+yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule)
+{
+  unsigned long int yylno = yyrline[yyrule];
+  int yynrhs = yyr2[yyrule];
+  int yyi;
+  YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
+             yyrule - 1, yylno);
+  /* The symbols being reduced.  */
+  for (yyi = 0; yyi < yynrhs; yyi++)
+    {
+      YYFPRINTF (stderr, "   $%d = ", yyi + 1);
+      yy_symbol_print (stderr,
+                       yystos[yyssp[yyi + 1 - yynrhs]],
+                       &(yyvsp[(yyi + 1) - (yynrhs)])
+                                              );
+      YYFPRINTF (stderr, "\n");
+    }
+}
+
+# define YY_REDUCE_PRINT(Rule)          \
+do {                                    \
+  if (yydebug)                          \
+    yy_reduce_print (yyssp, yyvsp, Rule); \
+} while (0)
+
+/* Nonzero means print parse trace.  It is left uninitialized so that
+   multiple parsers can coexist.  */
+int yydebug;
+#else /* !YYDEBUG */
+# define YYDPRINTF(Args)
+# define YY_SYMBOL_PRINT(Title, Type, Value, Location)
+# define YY_STACK_PRINT(Bottom, Top)
+# define YY_REDUCE_PRINT(Rule)
+#endif /* !YYDEBUG */
+
+
+/* YYINITDEPTH -- initial size of the parser's stacks.  */
+#ifndef YYINITDEPTH
+# define YYINITDEPTH 200
+#endif
+
+/* YYMAXDEPTH -- maximum size the stacks can grow to (effective only
+   if the built-in stack extension method is used).
+
+   Do not make this value too large; the results are undefined if
+   YYSTACK_ALLOC_MAXIMUM < YYSTACK_BYTES (YYMAXDEPTH)
+   evaluated with infinite-precision integer arithmetic.  */
+
+#ifndef YYMAXDEPTH
+# define YYMAXDEPTH 10000
+#endif
+
+
+#if YYERROR_VERBOSE
+
+# ifndef yystrlen
+#  if defined __GLIBC__ && defined _STRING_H
+#   define yystrlen strlen
+#  else
+/* Return the length of YYSTR.  */
+static YYSIZE_T
+yystrlen (const char *yystr)
+{
+  YYSIZE_T yylen;
+  for (yylen = 0; yystr[yylen]; yylen++)
+    continue;
+  return yylen;
+}
+#  endif
+# endif
+
+# ifndef yystpcpy
+#  if defined __GLIBC__ && defined _STRING_H && defined _GNU_SOURCE
+#   define yystpcpy stpcpy
+#  else
+/* Copy YYSRC to YYDEST, returning the address of the terminating '\0' in
+   YYDEST.  */
+static char *
+yystpcpy (char *yydest, const char *yysrc)
+{
+  char *yyd = yydest;
+  const char *yys = yysrc;
+
+  while ((*yyd++ = *yys++) != '\0')
+    continue;
+
+  return yyd - 1;
+}
+#  endif
+# endif
+
+# ifndef yytnamerr
+/* Copy to YYRES the contents of YYSTR after stripping away unnecessary
+   quotes and backslashes, so that it's suitable for yyerror.  The
+   heuristic is that double-quoting is unnecessary unless the string
+   contains an apostrophe, a comma, or backslash (other than
+   backslash-backslash).  YYSTR is taken from yytname.  If YYRES is
+   null, do not copy; instead, return the length of what the result
+   would have been.  */
+static YYSIZE_T
+yytnamerr (char *yyres, const char *yystr)
+{
+  if (*yystr == '"')
+    {
+      YYSIZE_T yyn = 0;
+      char const *yyp = yystr;
+
+      for (;;)
+        switch (*++yyp)
+          {
+          case '\'':
+          case ',':
+            goto do_not_strip_quotes;
+
+          case '\\':
+            if (*++yyp != '\\')
+              goto do_not_strip_quotes;
+            /* Fall through.  */
+          default:
+            if (yyres)
+              yyres[yyn] = *yyp;
+            yyn++;
+            break;
+
+          case '"':
+            if (yyres)
+              yyres[yyn] = '\0';
+            return yyn;
+          }
+    do_not_strip_quotes: ;
+    }
+
+  if (! yyres)
+    return yystrlen (yystr);
+
+  return yystpcpy (yyres, yystr) - yyres;
+}
+# endif
+
+/* Copy into *YYMSG, which is of size *YYMSG_ALLOC, an error message
+   about the unexpected token YYTOKEN for the state stack whose top is
+   YYSSP.
+
+   Return 0 if *YYMSG was successfully written.  Return 1 if *YYMSG is
+   not large enough to hold the message.  In that case, also set
+   *YYMSG_ALLOC to the required number of bytes.  Return 2 if the
+   required number of bytes is too large to store.  */
+static int
+yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
+                yytype_int16 *yyssp, int yytoken)
+{
+  YYSIZE_T yysize0 = yytnamerr (YY_NULLPTR, yytname[yytoken]);
+  YYSIZE_T yysize = yysize0;
+  enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
+  /* Internationalized format string. */
+  const char *yyformat = YY_NULLPTR;
+  /* Arguments of yyformat. */
+  char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
+  /* Number of reported tokens (one for the "unexpected", one per
+     "expected"). */
+  int yycount = 0;
+
+  /* There are many possibilities here to consider:
+     - If this state is a consistent state with a default action, then
+       the only way this function was invoked is if the default action
+       is an error action.  In that case, don't check for expected
+       tokens because there are none.
+     - The only way there can be no lookahead present (in yychar) is if
+       this state is a consistent state with a default action.  Thus,
+       detecting the absence of a lookahead is sufficient to determine
+       that there is no unexpected or expected token to report.  In that
+       case, just report a simple "syntax error".
+     - Don't assume there isn't a lookahead just because this state is a
+       consistent state with a default action.  There might have been a
+       previous inconsistent state, consistent state with a non-default
+       action, or user semantic action that manipulated yychar.
+     - Of course, the expected token list depends on states to have
+       correct lookahead information, and it depends on the parser not
+       to perform extra reductions after fetching a lookahead from the
+       scanner and before detecting a syntax error.  Thus, state merging
+       (from LALR or IELR) and default reductions corrupt the expected
+       token list.  However, the list is correct for canonical LR with
+       one exception: it will still contain any token that will not be
+       accepted due to an error action in a later state.
+  */
+  if (yytoken != YYEMPTY)
+    {
+      int yyn = yypact[*yyssp];
+      yyarg[yycount++] = yytname[yytoken];
+      if (!yypact_value_is_default (yyn))
+        {
+          /* Start YYX at -YYN if negative to avoid negative indexes in
+             YYCHECK.  In other words, skip the first -YYN actions for
+             this state because they are default actions.  */
+          int yyxbegin = yyn < 0 ? -yyn : 0;
+          /* Stay within bounds of both yycheck and yytname.  */
+          int yychecklim = YYLAST - yyn + 1;
+          int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
+          int yyx;
+
+          for (yyx = yyxbegin; yyx < yyxend; ++yyx)
+            if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR
+                && !yytable_value_is_error (yytable[yyx + yyn]))
+              {
+                if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
+                  {
+                    yycount = 1;
+                    yysize = yysize0;
+                    break;
+                  }
+                yyarg[yycount++] = yytname[yyx];
+                {
+                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
+                  if (! (yysize <= yysize1
+                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                    return 2;
+                  yysize = yysize1;
+                }
+              }
+        }
+    }
+
+  switch (yycount)
+    {
+# define YYCASE_(N, S)                      \
+      case N:                               \
+        yyformat = S;                       \
+      break
+      YYCASE_(0, YY_("syntax error"));
+      YYCASE_(1, YY_("syntax error, unexpected %s"));
+      YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
+      YYCASE_(3, YY_("syntax error, unexpected %s, expecting %s or %s"));
+      YYCASE_(4, YY_("syntax error, unexpected %s, expecting %s or %s or %s"));
+      YYCASE_(5, YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s"));
+# undef YYCASE_
+    }
+
+  {
+    YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
+    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+      return 2;
+    yysize = yysize1;
+  }
+
+  if (*yymsg_alloc < yysize)
+    {
+      *yymsg_alloc = 2 * yysize;
+      if (! (yysize <= *yymsg_alloc
+             && *yymsg_alloc <= YYSTACK_ALLOC_MAXIMUM))
+        *yymsg_alloc = YYSTACK_ALLOC_MAXIMUM;
+      return 1;
+    }
+
+  /* Avoid sprintf, as that infringes on the user's name space.
+     Don't have undefined behavior even if the translation
+     produced a string with the wrong number of "%s"s.  */
+  {
+    char *yyp = *yymsg;
+    int yyi = 0;
+    while ((*yyp = *yyformat) != '\0')
+      if (*yyp == '%' && yyformat[1] == 's' && yyi < yycount)
+        {
+          yyp += yytnamerr (yyp, yyarg[yyi++]);
+          yyformat += 2;
+        }
+      else
+        {
+          yyp++;
+          yyformat++;
+        }
+  }
+  return 0;
+}
+#endif /* YYERROR_VERBOSE */
+
+/*-----------------------------------------------.
+| Release the memory associated to this symbol.  |
+`-----------------------------------------------*/
+
+static void
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
+{
+  YYUSE (yyvaluep);
+  if (!yymsg)
+    yymsg = "Deleting";
+  YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
+
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+  switch (yytype)
+    {
+          case 73: /* ID  */
+#line 237 "source/parser.y" /* yacc.c:1257  */
+      { free(((*yyvaluep).symbol)); }
+#line 1661 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 106: /* statement_list  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1667 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 107: /* statement_indented  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1673 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 109: /* statement  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1679 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 111: /* statement_with_no_label  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1685 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 113: /* labeled_statement  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1691 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 115: /* compound_statement  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1697 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 116: /* selection_else_statement  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1703 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 118: /* selection_statement  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1709 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 121: /* iteration_statement  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1715 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 125: /* loop_initialization_list  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1721 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 129: /* loop_condition_list  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1727 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 132: /* loop_offset_list  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1733 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 136: /* idparent  */
+#line 237 "source/parser.y" /* yacc.c:1257  */
+      { free(((*yyvaluep).symbol)); }
+#line 1739 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 138: /* loop_body  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1745 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 146: /* affine_primary_expression  */
+#line 238 "source/parser.y" /* yacc.c:1257  */
+      { osl_vector_free(((*yyvaluep).affex)); }
+#line 1751 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 147: /* affine_unary_expression  */
+#line 238 "source/parser.y" /* yacc.c:1257  */
+      { osl_vector_free(((*yyvaluep).affex)); }
+#line 1757 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 148: /* affine_multiplicative_expression  */
+#line 238 "source/parser.y" /* yacc.c:1257  */
+      { osl_vector_free(((*yyvaluep).affex)); }
+#line 1763 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 149: /* affine_expression  */
+#line 238 "source/parser.y" /* yacc.c:1257  */
+      { osl_vector_free(((*yyvaluep).affex)); }
+#line 1769 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 150: /* affine_ceildfloord_expression  */
+#line 238 "source/parser.y" /* yacc.c:1257  */
+      { osl_vector_free(((*yyvaluep).affex)); }
+#line 1775 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 152: /* affine_ceild_expression  */
+#line 238 "source/parser.y" /* yacc.c:1257  */
+      { osl_vector_free(((*yyvaluep).affex)); }
+#line 1781 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 153: /* affine_floord_expression  */
+#line 238 "source/parser.y" /* yacc.c:1257  */
+      { osl_vector_free(((*yyvaluep).affex)); }
+#line 1787 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 154: /* primary_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1793 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 155: /* postfix_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1799 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 157: /* argument_expression_list  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1805 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 158: /* unary_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1811 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 161: /* cast_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1817 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 162: /* multiplicative_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1823 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 163: /* additive_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1829 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 164: /* shift_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1835 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 165: /* relational_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1841 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 166: /* equality_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1847 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 167: /* and_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1853 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 168: /* exclusive_or_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1859 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 169: /* inclusive_or_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1865 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 170: /* logical_and_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1871 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 171: /* logical_or_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1877 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 172: /* conditional_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1883 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 173: /* assignment_expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1889 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 176: /* expression  */
+#line 239 "source/parser.y" /* yacc.c:1257  */
+      { osl_relation_list_free(((*yyvaluep).list)); }
+#line 1895 "parser.c" /* yacc.c:1257  */
+        break;
+
+    case 177: /* expression_statement  */
+#line 240 "source/parser.y" /* yacc.c:1257  */
+      { osl_statement_free(((*yyvaluep).stmt)); }
+#line 1901 "parser.c" /* yacc.c:1257  */
+        break;
+
+
+      default:
+        break;
+    }
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
+}
+
+
+
+
+/* The lookahead symbol.  */
+int yychar;
+
+/* The semantic value of the lookahead symbol.  */
+YYSTYPE yylval;
+/* Number of syntax errors so far.  */
+int yynerrs;
+
+
+/*----------.
+| yyparse.  |
+`----------*/
+
+int
+yyparse (void)
+{
+    int yystate;
+    /* Number of tokens to shift before error messages enabled.  */
+    int yyerrstatus;
+
+    /* The stacks and their tools:
+       'yyss': related to states.
+       'yyvs': related to semantic values.
+
+       Refer to the stacks through separate pointers, to allow yyoverflow
+       to reallocate them elsewhere.  */
+
+    /* The state stack.  */
+    yytype_int16 yyssa[YYINITDEPTH];
+    yytype_int16 *yyss;
+    yytype_int16 *yyssp;
+
+    /* The semantic value stack.  */
+    YYSTYPE yyvsa[YYINITDEPTH];
+    YYSTYPE *yyvs;
+    YYSTYPE *yyvsp;
+
+    YYSIZE_T yystacksize;
+
+  int yyn;
+  int yyresult;
+  /* Lookahead token as an internal (translated) token number.  */
+  int yytoken = 0;
+  /* The variables used to return semantic value and location from the
+     action routines.  */
+  YYSTYPE yyval;
+
+#if YYERROR_VERBOSE
+  /* Buffer for error messages, and its allocated size.  */
+  char yymsgbuf[128];
+  char *yymsg = yymsgbuf;
+  YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
+#endif
+
+#define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
+
+  /* The number of symbols on the RHS of the reduced rule.
+     Keep to zero when no symbol should be popped.  */
+  int yylen = 0;
+
+  yyssp = yyss = yyssa;
+  yyvsp = yyvs = yyvsa;
+  yystacksize = YYINITDEPTH;
+
+  YYDPRINTF ((stderr, "Starting parse\n"));
+
+  yystate = 0;
+  yyerrstatus = 0;
+  yynerrs = 0;
+  yychar = YYEMPTY; /* Cause a token to be read.  */
+  goto yysetstate;
+
+/*------------------------------------------------------------.
+| yynewstate -- Push a new state, which is found in yystate.  |
+`------------------------------------------------------------*/
+ yynewstate:
+  /* In all cases, when you get here, the value and location stacks
+     have just been pushed.  So pushing a state here evens the stacks.  */
+  yyssp++;
+
+ yysetstate:
+  *yyssp = yystate;
+
+  if (yyss + yystacksize - 1 <= yyssp)
+    {
+      /* Get the current used size of the three stacks, in elements.  */
+      YYSIZE_T yysize = yyssp - yyss + 1;
+
+#ifdef yyoverflow
+      {
+        /* Give user a chance to reallocate the stack.  Use copies of
+           these so that the &'s don't force the real ones into
+           memory.  */
+        YYSTYPE *yyvs1 = yyvs;
+        yytype_int16 *yyss1 = yyss;
+
+        /* Each stack pointer address is followed by the size of the
+           data in use in that stack, in bytes.  This used to be a
+           conditional around just the two extra args, but that might
+           be undefined if yyoverflow is a macro.  */
+        yyoverflow (YY_("memory exhausted"),
+                    &yyss1, yysize * sizeof (*yyssp),
+                    &yyvs1, yysize * sizeof (*yyvsp),
+                    &yystacksize);
+
+        yyss = yyss1;
+        yyvs = yyvs1;
+      }
+#else /* no yyoverflow */
+# ifndef YYSTACK_RELOCATE
+      goto yyexhaustedlab;
+# else
+      /* Extend the stack our own way.  */
+      if (YYMAXDEPTH <= yystacksize)
+        goto yyexhaustedlab;
+      yystacksize *= 2;
+      if (YYMAXDEPTH < yystacksize)
+        yystacksize = YYMAXDEPTH;
+
+      {
+        yytype_int16 *yyss1 = yyss;
+        union yyalloc *yyptr =
+          (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
+        if (! yyptr)
+          goto yyexhaustedlab;
+        YYSTACK_RELOCATE (yyss_alloc, yyss);
+        YYSTACK_RELOCATE (yyvs_alloc, yyvs);
+#  undef YYSTACK_RELOCATE
+        if (yyss1 != yyssa)
+          YYSTACK_FREE (yyss1);
+      }
+# endif
+#endif /* no yyoverflow */
+
+      yyssp = yyss + yysize - 1;
+      yyvsp = yyvs + yysize - 1;
+
+      YYDPRINTF ((stderr, "Stack size increased to %lu\n",
+                  (unsigned long int) yystacksize));
+
+      if (yyss + yystacksize - 1 <= yyssp)
+        YYABORT;
+    }
+
+  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
+
+  if (yystate == YYFINAL)
+    YYACCEPT;
+
+  goto yybackup;
+
+/*-----------.
+| yybackup.  |
+`-----------*/
+yybackup:
+
+  /* Do appropriate processing given the current state.  Read a
+     lookahead token if we need one and don't already have one.  */
+
+  /* First try to decide what to do without reference to lookahead token.  */
+  yyn = yypact[yystate];
+  if (yypact_value_is_default (yyn))
+    goto yydefault;
+
+  /* Not known => get a lookahead token if don't already have one.  */
+
+  /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
+  if (yychar == YYEMPTY)
+    {
+      YYDPRINTF ((stderr, "Reading a token: "));
+      yychar = yylex ();
+    }
+
+  if (yychar <= YYEOF)
+    {
+      yychar = yytoken = YYEOF;
+      YYDPRINTF ((stderr, "Now at end of input.\n"));
+    }
+  else
+    {
+      yytoken = YYTRANSLATE (yychar);
+      YY_SYMBOL_PRINT ("Next token is", yytoken, &yylval, &yylloc);
+    }
+
+  /* If the proper action on seeing token YYTOKEN is to reduce or to
+     detect an error, take that action.  */
+  yyn += yytoken;
+  if (yyn < 0 || YYLAST < yyn || yycheck[yyn] != yytoken)
+    goto yydefault;
+  yyn = yytable[yyn];
+  if (yyn <= 0)
+    {
+      if (yytable_value_is_error (yyn))
+        goto yyerrlab;
+      yyn = -yyn;
+      goto yyreduce;
+    }
+
+  /* Count tokens shifted since error; after three, turn off error
+     status.  */
+  if (yyerrstatus)
+    yyerrstatus--;
+
+  /* Shift the lookahead token.  */
+  YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
+
+  /* Discard the shifted token.  */
+  yychar = YYEMPTY;
+
+  yystate = yyn;
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+  *++yyvsp = yylval;
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
+
+  goto yynewstate;
+
+
+/*-----------------------------------------------------------.
+| yydefault -- do the default action for the current state.  |
+`-----------------------------------------------------------*/
+yydefault:
+  yyn = yydefact[yystate];
+  if (yyn == 0)
+    goto yyerrlab;
+  goto yyreduce;
+
+
+/*-----------------------------.
+| yyreduce -- Do a reduction.  |
+`-----------------------------*/
+yyreduce:
+  /* yyn is the number of a rule to reduce with.  */
+  yylen = yyr2[yyn];
+
+  /* If YYLEN is nonzero, implement the default value of the action:
+     '$$ = $1'.
+
+     Otherwise, the following line sets YYVAL to garbage.
+     This behavior is undocumented and Bison
+     users should not rely upon it.  Assigning to YYVAL
+     unconditionally makes the parser a bit smaller, and it avoids a
+     GCC warning that YYVAL may be used uninitialized.  */
+  yyval = yyvsp[1-yylen];
+
+
+  YY_REDUCE_PRINT (yyn);
+  switch (yyn)
+    {
+        case 2:
+#line 252 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule scop_list.1: scop"); }
+#line 2165 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 3:
+#line 253 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule scop_list.2: scop_list scop"); }
+#line 2171 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 4:
+#line 254 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule scop_list.3: scop_list IGNORE"); }
+#line 2177 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 5:
+#line 255 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule scop_list.4: IGNORE"); }
+#line 2183 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 6:
+#line 263 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule iterators_list.1: iterators_list ID"); 
+      if ( parser_options->normalize ) {
+        if (!clan_symbol_new_iterator(&parser_symbol, parser_iterators, (yyvsp[0].symbol),
+        		parser_depth_it_pragma_scop))
+   	    YYABORT;
+      }
+    }
+#line 2195 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 7:
+#line 271 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule iterators_list.2: ID"); 
+      if ( parser_options->normalize ) {
+        if (!clan_symbol_new_iterator(&parser_symbol, parser_iterators, (yyvsp[0].symbol),
+        		parser_depth_it_pragma_scop))
+ 	    YYABORT;
+      }
+    }
+#line 2207 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 8:
+#line 282 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule list_of_iterators_list.1: list_of_iterators_list '[' iterators_list ']'");
+        parser_depth_it_pragma_scop ++ ;      
+      }
+#line 2215 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 9:
+#line 285 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule list_of_iterators_list.2: '[' iterators_list ']'");
+       parser_depth_it_pragma_scop ++ ;    
+    }
+#line 2223 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 10:
+#line 291 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule xfor_iterators.1: '[' list_of_iterators_list ']'"); }
+#line 2229 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 11:
+#line 292 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule xfor_iterators.2: '[' iterators_list ']'"); }
+#line 2235 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 12:
+#line 293 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule xfor_iterators.3: "); }
+#line 2241 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 13:
+#line 297 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule pragma_scop.1: PRAGMASCOP xfor_iterators");
+    parser_depth_it_pragma_scop = 1; 
+  }
+#line 2249 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 14:
+#line 305 "source/parser.y" /* yacc.c:1646  */
+    { int nb_parameters;
+      osl_scop_p scop;
+      osl_generic_p arrays;
+
+      CLAN_debug("rule scop.1: pragma_scop statement_list IGNORE");
+      scop = osl_scop_malloc();
+      CLAN_strdup(scop->language, "C");
+
+      // Build the SCoP context.
+      nb_parameters = clan_symbol_nb_of_type(parser_symbol,
+          CLAN_TYPE_PARAMETER);
+      scop->parameters = clan_symbol_to_strings(parser_symbol,
+          CLAN_TYPE_PARAMETER);
+      scop->context = clan_relation_build_context(nb_parameters,
+                                                  parser_options);
+      
+      // Set the statements.
+      scop->statement = (yyvsp[-1].stmt);
+
+      // Compact the SCoP relations.
+      if (CLAN_DEBUG) {
+	CLAN_debug("SCoP before compaction:");
+	osl_scop_dump(stderr, scop);
+      }
+      clan_scop_compact(scop);
+      if (CLAN_DEBUG) {
+	CLAN_debug("SCoP after compaction:");
+	osl_scop_dump(stderr, scop);
+      }
+
+      // Simplify the SCoP iteration domains.
+      if (!parser_options->nosimplify)
+        clan_scop_simplify(scop);
+
+      // Add extensions.
+      scop->registry = osl_interface_get_default_registry();
+      clan_scop_generate_scatnames(scop, parser_options->normalize);
+      arrays = clan_symbol_to_arrays(parser_symbol);
+      osl_generic_add(&scop->extension, arrays);
+      clan_scop_generate_coordinates(scop, parser_options->name);
+      clan_scop_generate_clay(scop, scanner_clay);
+
+      // Add the SCoP to parser_scop and prepare the state for the next SCoP.
+      osl_scop_add(&parser_scop, scop);
+      clan_symbol_free(parser_symbol);
+      clan_parser_state_initialize(parser_options);
+      CLAN_debug_call(osl_scop_dump(stderr, scop));
+    }
+#line 2302 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 15:
+#line 359 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = (yyvsp[0].stmt); }
+#line 2308 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 16:
+#line 361 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = (yyvsp[-1].stmt); osl_statement_add(&(yyval.stmt), (yyvsp[0].stmt)); }
+#line 2314 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 17:
+#line 368 "source/parser.y" /* yacc.c:1646  */
+    { 
+      if (parser_indent == CLAN_UNDEFINED)
+        parser_indent = scanner_column_LALR - 1;
+    }
+#line 2323 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 18:
+#line 373 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.stmt) = (yyvsp[0].stmt);
+    }
+#line 2331 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 19:
+#line 382 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = (yyvsp[0].stmt); }
+#line 2337 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 20:
+#line 383 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = (yyvsp[0].stmt); }
+#line 2343 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 21:
+#line 384 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = (yyvsp[0].stmt); }
+#line 2349 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 22:
+#line 385 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = (yyvsp[0].stmt); }
+#line 2355 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 23:
+#line 386 "source/parser.y" /* yacc.c:1646  */
+    { if (parser_options->autoscop && !parser_autoscop && !parser_loop_depth) {
+        parser_line_start = scanner_line;
+        parser_column_start = scanner_column_LALR;
+        parser_autoscop = CLAN_TRUE;
+        // Reinitialize the symbol table.
+        clan_symbol_free(parser_symbol);
+        parser_symbol = NULL;
+        if (CLAN_DEBUG)
+          fprintf(stderr, "Autoscop start: line %3d column %3d\n",
+                  parser_line_start, parser_column_start);
+      }
+    }
+#line 2372 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 24:
+#line 399 "source/parser.y" /* yacc.c:1646  */
+    { 
+      (yyval.stmt) = (yyvsp[0].stmt);
+      if (parser_options->autoscop && parser_autoscop && !parser_loop_depth) {
+        parser_line_end = scanner_line;
+        parser_column_end = scanner_column;
+        if (CLAN_DEBUG)
+          fprintf(stderr, "Autoscop found: line %3d column %3d\n",
+                  parser_line_end, parser_column_end);
+      } 
+    }
+#line 2387 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 25:
+#line 413 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = (yyvsp[0].stmt); }
+#line 2393 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 26:
+#line 414 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = (yyvsp[0].stmt); }
+#line 2399 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 27:
+#line 415 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = (yyvsp[0].stmt); }
+#line 2405 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 28:
+#line 416 "source/parser.y" /* yacc.c:1646  */
+    { if (parser_options->autoscop && !parser_autoscop && !parser_loop_depth) {
+        parser_line_start = scanner_line;
+        parser_column_start = scanner_column_LALR;
+        parser_autoscop = CLAN_TRUE;
+        // Reinitialize the symbol table.
+        clan_symbol_free(parser_symbol);
+        parser_symbol = NULL;
+        if (CLAN_DEBUG)
+          fprintf(stderr, "Autoscop start: line %3d column %3d\n",
+                  parser_line_start, parser_column_start);
+      }
+    }
+#line 2422 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 29:
+#line 429 "source/parser.y" /* yacc.c:1646  */
+    { 
+      (yyval.stmt) = (yyvsp[0].stmt);
+      if (parser_options->autoscop && parser_autoscop && !parser_loop_depth) {
+        parser_line_end = scanner_line;
+        parser_column_end = scanner_column;
+        if (CLAN_DEBUG)
+          fprintf(stderr, "Autoscop found: line %3d column %3d\n",
+                  parser_line_end, parser_column_end);
+      }
+    }
+#line 2437 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 30:
+#line 444 "source/parser.y" /* yacc.c:1646  */
+    { 
+      int i;
+      clan_domain_p labeled_domain;
+      osl_relation_list_p labeled_constraints;
+
+      clan_domain_p labeled_scatt_domain ;
+      osl_relation_list_p labeled_scattering ;
+
+      CLAN_debug("labeled_statement.1.1: <int> : ...");
+     
+      if (parser_stack == NULL)
+        printf("NULL stack, label %d\n", (yyvsp[-1].value));
+      if (parser_stack->constraints == NULL)
+        printf("NULL constraints\n");
+      if (((yyvsp[-1].value) < 0) ||
+	  ((yyvsp[-1].value) >= clan_relation_list_nb_elements(parser_stack->constraints))) {
+	yyerror("label out of range");
+        YYABORT;
+      }
+
+      labeled_domain = clan_domain_malloc();
+      labeled_domain->constraints = osl_relation_list_malloc();
+      labeled_constraints = parser_stack->constraints; 
+      for (i = 0; i < (yyvsp[-1].value); i++)
+	labeled_constraints = labeled_constraints->next;
+      labeled_domain->constraints->elt =
+	  osl_relation_clone(labeled_constraints->elt);
+      clan_domain_push(&parser_stack, labeled_domain);
+
+//** Scattering 
+      labeled_scatt_domain = clan_domain_malloc();
+      labeled_scatt_domain->constraints = osl_relation_list_malloc();
+      labeled_scattering = parser_scatt_stack->constraints; 
+      for (i = 0; i < (yyvsp[-1].value); i++)
+	labeled_scattering = labeled_scattering->next;
+      labeled_scatt_domain->constraints->elt =
+	  osl_relation_clone(labeled_scattering->elt);
+
+      clan_domain_push(&parser_scatt_stack, labeled_scatt_domain);
+//**
+      parser_xfor_labels[parser_xfor_nb_nests] = (yyvsp[-1].value);
+      parser_xfor_depths[parser_xfor_nb_nests + 1] = 0;
+      parser_xfor_nb_nests++;
+    }
+#line 2486 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 31:
+#line 489 "source/parser.y" /* yacc.c:1646  */
+    { int val ;
+      clan_domain_p top;
+      top = clan_domain_pop(&parser_scatt_stack);
+      val = osl_int_get_si(parser_options->precision, 
+                   top->constraints->elt->m[top->constraints->elt->nb_rows-1][top->constraints->elt->nb_columns-1]) ;
+      clan_domain_free(top);
+      if (parser_scatt_stack->constraints->elt->nb_rows > 0) {
+        top = clan_domain_pop(&parser_scatt_stack);
+        osl_relation_list_p l = top->constraints ;
+        while (l != NULL) {
+          osl_relation_p r = l->elt ; 
+          while (r != NULL) { 
+             osl_int_set_si(parser_options->precision, &r->m[r->nb_rows-1][r->nb_columns-1], val); 
+             r=r->next;
+          }
+          l=l->next ; 
+        }
+        clan_domain_push(&parser_scatt_stack, top);
+      }
+      clan_domain_drop(&parser_stack);
+      parser_xfor_nb_nests--;
+      parser_xfor_labels[parser_xfor_nb_nests] = CLAN_UNDEFINED;
+      (yyval.stmt) = (yyvsp[0].stmt);
+      CLAN_debug("labeled_statement.1.2: ... <stmt>");
+    }
+#line 2516 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 32:
+#line 521 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = NULL; }
+#line 2522 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 33:
+#line 522 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.stmt) = (yyvsp[-1].stmt); }
+#line 2528 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 34:
+#line 533 "source/parser.y" /* yacc.c:1646  */
+    {
+      if (!parser_valid_else[parser_if_depth]) {
+	yyerror("unsupported negation of a condition involving a modulo");
+	YYABORT;
+      }
+    }
+#line 2539 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 35:
+#line 540 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule selection_else_statement.1: else <stmt>");
+      (yyval.stmt) = (yyvsp[0].stmt);
+      CLAN_debug_call(osl_statement_dump(stderr, (yyval.stmt)));
+    }
+#line 2549 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 36:
+#line 546 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule selection_else_statement.2: <void>");
+      (yyval.stmt) = NULL;
+    }
+#line 2558 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 37:
+#line 555 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule selection_statement.1.1: if ( condition ) ...");
+      clan_domain_dup(&parser_stack);
+      clan_domain_and(parser_stack, (yyvsp[-1].setex));
+      parser_if_depth++;
+      if ((parser_loop_depth + parser_if_depth) > CLAN_MAX_DEPTH)
+	CLAN_error("CLAN_MAX_DEPTH reached, recompile with a higher value");
+    }
+#line 2571 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 38:
+#line 564 "source/parser.y" /* yacc.c:1646  */
+    {
+      osl_relation_p not_if;
+      
+      CLAN_debug("rule selection_statement.1.2: if ( condition ) <stmt> ...");
+      clan_domain_drop(&parser_stack);
+      clan_domain_dup(&parser_stack);
+      if (!clan_relation_existential((yyvsp[-3].setex))) {
+	not_if = clan_relation_not((yyvsp[-3].setex));
+	clan_domain_and(parser_stack, not_if);
+	osl_relation_free(not_if);
+	parser_valid_else[parser_if_depth] = 1;
+      } else {
+	parser_valid_else[parser_if_depth] = 0;
+      }
+      osl_relation_free((yyvsp[-3].setex));
+    }
+#line 2592 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 39:
+#line 581 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule selection_statement.1.3: if ( condition ) <stmt>"
+	         "[else <stmt>]");
+      clan_domain_drop(&parser_stack);
+      (yyval.stmt) = (yyvsp[-2].stmt);
+      osl_statement_add(&(yyval.stmt), (yyvsp[0].stmt));
+      parser_if_depth--;
+      parser_nb_local_dims[parser_loop_depth + parser_if_depth] = 0;
+      scatt_nb_local_dims[parser_loop_depth ] = 0;
+      CLAN_debug_call(osl_statement_dump(stderr, (yyval.stmt)));
+    }
+#line 2608 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 40:
+#line 597 "source/parser.y" /* yacc.c:1646  */
+    {
+      // Check normalize option 
+      if ( ! parser_options->normalize ) {
+        CLAN_error("missing -normalize option to analyse xfor loops");
+	osl_relation_list_free((yyvsp[-6].list));
+        osl_relation_list_free((yyvsp[-5].list));
+	free((yyvsp[-4].vecint));
+        free((yyvsp[-2].vecint)); 
+        osl_relation_list_free((yyvsp[-1].list));
+        YYABORT;
+      }
+      CLAN_debug("rule iteration_statement.1.1: xfor ( init cond stride ) ...");
+      parser_xfor_labels[parser_loop_depth] = CLAN_UNDEFINED;
+      clan_parser_increment_loop_depth();
+       
+      // Check loop bounds and stride consistency and reset sanity sentinels.
+      if (!clan_parser_is_loop_sane((yyvsp[-6].list), (yyvsp[-5].list), (yyvsp[-4].vecint))) {
+        YYABORT;
+      }
+      // Check that either an xfor loop is the first one or have the same
+      // number of indices than the previous one.
+      if ((clan_relation_list_nb_elements(parser_stack->constraints) != 1) &&
+	  (clan_relation_list_nb_elements(parser_stack->constraints) !=
+	   clan_relation_list_nb_elements((yyvsp[-6].list)))) {
+	yyerror("consecutive xfor loops without the same number of indices");
+	osl_relation_list_free((yyvsp[-6].list));
+        osl_relation_list_free((yyvsp[-5].list));
+	free((yyvsp[-4].vecint));
+        free((yyvsp[-2].vecint)); 
+        osl_relation_list_free((yyvsp[-1].list));
+        YYABORT;
+      }
+
+      // Add the constraints contributed by the xfor loop to the domain stack.
+      clan_domain_dup(&parser_stack);
+      clan_domain_xfor(parser_stack, parser_loop_depth, parser_symbol,
+	               (yyvsp[-6].list), (yyvsp[-5].list), (yyvsp[-4].vecint), parser_options);
+
+      parser_xfor_depths[parser_xfor_nb_nests]++;
+      parser_xfor_index = 0;
+      parser_xfor_grain = 0;
+      parser_xfor_offset = 0;
+
+//** Scattering 
+/*      parser_scattering[2*parser_loop_depth-1] = ($5[0] > 0) ? 1 : -1; 
+      parser_scattering[2*parser_loop_depth] = 0;
+*/
+      // Add the constraints contributed by the xfor loop to the scattering stack.
+      clan_domain_dup(&parser_scatt_stack);
+      clan_scattering_relation_xfor(parser_scatt_stack, parser_loop_depth, parser_symbol, (yyvsp[-6].list), (yyvsp[-4].vecint), (yyvsp[-2].vecint), (yyvsp[-1].list), 
+                              parser_ceild, parser_floord, parser_min, parser_max, parser_options); 
+      osl_relation_list_free((yyvsp[-6].list));
+      osl_relation_list_free((yyvsp[-5].list));
+      (yyvsp[-6].list) = NULL; // To avoid conflicts with the destructor TODO: avoid that.
+      (yyvsp[-5].list) = NULL;
+      free((yyvsp[-4].vecint));
+      free((yyvsp[-2].vecint)); 
+      osl_relation_list_free((yyvsp[-1].list));
+      (yyvsp[-1].list) = NULL; 
+//**
+    }
+#line 2674 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 41:
+#line 659 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule iteration_statement.1.2: xfor ( init cond stride ) "
+	         "body");
+      parser_xfor_depths[parser_xfor_nb_nests]--;
+      (yyval.stmt) = (yyvsp[0].stmt);
+      CLAN_debug_call(osl_statement_dump(stderr, (yyval.stmt)));
+    }
+#line 2686 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 42:
+#line 668 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule iteration_statement.2.1: for ( init cond stride ) ...");
+      parser_xfor_labels[parser_loop_depth] = 0;
+      clan_parser_increment_loop_depth();
+     
+      // Check there is only one element in each list
+      if (parser_xfor_index != 1) {
+	yyerror("unsupported element list in a for loop");
+	osl_relation_list_free((yyvsp[-3].list));
+        osl_relation_list_free((yyvsp[-2].list));
+	free((yyvsp[-1].vecint));
+        YYABORT;
+      }
+
+      // Check loop bounds and stride consistency and reset sanity sentinels.
+      if (!clan_parser_is_loop_sane((yyvsp[-3].list), (yyvsp[-2].list), (yyvsp[-1].vecint)))
+        YYABORT;
+
+      // Add the constraints contributed by the for loop to the domain stack.
+      clan_domain_dup(&parser_stack);
+      clan_domain_for(parser_stack, parser_loop_depth, parser_symbol,
+	              (yyvsp[-3].list)->elt, (yyvsp[-2].list)->elt, (yyvsp[-1].vecint)[0], parser_options);
+
+
+//** Scattering 
+/*      parser_scattering[2*parser_loop_depth-1] = ($5[0] > 0) ? 1 : -1;
+      parser_scattering[2*parser_loop_depth] = 0;
+*/
+      // Add the constraints contributed by the xfor loop to the scattering stack.
+      clan_domain_dup(&parser_scatt_stack);
+      clan_scattering_relation_for(parser_scatt_stack, parser_loop_depth, parser_symbol, (yyvsp[-3].list)->elt, (yyvsp[-1].vecint)[0], 1, NULL, 0, parser_options); 
+
+      parser_xfor_index = 0;
+      parser_xfor_grain = 0;
+      parser_xfor_offset = 0;
+      osl_relation_list_free((yyvsp[-3].list));
+      osl_relation_list_free((yyvsp[-2].list));
+      (yyvsp[-3].list) = NULL; // To avoid conflicts with the destructor TODO: avoid that.
+      (yyvsp[-2].list) = NULL;
+      free((yyvsp[-1].vecint));
+//**
+    }
+#line 2733 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 43:
+#line 711 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule iteration_statement.2.2: for ( init cond stride ) "
+	         "body");
+      (yyval.stmt) = (yyvsp[0].stmt);
+      CLAN_debug_call(osl_statement_dump(stderr, (yyval.stmt))); 
+    }
+#line 2744 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 44:
+#line 718 "source/parser.y" /* yacc.c:1646  */
+    {
+      osl_vector_p   iterator_term;
+      osl_relation_p iterator_relation;
+
+      CLAN_debug("rule iteration_statement.3.1: loop_infinite ...");
+      if (!clan_symbol_new_iterator(&parser_symbol, parser_iterators,
+	                            "clan_infinite_loop", parser_loop_depth))
+	YYABORT;
+
+      parser_xfor_labels[parser_loop_depth] = 0;
+      clan_parser_increment_loop_depth();
+      
+      // Generate the constraint clan_infinite_loop >= 0.
+      iterator_term = clan_vector_term(parser_symbol, 0, NULL,
+                                       parser_options->precision);
+      osl_int_set_si(parser_options->precision,
+                     &iterator_term->v[parser_loop_depth], 1); 
+      osl_int_set_si(parser_options->precision, &iterator_term->v[0], 1); 
+      iterator_relation = osl_relation_from_vector(iterator_term);
+      
+      // Add it to the domain stack.
+      clan_domain_dup(&parser_stack);
+      clan_domain_and(parser_stack, iterator_relation);     
+      osl_vector_free(iterator_term);      
+      osl_relation_free(iterator_relation);
+
+       // Generate the constraint ci == clan_infinite_loop.
+       iterator_relation = osl_relation_pmalloc(parser_options->precision, 2, parser_scatt_stack->constraints->elt->nb_columns);
+       osl_relation_set_attributes(iterator_relation,
+		parser_scatt_stack->constraints->elt->nb_output_dims,
+		parser_scatt_stack->constraints->elt->nb_input_dims,
+		parser_scatt_stack->constraints->elt->nb_local_dims,
+		parser_scatt_stack->constraints->elt->nb_parameters);
+       osl_int_set_si(parser_options->precision, &iterator_relation->m[0][CLAN_MAX_SCAT_DIMS + parser_loop_depth], 1);
+       osl_int_set_si(parser_options->precision, &iterator_relation->m[0][2 * parser_loop_depth], -1);
+       osl_int_set_si(parser_options->precision, &iterator_relation->m[1][2 * parser_loop_depth + 1], -1);
+       // Add it to the scattering stack. 
+       clan_domain_dup(&parser_scatt_stack);
+       clan_domain_and(parser_scatt_stack, iterator_relation);
+       osl_relation_free(iterator_relation);      
+
+/*    parser_scattering[2*parser_loop_depth-1] = 1;
+      parser_scattering[2*parser_loop_depth] = 0;
+*/
+    }
+#line 2794 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 764 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule iteration_statement.3.2: loop_infinite body");
+      (yyval.stmt) = (yyvsp[0].stmt);
+      CLAN_debug_call(osl_statement_dump(stderr, (yyval.stmt)));
+    }
+#line 2804 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 46:
+#line 774 "source/parser.y" /* yacc.c:1646  */
+    {
+      osl_relation_list_p new = osl_relation_list_malloc();
+      CLAN_debug("rule initialization_list.1: initialization , "
+	         "initialization_list");
+      new->elt = (yyvsp[-2].setex);
+      osl_relation_list_push(&(yyvsp[0].list), new);
+      (yyval.list) = (yyvsp[0].list);
+    }
+#line 2817 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 47:
+#line 783 "source/parser.y" /* yacc.c:1646  */
+    { CLAN_debug("rule initialization_list.2: initialization ;");
+      parser_xfor_index = 0;
+      (yyval.list) = osl_relation_list_malloc();
+      (yyval.list)->elt = (yyvsp[-1].setex);
+    }
+#line 2827 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 48:
+#line 793 "source/parser.y" /* yacc.c:1646  */
+    {
+      if (!clan_symbol_new_iterator(&parser_symbol, parser_iterators, (yyvsp[0].symbol),
+	                            parser_loop_depth))
+	YYABORT;
+    }
+#line 2837 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 49:
+#line 799 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule initialization: ID = <setex>");
+      parser_xfor_index++;
+      free((yyvsp[-3].symbol));
+      (yyval.setex) = (yyvsp[0].setex);
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 2849 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 52:
+#line 817 "source/parser.y" /* yacc.c:1646  */
+    { 
+      osl_relation_list_p new = osl_relation_list_malloc();
+      new->elt = (yyvsp[-2].setex);
+      osl_relation_list_push(&(yyvsp[0].list), new);
+      (yyval.list) = (yyvsp[0].list);
+    }
+#line 2860 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 53:
+#line 824 "source/parser.y" /* yacc.c:1646  */
+    { 
+      parser_xfor_index = 0;
+      (yyval.list) = osl_relation_list_malloc();
+      (yyval.list)->elt = (yyvsp[-1].setex);
+    }
+#line 2870 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 54:
+#line 834 "source/parser.y" /* yacc.c:1646  */
+    { 
+      CLAN_debug("rule condition.1: <setex>");
+      parser_xfor_index++;
+      (yyval.setex) = (yyvsp[0].setex);
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 2881 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 55:
+#line 844 "source/parser.y" /* yacc.c:1646  */
+    {  
+      parser_xfor_grain++;
+      int i;
+      (yyval.vecint) = malloc((parser_xfor_grain) * sizeof(int));
+      for (i = 0; i < parser_xfor_grain - 1; i++)
+        (yyval.vecint)[i + 1] = (yyvsp[0].vecint)[i];
+      free((yyvsp[0].vecint));
+      (yyval.vecint)[0] = (yyvsp[-2].value);
+
+    }
+#line 2896 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 56:
+#line 855 "source/parser.y" /* yacc.c:1646  */
+    { 
+      parser_xfor_grain++;
+      if ((yyvsp[-1].value) == 0) {
+	yyerror("The grain must be greater than or equal to 1");
+        YYABORT;
+      } 
+      (yyval.vecint) = malloc(sizeof(int));
+      (yyval.vecint)[0] = (yyvsp[-1].value);
+    }
+#line 2910 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 57:
+#line 868 "source/parser.y" /* yacc.c:1646  */
+    { 
+      osl_relation_list_p new = osl_relation_list_malloc();
+      CLAN_debug("rule offset_list.1: offset , offset_list");
+      new->elt = (yyvsp[-2].setex);
+      osl_relation_list_push(&(yyvsp[0].list), new);
+      (yyval.list) = (yyvsp[0].list);
+      parser_xfor_offset++;
+    }
+#line 2923 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 58:
+#line 877 "source/parser.y" /* yacc.c:1646  */
+    { 
+      CLAN_debug("rule offset_list.2: offset ;");
+      parser_xfor_offset = 0;
+      (yyval.list) = osl_relation_list_malloc();
+      (yyval.list)->elt = (yyvsp[0].setex);
+      parser_xfor_offset++;
+    }
+#line 2935 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 59:
+#line 889 "source/parser.y" /* yacc.c:1646  */
+    { parser_xfor_offset++;
+      CLAN_debug("rule offset:  <setex>");
+      (yyval.setex) = (yyvsp[0].setex);
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 2945 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 60:
+#line 899 "source/parser.y" /* yacc.c:1646  */
+    { 
+      int i;
+      (yyval.vecint) = malloc((parser_xfor_index) * sizeof(int));
+      for (i = 0; i < parser_xfor_index - 1; i++)
+        (yyval.vecint)[i + 1] = (yyvsp[0].vecint)[i];
+      free((yyvsp[0].vecint));
+      (yyval.vecint)[0] = (yyvsp[-2].value);
+    }
+#line 2958 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 61:
+#line 908 "source/parser.y" /* yacc.c:1646  */
+    { 
+      (yyval.vecint) = malloc(sizeof(int));
+      (yyval.vecint)[0] = (yyvsp[0].value);
+    }
+#line 2967 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 62:
+#line 922 "source/parser.y" /* yacc.c:1646  */
+    { parser_xfor_index++; (yyval.value) =  1;  free((yyvsp[-1].symbol)); }
+#line 2973 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 63:
+#line 923 "source/parser.y" /* yacc.c:1646  */
+    { parser_xfor_index++; (yyval.value) = -1;  free((yyvsp[-1].symbol)); }
+#line 2979 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 64:
+#line 924 "source/parser.y" /* yacc.c:1646  */
+    { parser_xfor_index++; (yyval.value) =  1;  free((yyvsp[0].symbol)); }
+#line 2985 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 65:
+#line 925 "source/parser.y" /* yacc.c:1646  */
+    { parser_xfor_index++; (yyval.value) = -1;  free((yyvsp[0].symbol)); }
+#line 2991 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 66:
+#line 927 "source/parser.y" /* yacc.c:1646  */
+    { parser_xfor_index++; (yyval.value) =  (yyvsp[0].value); free((yyvsp[-4].symbol)); free((yyvsp[-2].symbol)); }
+#line 2997 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 67:
+#line 929 "source/parser.y" /* yacc.c:1646  */
+    { parser_xfor_index++; (yyval.value) = -(yyvsp[0].value); free((yyvsp[-4].symbol)); free((yyvsp[-2].symbol)); }
+#line 3003 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 68:
+#line 930 "source/parser.y" /* yacc.c:1646  */
+    { parser_xfor_index++; (yyval.value) =  (yyvsp[0].value); free((yyvsp[-2].symbol)); }
+#line 3009 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 69:
+#line 931 "source/parser.y" /* yacc.c:1646  */
+    { parser_xfor_index++; (yyval.value) = -(yyvsp[0].value); free((yyvsp[-2].symbol)); }
+#line 3015 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 70:
+#line 935 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.symbol) = (yyvsp[0].symbol); }
+#line 3021 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 71:
+#line 937 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.symbol) = (yyvsp[-1].symbol); }
+#line 3027 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 74:
+#line 948 "source/parser.y" /* yacc.c:1646  */
+    { 
+      CLAN_debug("rule loop_body.1: <stmt>");
+      parser_loop_depth--;
+      clan_symbol_free(parser_iterators[parser_loop_depth]);
+      parser_iterators[parser_loop_depth] = NULL;
+      clan_domain_drop(&parser_stack);
+      clan_domain_drop(&parser_scatt_stack);
+      (yyval.stmt) = (yyvsp[0].stmt);
+      //parser_scattering[2*parser_loop_depth]++;
+      if (parser_scatt_stack->constraints->elt->nb_rows > 0) {
+        clan_domain_p top = clan_domain_pop(&parser_scatt_stack);
+        osl_relation_list_p l = top->constraints ;
+        while (l != NULL) {
+          osl_relation_p r = l->elt ;         
+          while (r != NULL) {
+            osl_int_set_si(parser_options->precision, &r->m[r->nb_rows-1][r->nb_columns-1],
+            osl_int_get_si(parser_options->precision, r->m[r->nb_rows-1][r->nb_columns-1]) +1); 
+            r=r->next;
+          }
+          l=l->next ; 
+        }
+        clan_domain_push(&parser_scatt_stack, top);
+      }
+      parser_nb_local_dims[parser_loop_depth + parser_if_depth] = 0;
+      scatt_nb_local_dims[parser_loop_depth ] = 0;
+      CLAN_debug_call(osl_statement_dump(stderr, (yyval.stmt))); 
+    }
+#line 3059 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 75:
+#line 985 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_minmax_expression.1: <affex>");
+      (yyval.setex) = osl_relation_from_vector((yyvsp[0].affex));
+      osl_vector_free((yyvsp[0].affex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3070 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 76:
+#line 992 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_minmax_expression.2: "
+                 "MAX (affine_minmaxexpression , affine_minmax_expression )");
+      (yyval.setex) = osl_relation_concat_constraints((yyvsp[-3].setex), (yyvsp[-1].setex));
+      osl_relation_free((yyvsp[-3].setex));
+      osl_relation_free((yyvsp[-1].setex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3083 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 77:
+#line 1004 "source/parser.y" /* yacc.c:1646  */
+    { parser_min[parser_xfor_index+parser_xfor_offset] = 1; }
+#line 3089 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 78:
+#line 1005 "source/parser.y" /* yacc.c:1646  */
+    { parser_max[parser_xfor_index+parser_xfor_offset] = 1; }
+#line 3095 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 79:
+#line 1018 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_min_expression.1: <affex>");
+      (yyval.setex) = osl_relation_from_vector((yyvsp[0].affex));
+      osl_vector_free((yyvsp[0].affex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3106 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 80:
+#line 1028 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_min_expression.2: "
+                 "MIN ( affine_min_expression , affine_min_expresssion");
+      (yyval.setex) = osl_relation_concat_constraints((yyvsp[-3].setex), (yyvsp[-1].setex));
+      osl_relation_free((yyvsp[-3].setex));
+      osl_relation_free((yyvsp[-1].setex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3119 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 81:
+#line 1048 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_max_expression.1: <affex>");
+      (yyval.setex) = osl_relation_from_vector((yyvsp[0].affex));
+      osl_vector_free((yyvsp[0].affex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3130 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 82:
+#line 1058 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_max_expression.2: "
+                 "MAX ( affine_max_expression , affine_max_expression )");
+      (yyval.setex) = osl_relation_concat_constraints((yyvsp[-3].setex), (yyvsp[-1].setex));
+      osl_relation_free((yyvsp[-3].setex));
+      osl_relation_free((yyvsp[-1].setex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3143 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 83:
+#line 1081 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_relation.1: max_affex < min_affex");
+      (yyval.setex) = clan_relation_greater((yyvsp[0].setex), (yyvsp[-2].setex), 1);
+      osl_relation_free((yyvsp[-2].setex));
+      osl_relation_free((yyvsp[0].setex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3155 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 84:
+#line 1092 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_relation.2: min_affex > max_affex");
+      (yyval.setex) = clan_relation_greater((yyvsp[-2].setex), (yyvsp[0].setex), 1);
+      osl_relation_free((yyvsp[-2].setex));
+      osl_relation_free((yyvsp[0].setex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3167 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 85:
+#line 1103 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_relation.3: max_affex <= min_affex");
+      (yyval.setex) = clan_relation_greater((yyvsp[0].setex), (yyvsp[-2].setex), 0);
+      osl_relation_free((yyvsp[-2].setex));
+      osl_relation_free((yyvsp[0].setex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3179 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 86:
+#line 1114 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_relation.4: min_affex >= max_affex");
+      (yyval.setex) = clan_relation_greater((yyvsp[-2].setex), (yyvsp[0].setex), 0);
+      osl_relation_free((yyvsp[-2].setex));
+      osl_relation_free((yyvsp[0].setex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3191 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 87:
+#line 1125 "source/parser.y" /* yacc.c:1646  */
+    {
+      // a==b translates to a-b==0.
+      osl_vector_p res;
+
+      CLAN_debug("rule affine_relation.5: <affex> == <affex>");
+      // Warning: cases like ceild(M,32) == ceild(N,32) are not handled.
+      // Assert if we encounter such a case.
+      assert ((osl_int_zero(parser_options->precision, (yyvsp[-2].affex)->v[0]) ||
+	       osl_int_one(parser_options->precision,  (yyvsp[-2].affex)->v[0])) &&
+	      (osl_int_zero(parser_options->precision, (yyvsp[0].affex)->v[0]) ||
+	       osl_int_one(parser_options->precision,  (yyvsp[0].affex)->v[0])));
+      res = osl_vector_sub((yyvsp[-2].affex), (yyvsp[0].affex));
+      osl_vector_tag_equality(res);
+      (yyval.setex) = osl_relation_from_vector(res);
+      osl_vector_free(res);
+      osl_vector_free((yyvsp[-2].affex));
+      osl_vector_free((yyvsp[0].affex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3215 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 88:
+#line 1148 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_relation.6: ( condition )");
+      (yyval.setex) = (yyvsp[-1].setex);
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3225 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 89:
+#line 1157 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_relation.7: ! ( condition )");
+      if (clan_relation_existential((yyvsp[-1].setex))) {
+        osl_relation_free((yyvsp[-1].setex));
+	yyerror("unsupported negation of a condition involving a modulo");
+	YYABORT;
+      }
+      (yyval.setex) = clan_relation_not((yyvsp[-1].setex));
+      osl_relation_free((yyvsp[-1].setex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3241 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 90:
+#line 1172 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_relation.8: "
+	         "affine_expression %% INTEGER == INTEGER");
+      osl_int_set_si(parser_options->precision,
+                     &((yyvsp[-4].affex)->v[CLAN_MAX_DEPTH + 1 + clan_parser_nb_ld()]), -(yyvsp[-2].value));
+      osl_int_add_si(parser_options->precision,
+	             &((yyvsp[-4].affex)->v[(yyvsp[-4].affex)->size - 1]), (yyvsp[-4].affex)->v[(yyvsp[-4].affex)->size - 1], -(yyvsp[0].value));
+      clan_parser_add_ld();
+      (yyval.setex) = osl_relation_from_vector((yyvsp[-4].affex));
+      osl_vector_free((yyvsp[-4].affex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3258 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 91:
+#line 1189 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_logical_and_expression.1: affine_relation");
+      (yyval.setex) = (yyvsp[0].setex);
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3268 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 92:
+#line 1195 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_logical_and_expression.2: "
+	         "affine_logical_and_expression && affine_relation");
+      clan_relation_and((yyvsp[-2].setex), (yyvsp[0].setex));
+      (yyval.setex) = (yyvsp[-2].setex);
+      osl_relation_free((yyvsp[0].setex));
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3281 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 93:
+#line 1208 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_condition.1: affine_logical_and_expression");
+      (yyval.setex) = (yyvsp[0].setex);
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3291 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 94:
+#line 1214 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_condition.2: "
+	         "affine_condition || affine_logical_and_expression");
+      osl_relation_add(&(yyvsp[-2].setex), (yyvsp[0].setex));
+      (yyval.setex) = (yyvsp[-2].setex);
+      CLAN_debug_call(osl_relation_dump(stderr, (yyval.setex)));
+    }
+#line 3303 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 95:
+#line 1226 "source/parser.y" /* yacc.c:1646  */
+    {
+      clan_symbol_p id;
+
+      CLAN_debug("rule affine_primary_expression.1: id");
+      id = clan_symbol_add(&parser_symbol, (yyvsp[0].symbol), CLAN_UNDEFINED);
+      // An id in an affex can be either an iterator or a parameter. If it is
+      // an unknown (embeds read-only variables), it is updated to a parameter.
+      if (id->type == CLAN_UNDEFINED) {
+        if ((parser_nb_parameters + 1) > CLAN_MAX_PARAMETERS)
+	        CLAN_error("CLAN_MAX_PARAMETERS reached,"
+                             "recompile with a higher value");
+        id->type = CLAN_TYPE_PARAMETER;
+        id->rank = ++parser_nb_parameters;
+      }
+
+      if ((id->type != CLAN_TYPE_ITERATOR) &&
+          (id->type != CLAN_TYPE_PARAMETER)) {
+        free((yyvsp[0].symbol));
+	if (id->type == CLAN_TYPE_ARRAY)
+	  yyerror("variable or array reference in an affine expression");
+	else
+          yyerror("function call in an affine expression");
+	YYABORT;
+      }
+      
+      (yyval.affex) = clan_vector_term(parser_symbol, 1, (yyvsp[0].symbol), parser_options->precision);
+      free((yyvsp[0].symbol));
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3337 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 96:
+#line 1256 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_primary_expression.2: INTEGER");
+      (yyval.affex) = clan_vector_term(parser_symbol, (yyvsp[0].value), NULL, parser_options->precision);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3347 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 97:
+#line 1262 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_primary_expression.3: "
+                 "affine_additive_expression");
+      (yyval.affex) = (yyvsp[-1].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3358 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 98:
+#line 1273 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_unary_expression.1: affine_primary_expression");
+      (yyval.affex) = (yyvsp[0].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3368 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 99:
+#line 1279 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_unary_expression.2: +affine_primary_expression");
+      (yyval.affex) = (yyvsp[0].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3378 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 100:
+#line 1285 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_unary_expression.2: -affine_primary_expression");
+      (yyval.affex) = osl_vector_mul_scalar((yyvsp[0].affex), -1);
+      osl_vector_free((yyvsp[0].affex));
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3389 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 101:
+#line 1296 "source/parser.y" /* yacc.c:1646  */
+    { 
+      CLAN_debug("rule affine_multiplicative_expression.1: "
+                 "affine_unary_expression");
+      (yyval.affex) = (yyvsp[0].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3400 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 102:
+#line 1303 "source/parser.y" /* yacc.c:1646  */
+    {
+      int coef;
+      
+      CLAN_debug("rule affine_multiplicative_expression.2: "
+                 "affine_multiplicative_expression * affine_unary_expression");
+      if (!osl_vector_is_scalar((yyvsp[-2].affex)) && !osl_vector_is_scalar((yyvsp[0].affex))) {
+        osl_vector_free((yyvsp[-2].affex));
+        osl_vector_free((yyvsp[0].affex));
+        yyerror("non-affine expression");
+	YYABORT;
+      }
+
+      if (osl_vector_is_scalar((yyvsp[-2].affex))) {
+        coef = osl_int_get_si((yyvsp[-2].affex)->precision, (yyvsp[-2].affex)->v[(yyvsp[-2].affex)->size - 1]);
+        (yyval.affex) = osl_vector_mul_scalar((yyvsp[0].affex), coef);
+      } else {
+        coef = osl_int_get_si((yyvsp[0].affex)->precision, (yyvsp[0].affex)->v[(yyvsp[0].affex)->size - 1]);
+        (yyval.affex) = osl_vector_mul_scalar((yyvsp[-2].affex), coef);
+      }
+      osl_vector_free((yyvsp[-2].affex));
+      osl_vector_free((yyvsp[0].affex));
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3428 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 103:
+#line 1327 "source/parser.y" /* yacc.c:1646  */
+    {
+      int val1, val2;
+      
+      CLAN_debug("rule affine_multiplicative_expression.3: "
+                 "affine_multiplicative_expression / affine_unary_expression");
+      if (!osl_vector_is_scalar((yyvsp[-2].affex)) || !osl_vector_is_scalar((yyvsp[0].affex))) {
+        osl_vector_free((yyvsp[-2].affex));
+        osl_vector_free((yyvsp[0].affex));
+        yyerror("non-affine expression");
+	YYABORT;
+      }
+      val1 = osl_int_get_si((yyvsp[-2].affex)->precision, (yyvsp[-2].affex)->v[(yyvsp[-2].affex)->size - 1]);
+      val2 = osl_int_get_si((yyvsp[0].affex)->precision, (yyvsp[0].affex)->v[(yyvsp[0].affex)->size - 1]);
+      (yyval.affex) = clan_vector_term(parser_symbol, val1 / val2, NULL,
+                            parser_options->precision);
+      osl_vector_free((yyvsp[-2].affex));
+      osl_vector_free((yyvsp[0].affex));
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3452 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 104:
+#line 1351 "source/parser.y" /* yacc.c:1646  */
+    { 
+      CLAN_debug("rule affine_expression.1: "
+                 "affine_multiplicative_expression");
+      (yyval.affex) = (yyvsp[0].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3463 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 105:
+#line 1358 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_expression.2: "
+          "affine_expression + affine_multiplicative_expression");
+      (yyval.affex) = osl_vector_add((yyvsp[-2].affex), (yyvsp[0].affex));
+      osl_vector_free((yyvsp[-2].affex));
+      osl_vector_free((yyvsp[0].affex));
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3476 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 106:
+#line 1367 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule affine_expression.3: "
+          "affine_expression - affine_multiplicative_expression");
+      (yyval.affex) = osl_vector_sub((yyvsp[-2].affex), (yyvsp[0].affex));
+      osl_vector_free((yyvsp[-2].affex));
+      osl_vector_free((yyvsp[0].affex));
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3489 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 107:
+#line 1380 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("affine_ceildloord_expression.1: affine_expression");
+      (yyval.affex) = (yyvsp[0].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3499 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 108:
+#line 1386 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("affine_ceildfloord_expression.2: "
+                 "ceildfloord ( affine_expression , INTEGER )");
+      osl_int_set_si(parser_options->precision, &((yyvsp[-3].affex)->v[0]), (yyvsp[-1].value));
+      (yyval.affex) = (yyvsp[-3].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3511 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 109:
+#line 1397 "source/parser.y" /* yacc.c:1646  */
+    { parser_ceild[parser_xfor_index+parser_xfor_offset]  = 1; }
+#line 3517 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 110:
+#line 1398 "source/parser.y" /* yacc.c:1646  */
+    { parser_floord[parser_xfor_index+parser_xfor_offset] = 1; }
+#line 3523 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 111:
+#line 1404 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("affine_ceil_expression.1: affine_expression");
+      (yyval.affex) = (yyvsp[0].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3533 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 112:
+#line 1410 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("affine_ceil_expression.2: "
+                 "CEILD ( affine_expression , INTEGER )");
+      osl_int_set_si(parser_options->precision, &((yyvsp[-3].affex)->v[0]), (yyvsp[-1].value));
+      (yyval.affex) = (yyvsp[-3].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3545 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 113:
+#line 1422 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("affine_floor_expression.1: affine_expression");
+      (yyval.affex) = (yyvsp[0].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3555 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 114:
+#line 1428 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("affine_floor_expression.2: "
+                 "FLOORD ( affine_expression , INTEGER )");
+      osl_int_set_si(parser_options->precision, &((yyvsp[-3].affex)->v[0]), (yyvsp[-1].value));
+      (yyval.affex) = (yyvsp[-3].affex);
+      CLAN_debug_call(osl_vector_dump(stderr, (yyval.affex)));
+    }
+#line 3567 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 115:
+#line 1445 "source/parser.y" /* yacc.c:1646  */
+    {
+      int nb_columns;
+      osl_relation_p id;
+      osl_relation_list_p list;
+      clan_symbol_p symbol;
+
+      CLAN_debug("rule primary_expression.1: ID");
+      symbol = clan_symbol_add(&parser_symbol, (yyvsp[0].symbol), CLAN_UNDEFINED);
+      nb_columns = CLAN_MAX_DEPTH + CLAN_MAX_LOCAL_DIMS +
+	                 CLAN_MAX_PARAMETERS + 2;
+      id = osl_relation_pmalloc(parser_options->precision, 0, nb_columns);
+      osl_relation_set_attributes(id, 0, parser_loop_depth, 0,
+                                  CLAN_MAX_PARAMETERS);
+      clan_relation_tag_array(id, symbol->key);
+      list = osl_relation_list_malloc();
+      list->elt = id;
+
+      // add the id to the extbody
+      if (parser_options->extbody) {
+        if (parser_access_start != -1) {
+          osl_extbody_add(parser_access_extbody,
+                          parser_access_start,
+                          parser_access_length);
+        }
+
+        int len = strlen(parser_record);
+        parser_access_start = len - strlen((yyvsp[0].symbol));
+        parser_access_length = len - parser_access_start;
+      }
+
+      free((yyvsp[0].symbol));
+      (yyval.list) = list;
+      CLAN_debug_call(osl_relation_list_dump(stderr, (yyval.list)));
+    }
+#line 3606 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 116:
+#line 1480 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = NULL; }
+#line 3612 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 117:
+#line 1482 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = NULL; }
+#line 3618 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 118:
+#line 1484 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = NULL; }
+#line 3624 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 119:
+#line 1486 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[-1].list); }
+#line 3630 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 120:
+#line 1492 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3636 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 121:
+#line 1494 "source/parser.y" /* yacc.c:1646  */
+    {
+      if (parser_options->extbody)
+        parser_access_length = strlen(parser_record) - parser_access_start;
+
+      CLAN_debug("rule postfix_expression.2: postfix_expression [ <affex> ]");
+      if (!clan_symbol_update_type(parser_symbol, (yyvsp[-3].list), CLAN_TYPE_ARRAY))
+        YYABORT;
+      clan_relation_new_output_vector((yyvsp[-3].list)->elt, (yyvsp[-1].affex));
+      osl_vector_free((yyvsp[-1].affex));
+      (yyval.list) = (yyvsp[-3].list);
+      CLAN_debug_call(osl_relation_list_dump(stderr, (yyval.list)));
+    }
+#line 3653 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 122:
+#line 1507 "source/parser.y" /* yacc.c:1646  */
+    { 
+      // don't save access name of a function
+      if (parser_options->extbody) {
+        parser_access_extbody->nb_access -= osl_relation_list_count((yyvsp[-2].list)) - 1;
+        parser_access_start = -1;
+      }
+
+      if (!clan_symbol_update_type(parser_symbol, (yyvsp[-2].list), CLAN_TYPE_FUNCTION))
+        YYABORT;
+      osl_relation_list_free((yyvsp[-2].list));
+      (yyval.list) = NULL;
+    }
+#line 3670 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 123:
+#line 1520 "source/parser.y" /* yacc.c:1646  */
+    {
+      // don't save access name of a function
+      if (parser_options->extbody) {
+        parser_access_extbody->nb_access -= osl_relation_list_count((yyvsp[-1].list)) - 1;
+        parser_access_start = -1;
+      }
+    }
+#line 3682 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 124:
+#line 1528 "source/parser.y" /* yacc.c:1646  */
+    {
+      if (!clan_symbol_update_type(parser_symbol, (yyvsp[-4].list), CLAN_TYPE_FUNCTION))
+        YYABORT;
+      osl_relation_list_free((yyvsp[-4].list));
+      (yyval.list) = (yyvsp[-1].list);
+    }
+#line 3693 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 125:
+#line 1535 "source/parser.y" /* yacc.c:1646  */
+    {
+      if (parser_options->extbody)
+        parser_access_length = strlen(parser_record) - parser_access_start;
+
+      clan_symbol_p symbol;
+
+      CLAN_debug("rule postfix_expression.4: postfix_expression . ID");
+      if (!clan_symbol_update_type(parser_symbol, (yyvsp[-2].list), CLAN_TYPE_ARRAY))
+        YYABORT;
+      symbol = clan_symbol_add(&parser_symbol, (yyvsp[0].symbol), CLAN_TYPE_FIELD);
+      clan_relation_new_output_scalar((yyvsp[-2].list)->elt, symbol->key);
+      free((yyvsp[0].symbol));
+      (yyval.list) = (yyvsp[-2].list);
+      CLAN_debug_call(osl_relation_list_dump(stderr, (yyval.list)));
+    }
+#line 3713 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 126:
+#line 1551 "source/parser.y" /* yacc.c:1646  */
+    {
+      if (parser_options->extbody)
+        parser_access_length = strlen(parser_record) - parser_access_start;
+
+      clan_symbol_p symbol;
+
+      CLAN_debug("rule postfix_expression.5: postfix_expression -> ID");
+      if (!clan_symbol_update_type(parser_symbol, (yyvsp[-2].list), CLAN_TYPE_ARRAY))
+        YYABORT;
+      symbol = clan_symbol_add(&parser_symbol, (yyvsp[0].symbol), CLAN_TYPE_FIELD);
+      clan_relation_new_output_scalar((yyvsp[-2].list)->elt, symbol->key);
+      free((yyvsp[0].symbol));
+      (yyval.list) = (yyvsp[-2].list);
+      CLAN_debug_call(osl_relation_list_dump(stderr, (yyval.list)));
+    }
+#line 3733 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 127:
+#line 1567 "source/parser.y" /* yacc.c:1646  */
+    { 
+      osl_relation_list_p list;
+
+      CLAN_debug("rule postfix_expression.6: postfix_expression -> "
+	         "postfix_expression ++/--");
+      if (!clan_symbol_update_type(parser_symbol, (yyvsp[-1].list), CLAN_TYPE_ARRAY))
+        YYABORT;
+      list = (yyvsp[-1].list);
+      // The last reference in the list is also written.
+      if (list != NULL) {
+        while (list->next != NULL)
+          list = list->next;
+        list->next = osl_relation_list_node(list->elt);
+        list->next->elt->type = OSL_TYPE_WRITE;
+      }
+      (yyval.list) = (yyvsp[-1].list);
+      CLAN_debug_call(osl_relation_list_dump(stderr, (yyval.list)));
+
+      // add an empty line in the extbody
+      if (parser_options->extbody) {
+        osl_extbody_add(parser_access_extbody, -1, -1);
+      }
+    }
+#line 3761 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 128:
+#line 1594 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3767 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 129:
+#line 1596 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3776 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 130:
+#line 1604 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3782 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 131:
+#line 1606 "source/parser.y" /* yacc.c:1646  */
+    {
+      osl_relation_list_p list;
+
+      CLAN_debug("rule unary_expression.2: unary_expression -> "
+	         "++/-- unary_expression");
+      if (!clan_symbol_update_type(parser_symbol, (yyvsp[0].list), CLAN_TYPE_ARRAY))
+        YYABORT;
+      list = (yyvsp[0].list);
+      // The last reference in the list is also written.
+      if (list != NULL) {
+        while (list->next != NULL)
+          list = list->next;
+        list->next = osl_relation_list_node(list->elt);
+        list->next->elt->type = OSL_TYPE_WRITE;
+      }
+      (yyval.list) = (yyvsp[0].list);
+      CLAN_debug_call(osl_relation_list_dump(stderr, (yyval.list)));
+
+      // add an empty line in the extbody
+      if (parser_options->extbody) {
+        osl_extbody_add(parser_access_extbody, -1, -1);
+      }
+    }
+#line 3810 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 132:
+#line 1630 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3816 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 133:
+#line 1632 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3822 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 134:
+#line 1634 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = NULL; }
+#line 3828 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 143:
+#line 1653 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3834 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 144:
+#line 1655 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3840 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 145:
+#line 1660 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3846 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 146:
+#line 1662 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3855 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 147:
+#line 1667 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3864 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 148:
+#line 1672 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3873 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 149:
+#line 1680 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3879 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 150:
+#line 1682 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3888 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 151:
+#line 1687 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3897 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 152:
+#line 1695 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3903 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 153:
+#line 1697 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3912 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 154:
+#line 1702 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3921 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 155:
+#line 1710 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3927 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 156:
+#line 1712 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3936 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 157:
+#line 1717 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3945 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 158:
+#line 1722 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3954 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 159:
+#line 1727 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3963 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 160:
+#line 1735 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3969 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 161:
+#line 1737 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3978 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 162:
+#line 1742 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 3987 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 163:
+#line 1750 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 3993 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 164:
+#line 1752 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 4002 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 165:
+#line 1760 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 4008 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 166:
+#line 1762 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 4017 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 167:
+#line 1770 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 4023 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 168:
+#line 1772 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 4032 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 169:
+#line 1780 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 4038 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 170:
+#line 1782 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 4047 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 171:
+#line 1790 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 4053 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 172:
+#line 1792 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 4062 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 173:
+#line 1800 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 4068 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 174:
+#line 1802 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-4].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[-2].list));
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 4078 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 175:
+#line 1811 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule assignment_expression.1: conditional_expression;");
+      (yyval.list) = (yyvsp[0].list);
+      clan_relation_list_define_type((yyval.list), OSL_TYPE_READ);
+      CLAN_debug_call(osl_relation_list_dump(stderr, (yyval.list)));
+    }
+#line 4089 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 176:
+#line 1818 "source/parser.y" /* yacc.c:1646  */
+    {
+      osl_relation_list_p list;
+
+      CLAN_debug("rule assignment_expression.2: unary_expression "
+	         "assignment_operator assignment_expression;");
+      if (!clan_symbol_update_type(parser_symbol, (yyvsp[-2].list), CLAN_TYPE_ARRAY))
+        YYABORT;
+      (yyval.list) = (yyvsp[-2].list);
+      // Accesses of $1 are READ except the last one which is a WRITE or both.
+      clan_relation_list_define_type((yyval.list), OSL_TYPE_READ);
+      list = (yyval.list);
+      while (list->next != NULL)
+        list = list->next;
+      if ((yyvsp[-1].value) == CLAN_TYPE_RDWR) {
+        list->next = osl_relation_list_node(list->elt);
+        list = list->next;
+
+        // add an empty line in the extbody
+        if (parser_options->extbody) {
+          osl_extbody_add(parser_access_extbody, -1, -1);
+        }
+      }
+      osl_relation_set_type(list->elt, OSL_TYPE_WRITE);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+      CLAN_debug_call(osl_relation_list_dump(stderr, (yyval.list)));
+    }
+#line 4120 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 177:
+#line 1848 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.value) = CLAN_TYPE_WRITE; }
+#line 4126 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 178:
+#line 1850 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.value) = CLAN_TYPE_RDWR; }
+#line 4132 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 189:
+#line 1868 "source/parser.y" /* yacc.c:1646  */
+    { (yyval.list) = (yyvsp[0].list); }
+#line 4138 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 190:
+#line 1870 "source/parser.y" /* yacc.c:1646  */
+    {
+      (yyval.list) = (yyvsp[-2].list);
+      osl_relation_list_add(&(yyval.list), (yyvsp[0].list));
+    }
+#line 4147 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 191:
+#line 1878 "source/parser.y" /* yacc.c:1646  */
+    {
+      CLAN_debug("rule expression_statement.1: ;");
+      (yyval.stmt) = NULL;
+      CLAN_debug_call(osl_statement_dump(stderr, (yyval.stmt)));
+    }
+#line 4157 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 192:
+#line 1884 "source/parser.y" /* yacc.c:1646  */
+    { 
+      if (parser_options->extbody) {
+        parser_access_start = -1;
+        parser_access_extbody = osl_extbody_malloc();
+      }
+      CLAN_strdup(parser_record, scanner_latest_text);
+      parser_recording = CLAN_TRUE;
+    }
+#line 4170 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 193:
+#line 1893 "source/parser.y" /* yacc.c:1646  */
+    { 
+      osl_statement_p statement;
+      osl_body_p body;
+      osl_generic_p gen;
+      CLAN_debug("rule expression_statement.2: expression ;");
+      statement = osl_statement_malloc();
+
+      // - 1. Domain
+      if (clan_relation_list_nb_elements(parser_stack->constraints) != 1) {
+	yyerror("missing label on a statement inside an xfor loop");
+        YYABORT;
+      }
+      statement->domain = osl_relation_clone(parser_stack->constraints->elt);
+      osl_relation_set_type(statement->domain, OSL_TYPE_DOMAIN);
+      osl_relation_set_attributes(statement->domain, parser_loop_depth, 0,
+	                          clan_parser_nb_ld(), CLAN_MAX_PARAMETERS);
+
+      // - 2. Scattering 
+      statement->scattering = osl_relation_clone(parser_scatt_stack->constraints->elt);
+      osl_relation_set_type(statement->scattering, OSL_TYPE_SCATTERING);
+      if(clan_parser_scatt_nb_ld())
+        osl_relation_set_attributes(statement->scattering, 2 * parser_loop_depth + 1, parser_loop_depth,
+	                          parser_loop_depth, CLAN_MAX_PARAMETERS);
+      else 
+        osl_relation_set_attributes(statement->scattering, 2 * parser_loop_depth + 1, parser_loop_depth,
+	                          0, CLAN_MAX_PARAMETERS);
+      /*
+      statement->scattering = clan_relation_scattering(parser_scattering,
+          parser_loop_depth, parser_options->precision);
+          */
+
+      // - 3. Array accesses
+      statement->access = (yyvsp[-1].list);
+
+      // - 4. Body.
+      body = osl_body_malloc();
+      body->iterators = clan_symbol_array_to_strings(parser_iterators,
+	  parser_loop_depth, parser_xfor_depths, parser_xfor_labels);
+      body->expression = osl_strings_encapsulate(parser_record);
+      gen = osl_generic_shell(body, osl_body_interface());
+      osl_generic_add(&statement->extension, gen);
+
+      if (parser_options->extbody) {
+        // Extended body
+
+        // add the last access
+        if (parser_access_start != -1) {
+          osl_extbody_add(parser_access_extbody,
+                          parser_access_start,
+                          parser_access_length);
+        }
+
+        parser_access_extbody->body = osl_body_clone(body);
+        gen = osl_generic_shell(parser_access_extbody, osl_extbody_interface());
+        osl_generic_add(&statement->extension, gen);
+      }
+      parser_recording = CLAN_FALSE;
+      parser_record = NULL;
+      //parser_scattering[2*parser_loop_depth]++;
+      if (parser_scatt_stack->constraints->elt->nb_rows > 0) {
+        clan_domain_p top = clan_domain_pop(&parser_scatt_stack);
+        osl_relation_list_p l = top->constraints ;
+        while (l != NULL) {
+          osl_relation_p r = l->elt ;         
+          while (r != NULL) {
+            osl_int_set_si(parser_options->precision, &r->m[r->nb_rows-1][r->nb_columns-1],
+            osl_int_get_si(parser_options->precision, r->m[r->nb_rows-1][r->nb_columns-1]) +1); 
+            r=r->next;
+          }
+          l=l->next ; 
+        }
+        clan_domain_push(&parser_scatt_stack, top);
+      }
+      (yyval.stmt) = statement;
+      CLAN_debug_call(osl_statement_dump(stderr, (yyval.stmt)));
+    }
+#line 4251 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 218:
+#line 2014 "source/parser.y" /* yacc.c:1646  */
+    { free((yyvsp[-3].symbol)); }
+#line 4257 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 220:
+#line 2016 "source/parser.y" /* yacc.c:1646  */
+    { free((yyvsp[0].symbol)); }
+#line 4263 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 236:
+#line 2053 "source/parser.y" /* yacc.c:1646  */
+    { free((yyvsp[-3].symbol)); }
+#line 4269 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 237:
+#line 2054 "source/parser.y" /* yacc.c:1646  */
+    { free((yyvsp[0].symbol)); }
+#line 4275 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 240:
+#line 2063 "source/parser.y" /* yacc.c:1646  */
+    { free((yyvsp[0].symbol)); }
+#line 4281 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 241:
+#line 2064 "source/parser.y" /* yacc.c:1646  */
+    { free((yyvsp[-2].symbol)); }
+#line 4287 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 246:
+#line 2078 "source/parser.y" /* yacc.c:1646  */
+    { free((yyvsp[0].symbol)); }
+#line 4293 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 266:
+#line 2117 "source/parser.y" /* yacc.c:1646  */
+    { free((yyvsp[0].symbol)); }
+#line 4299 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 267:
+#line 2118 "source/parser.y" /* yacc.c:1646  */
+    { free((yyvsp[0].symbol)); }
+#line 4305 "parser.c" /* yacc.c:1646  */
+    break;
+
+
+#line 4309 "parser.c" /* yacc.c:1646  */
+      default: break;
+    }
+  /* User semantic actions sometimes alter yychar, and that requires
+     that yytoken be updated with the new translation.  We take the
+     approach of translating immediately before every use of yytoken.
+     One alternative is translating here after every semantic action,
+     but that translation would be missed if the semantic action invokes
+     YYABORT, YYACCEPT, or YYERROR immediately after altering yychar or
+     if it invokes YYBACKUP.  In the case of YYABORT or YYACCEPT, an
+     incorrect destructor might then be invoked immediately.  In the
+     case of YYERROR or YYBACKUP, subsequent parser actions might lead
+     to an incorrect destructor call or verbose syntax error message
+     before the lookahead is translated.  */
+  YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
+
+  YYPOPSTACK (yylen);
+  yylen = 0;
+  YY_STACK_PRINT (yyss, yyssp);
+
+  *++yyvsp = yyval;
+
+  /* Now 'shift' the result of the reduction.  Determine what state
+     that goes to, based on the state we popped back to and the rule
+     number reduced by.  */
+
+  yyn = yyr1[yyn];
+
+  yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
+  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
+    yystate = yytable[yystate];
+  else
+    yystate = yydefgoto[yyn - YYNTOKENS];
+
+  goto yynewstate;
+
+
+/*--------------------------------------.
+| yyerrlab -- here on detecting error.  |
+`--------------------------------------*/
+yyerrlab:
+  /* Make sure we have latest lookahead translation.  See comments at
+     user semantic actions for why this is necessary.  */
+  yytoken = yychar == YYEMPTY ? YYEMPTY : YYTRANSLATE (yychar);
+
+  /* If not already recovering from an error, report this error.  */
+  if (!yyerrstatus)
+    {
+      ++yynerrs;
+#if ! YYERROR_VERBOSE
+      yyerror (YY_("syntax error"));
+#else
+# define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
+                                        yyssp, yytoken)
+      {
+        char const *yymsgp = YY_("syntax error");
+        int yysyntax_error_status;
+        yysyntax_error_status = YYSYNTAX_ERROR;
+        if (yysyntax_error_status == 0)
+          yymsgp = yymsg;
+        else if (yysyntax_error_status == 1)
+          {
+            if (yymsg != yymsgbuf)
+              YYSTACK_FREE (yymsg);
+            yymsg = (char *) YYSTACK_ALLOC (yymsg_alloc);
+            if (!yymsg)
+              {
+                yymsg = yymsgbuf;
+                yymsg_alloc = sizeof yymsgbuf;
+                yysyntax_error_status = 2;
+              }
+            else
+              {
+                yysyntax_error_status = YYSYNTAX_ERROR;
+                yymsgp = yymsg;
+              }
+          }
+        yyerror (yymsgp);
+        if (yysyntax_error_status == 2)
+          goto yyexhaustedlab;
+      }
+# undef YYSYNTAX_ERROR
+#endif
+    }
+
+
+
+  if (yyerrstatus == 3)
+    {
+      /* If just tried and failed to reuse lookahead token after an
+         error, discard it.  */
+
+      if (yychar <= YYEOF)
+        {
+          /* Return failure if at end of input.  */
+          if (yychar == YYEOF)
+            YYABORT;
+        }
+      else
+        {
+          yydestruct ("Error: discarding",
+                      yytoken, &yylval);
+          yychar = YYEMPTY;
+        }
+    }
+
+  /* Else will try to reuse lookahead token after shifting the error
+     token.  */
+  goto yyerrlab1;
+
+
+/*---------------------------------------------------.
+| yyerrorlab -- error raised explicitly by YYERROR.  |
+`---------------------------------------------------*/
+yyerrorlab:
+
+  /* Pacify compilers like GCC when the user code never invokes
+     YYERROR and the label yyerrorlab therefore never appears in user
+     code.  */
+  if (/*CONSTCOND*/ 0)
+     goto yyerrorlab;
+
+  /* Do not reclaim the symbols of the rule whose action triggered
+     this YYERROR.  */
+  YYPOPSTACK (yylen);
+  yylen = 0;
+  YY_STACK_PRINT (yyss, yyssp);
+  yystate = *yyssp;
+  goto yyerrlab1;
+
+
+/*-------------------------------------------------------------.
+| yyerrlab1 -- common code for both syntax error and YYERROR.  |
+`-------------------------------------------------------------*/
+yyerrlab1:
+  yyerrstatus = 3;      /* Each real token shifted decrements this.  */
+
+  for (;;)
+    {
+      yyn = yypact[yystate];
+      if (!yypact_value_is_default (yyn))
+        {
+          yyn += YYTERROR;
+          if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
+            {
+              yyn = yytable[yyn];
+              if (0 < yyn)
+                break;
+            }
+        }
+
+      /* Pop the current state because it cannot handle the error token.  */
+      if (yyssp == yyss)
+        YYABORT;
+
+
+      yydestruct ("Error: popping",
+                  yystos[yystate], yyvsp);
+      YYPOPSTACK (1);
+      yystate = *yyssp;
+      YY_STACK_PRINT (yyss, yyssp);
+    }
+
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+  *++yyvsp = yylval;
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
+
+
+  /* Shift the error token.  */
+  YY_SYMBOL_PRINT ("Shifting", yystos[yyn], yyvsp, yylsp);
+
+  yystate = yyn;
+  goto yynewstate;
+
+
+/*-------------------------------------.
+| yyacceptlab -- YYACCEPT comes here.  |
+`-------------------------------------*/
+yyacceptlab:
+  yyresult = 0;
+  goto yyreturn;
+
+/*-----------------------------------.
+| yyabortlab -- YYABORT comes here.  |
+`-----------------------------------*/
+yyabortlab:
+  yyresult = 1;
+  goto yyreturn;
+
+#if !defined yyoverflow || YYERROR_VERBOSE
+/*-------------------------------------------------.
+| yyexhaustedlab -- memory exhaustion comes here.  |
+`-------------------------------------------------*/
+yyexhaustedlab:
+  yyerror (YY_("memory exhausted"));
+  yyresult = 2;
+  /* Fall through.  */
+#endif
+
+yyreturn:
+  if (yychar != YYEMPTY)
+    {
+      /* Make sure we have latest lookahead translation.  See comments at
+         user semantic actions for why this is necessary.  */
+      yytoken = YYTRANSLATE (yychar);
+      yydestruct ("Cleanup: discarding lookahead",
+                  yytoken, &yylval);
+    }
+  /* Do not reclaim the symbols of the rule whose action triggered
+     this YYABORT or YYACCEPT.  */
+  YYPOPSTACK (yylen);
+  YY_STACK_PRINT (yyss, yyssp);
+  while (yyssp != yyss)
+    {
+      yydestruct ("Cleanup: popping",
+                  yystos[*yyssp], yyvsp);
+      YYPOPSTACK (1);
+    }
+#ifndef yyoverflow
+  if (yyss != yyssa)
+    YYSTACK_FREE (yyss);
+#endif
+#if YYERROR_VERBOSE
+  if (yymsg != yymsgbuf)
+    YYSTACK_FREE (yymsg);
+#endif
+  return yyresult;
+}
+#line 2144 "source/parser.y" /* yacc.c:1906  */
+
+
+
+void yyerror(char *s) {
+  int i, line = 1;
+  char c = 'C';
+  FILE* file;
+ 
+  CLAN_debug("parse error notified");
+
+  if (!parser_options->autoscop) {
+    fprintf(stderr, "[Clan] Error: %s at line %d, column %d.\n", s,
+        scanner_line, scanner_column - 1);
+
+    // Print a message to show where is the problem.
+    if ((parser_options != NULL) && (parser_options->name != NULL)) {
+      file = fopen(parser_options->name, "r");
+      if (file != NULL) {
+        // Go to the right line.
+        while (line != scanner_line) {
+          c = fgetc(file);
+          if (c == '\n')
+            line++;
+        }
+
+        // Print the line.
+        while (c != EOF) {
+          c = fgetc(file);
+          fprintf(stderr, "%c", c);
+          if (c == '\n')
+            break;
+        }
+
+        // Print the situation line.
+        for (i = 0; i < scanner_column - 1; i++) {
+          if (i < scanner_column - 5)
+            fprintf(stderr, " ");
+          else if (i < scanner_column - 2)
+            fprintf(stderr, "~");
+          else
+            fprintf(stderr, "^\n");
+        }
+        fclose(file);
+      } else {
+        CLAN_warning("cannot open input file");
+      }
+    }
+  }
+  parser_error = CLAN_TRUE;
+}
+
+
+/**
+ * clan_parser_state_print function:
+ * this function "pretty" prints the parser state to a file.
+ */
+void clan_parser_state_print(FILE* file) {
+  int i;
+
+  fprintf(file, "+-- clan parser state\n");
+  fprintf(file, "|\t|\n");
+
+  // SCoP.
+  fprintf(file, "|\tparser_scop [SCoP in construction]\n");
+  fprintf(file, "|\t|\t|\n");
+  osl_scop_idump(file, parser_scop, 2);
+  fprintf(file, "|\t|\n");
+
+  // Symbol table.
+  fprintf(file, "|\tparser_symbol [Symbol table]\n");
+  fprintf(file, "|\t|\t|\n");
+  clan_symbol_print_structure(file, parser_symbol, 2);
+  fprintf(file, "|\t|\n");
+
+  // Recording boolean.
+  fprintf(file, "|\tparser_recording [Boolean: do we record or not?] = %d\n",
+          parser_recording);
+  fprintf(file, "|\t|\n");
+
+  // Recorded body.
+  fprintf(file, "|\tparser_record [Statement body] = ");
+  if (parser_record == NULL)
+    fprintf(file, "(NULL)\n");
+  else
+    fprintf(file, "%s\n", parser_record);
+  fprintf(file, "|\t|\n");
+
+  // Loop depth.
+  fprintf(file, "|\tparser_loop_depth [Current loop depth] = %d\n",
+          parser_loop_depth);
+  fprintf(file, "|\t|\n");
+
+  // If depth.
+  fprintf(file, "|\tparser_if_depth [Current if depth] = %d\n",
+          parser_if_depth);
+  fprintf(file, "|\t|\n");
+
+  // Scattering.
+/*  fprintf(file, "|\tparser_scattering [Current statement scattering]\n");
+  fprintf(file, "|\t|\t|\n");
+  fprintf(file, "|\t|\t+-- ");
+  for (i = 0; i < 2 * parser_loop_depth + 1; i++)
+    printf("%d ", parser_scattering[i]); */
+  fprintf(file, "\n");
+  fprintf(file, "|\t|\t|\n");
+  fprintf(file, "|\t|\n");
+
+  // Iterators.
+  fprintf(file, "|\tparser_iterators [Current iterator list]\n");
+  fprintf(file, "|\t|\t|\n");
+  if (parser_loop_depth > 0) {
+    for (i = 0; i < parser_loop_depth; i++) {
+      fprintf(file, "|\t|\tparser_iterators[%d]\n", i);
+      fprintf(file, "|\t|\t|\t|\n");
+      clan_symbol_print_structure(file, parser_iterators[i], 3);
+      if (i == parser_loop_depth - 1)
+	fprintf(file, "|\t|\t|\n");
+    }
+  } else {
+    fprintf(file, "|\t|\t+-- (none)\n");
+    fprintf(file, "|\t|\t|\n");
+  }
+  fprintf(file, "|\t|\n");
+
+  // Iteration domain stack.
+  fprintf(file, "|\tparser_domain [Iteration domain stack]\n");
+  fprintf(file, "|\t|\t|\n");
+  clan_domain_idump(file, parser_stack, 2);
+  fprintf(file, "|\t|\n");
+
+  // Scattering stack.
+  fprintf(file, "|\tparser_Scattering [Scattering stack]\n");
+  fprintf(file, "|\t|\t|\n");
+  clan_domain_idump(file, parser_scatt_stack, 2);
+  fprintf(file, "|\t|\n");
+
+  // Number of local dimensions per depth.
+  fprintf(file, "|\tparser_nb_local_dims [Nb of local dims per depth]\n");
+  fprintf(file, "|\t|\t|\n");
+  fprintf(file, "|\t|\t+-- ");
+  if (parser_loop_depth > 0) {
+    for (i = 0; i < parser_loop_depth; i++)
+      printf("%d ", parser_nb_local_dims[i]);
+      fprintf(file, "\n");
+    } else {
+    fprintf(file, "(none)\n");
+  }
+  fprintf(file, "|\t|\t|\n");
+  fprintf(file, "|\t|\n");
+fprintf(file, "|\tscatt_nb_local_dims [Nb of local dims per depth]\n");
+  fprintf(file, "|\t|\t|\n");
+  fprintf(file, "|\t|\t+-- ");
+  if (parser_loop_depth > 0) {
+    for (i = 0; i < parser_loop_depth; i++)
+      printf("%d ", scatt_nb_local_dims[i]);
+      fprintf(file, "\n");
+    } else {
+    fprintf(file, "(none)\n");
+  }
+  fprintf(file, "|\t|\t|\n");
+  fprintf(file, "|\t|\n");
+  // Number of parameters.
+  fprintf(file, "|\tparser_nb_parameters [Nb of parameter symbols] = %d\n",
+          parser_nb_parameters);
+  fprintf(file, "|\t|\n");
+
+  // Boolean valid else per if depth.
+  fprintf(file, "|\tparser_valid_else [Boolean: OK for else per depth]\n");
+  fprintf(file, "|\t|\t|\n");
+  fprintf(file, "|\t|\t+-- ");
+  if (parser_if_depth > 0) {
+    for (i = 0; i < parser_if_depth; i++)
+      printf("%d ", parser_valid_else[i]);
+    fprintf(file, "\n");
+  } else {
+    fprintf(file, "(none)\n");
+  }
+  fprintf(file, "|\t|\t|\n");
+  fprintf(file, "|\t|\n");
+
+  // Indentation.
+  fprintf(file, "|\tparser_indent [SCoP indentation] = %d\n", parser_indent);
+  fprintf(file, "|\t|\n");
+
+  // Parse error boolean.
+  fprintf(file, "|\tparser_error [Boolean: parse error] = %d\n", parser_error);
+  fprintf(file, "|\t|\n");
+
+  // xfor number of nests, depths and labels.
+  fprintf(file, "|\txfor management [nb of nests, depths and labels]\n");
+  fprintf(file, "|\t|\t|\n");
+  if (parser_xfor_nb_nests > 0) {
+    fprintf(file, "|\t|\t|  nest | depth | label\n");
+    for (i = 0; i < parser_xfor_nb_nests; i++) {
+      printf("|\t|\t|   [%d] |     %d |     %d\n",
+	     i, parser_xfor_depths[i], parser_xfor_labels[i]);
+    }
+  } else {
+    fprintf(file, "|\t|\t|  (no xfor loop)\n");
+  }
+  fprintf(file, "|\t|\t|\n");
+  fprintf(file, "|\t|\n");
+  
+  // loop sanity sentinels
+  fprintf(file, "|\tloop sanity sentinels [booleans min/max/floord/ceild]\n");
+  fprintf(file, "|\t|\t|\n");
+  if (parser_xfor_index > 0) {
+    fprintf(file, "|\t|\t|  index | min | max | floord | ceild\n");
+    for (i = 0; i < parser_xfor_index; i++) {
+      printf("|\t|\t|  [%d] |   %d |   %d |      %d |     %d\n",
+	     i, parser_min[i], parser_max[i],
+	     parser_floord[i], parser_ceild[i]);
+    }
+  } else {
+    fprintf(file, "|\t|\t|  (no (x)for loop indices)\n");
+  }
+  fprintf(file, "|\t|\t|\n");
+  fprintf(file, "|\t|\n");
+  
+  fprintf(file, "|\n");
+}
+//***
+ 
+void clan_parser_scatt_add_ld() {
+  scatt_nb_local_dims[parser_loop_depth]++;
+
+  if (CLAN_DEBUG) {
+    int i;
+    CLAN_debug("scatt_nb_local_dims updated");
+    for (i = 0; i <= parser_loop_depth; i++)
+      fprintf(stderr, "%d:%d ", i, scatt_nb_local_dims[i]);
+    fprintf(stderr, "\n");
+  }
+  
+  if (clan_parser_nb_ld() > CLAN_MAX_LOCAL_DIMS)
+    CLAN_error("CLAN_MAX_LOCAL_DIMS reached, recompile with a higher value");
+}
+
+
+int clan_parser_scatt_nb_ld() {
+  int nb_ld = 0;
+  nb_ld = scatt_nb_local_dims[parser_loop_depth]; 
+  return nb_ld;
+}   
+   
+//**
+
+void clan_parser_add_ld() {
+  parser_nb_local_dims[parser_loop_depth + parser_if_depth]++;
+
+  if (CLAN_DEBUG) {
+    int i;
+    CLAN_debug("parser_nb_local_dims updated");
+    for (i = 0; i <= parser_loop_depth + parser_if_depth; i++)
+      fprintf(stderr, "%d:%d ", i, parser_nb_local_dims[i]);
+    fprintf(stderr, "\n");
+  }
+  
+  if (clan_parser_nb_ld() > CLAN_MAX_LOCAL_DIMS)
+    CLAN_error("CLAN_MAX_LOCAL_DIMS reached, recompile with a higher value");
+}
+
+
+int clan_parser_nb_ld() {
+  int i, nb_ld = 0;
+
+  for (i = 0; i <= parser_loop_depth + parser_if_depth; i++)
+    nb_ld += parser_nb_local_dims[i]; 
+  return nb_ld;
+}
+
+
+void clan_parser_increment_loop_depth() {
+  parser_loop_depth++;
+  if ((parser_loop_depth + parser_if_depth) > CLAN_MAX_DEPTH)
+    CLAN_error("CLAN_MAX_DEPTH reached, recompile with a higher value");
+}
+
+
+int clan_parser_is_loop_sane(osl_relation_list_p initialization,
+                             osl_relation_list_p condition, int* stride) {
+  int i, step;
+
+  // Check there is the same number of elements in all for parts.
+  if ((clan_relation_list_nb_elements(initialization) != parser_xfor_index) ||
+      (clan_relation_list_nb_elements(condition) != parser_xfor_index) ) {
+    yyerror("not the same number of elements in all loop parts");
+    return 0;
+  }
+  
+  if ((parser_xfor_index>1) && ((parser_xfor_grain != parser_xfor_index) || (parser_xfor_offset != parser_xfor_index))) {
+    yyerror("not the same number of elements in all loop parts");
+    return 0;
+  }
+
+  if (parser_xfor_index > CLAN_MAX_XFOR_INDICES)
+	  CLAN_error("CLAN_MAX_XFOR_INDICES reached, recompile with a higher value");
+
+  // Check that all bounds and strides are consistent.
+  for (i = 0; i < parser_xfor_index; i++) {
+    step = stride[i];
+    if ((step == 0) ||
+	((step > 0) && parser_min[i])    ||
+	((step > 0) && parser_floord[i]) ||
+	((step < 0) && parser_max[i])    ||
+	((step < 0) && parser_ceild[i])) {
+      osl_relation_list_free(initialization);
+      osl_relation_list_free(condition);
+      free(stride);
+      if (step == 0)
+	yyerror("unsupported zero loop stride");
+      else if (step > 0)
+	yyerror("illegal min or floord in forward loop initialization");
+      else
+	yyerror("illegal max or ceild in backward loop initialization");
+      return 0;
+    }
+    if ((parser_min[parser_xfor_index+i]==1) && (parser_max[parser_xfor_index+i] ==1)) {
+      osl_relation_list_free(initialization);
+      osl_relation_list_free(condition);
+      free(stride);
+      yyerror("illegal min and max in forward loop offset");
+      return 0;
+    }
+    if ((parser_ceild[parser_xfor_index+i]==1) || (parser_floord[parser_xfor_index+i]==1)) {
+      osl_relation_list_free(initialization);
+      osl_relation_list_free(condition);
+      free(stride);
+      yyerror("illegal ceild or floord in forward loop offset");
+      return 0;
+    }
+    parser_ceild[i]  = 0;
+    parser_floord[i] = 0;
+    parser_min[i]    = 0;
+    parser_max[i]    = 0;
+  }
+  return 1;
+}
+
+
+/**
+ * clan_parser_state_malloc function:
+ * this function achieves the memory allocation for the "parser state".
+ * \param[in] precision Precision of the integer elements.
+ */
+void clan_parser_state_malloc(int precision) {
+  int nb_columns, depth;
+  nb_columns        = CLAN_MAX_DEPTH + CLAN_MAX_LOCAL_DIMS +
+                      CLAN_MAX_PARAMETERS + 2;
+  depth             = CLAN_MAX_DEPTH;
+  parser_stack      = clan_domain_malloc();
+  parser_stack->constraints = osl_relation_list_malloc();
+  parser_stack->constraints->elt = osl_relation_pmalloc(precision,
+      0, nb_columns);
+  nb_columns        = CLAN_MAX_SCAT_DIMS + CLAN_MAX_DEPTH + CLAN_MAX_LOCAL_DIMS +
+                      CLAN_MAX_PARAMETERS + 2;
+  parser_scatt_stack      = clan_domain_malloc();
+  parser_scatt_stack->constraints = osl_relation_list_malloc();
+  parser_scatt_stack->constraints->elt = osl_relation_pmalloc(precision,
+      1, nb_columns);
+  osl_int_set_si(parser_scatt_stack->constraints->elt->precision, &(parser_scatt_stack->constraints->elt->m[0][1]), -1);
+     
+  CLAN_malloc(parser_nb_local_dims, int*, depth * sizeof(int));
+  CLAN_malloc(scatt_nb_local_dims, int*, depth * sizeof(int));
+  CLAN_malloc(parser_valid_else, int*, depth * sizeof(int));
+//  CLAN_malloc(parser_scattering, int*, (2 * depth + 1) * sizeof(int));
+  CLAN_malloc(parser_iterators, clan_symbol_p*, depth * sizeof(clan_symbol_p));
+  CLAN_malloc(parser_ceild,  int*, CLAN_MAX_XFOR_INDICES * sizeof(int));
+  CLAN_malloc(parser_floord, int*, CLAN_MAX_XFOR_INDICES * sizeof(int));
+  CLAN_malloc(parser_min,    int*, CLAN_MAX_XFOR_INDICES * sizeof(int));
+  CLAN_malloc(parser_max,    int*, CLAN_MAX_XFOR_INDICES * sizeof(int));
+  CLAN_malloc(parser_xfor_depths, int*, CLAN_MAX_DEPTH * sizeof(int));
+  CLAN_malloc(parser_xfor_labels, int*, CLAN_MAX_DEPTH * sizeof(int));
+}
+
+
+/**
+ * clan_parser_state_free function:
+ * this function frees the memory allocated for the "parser state", with the
+ * exception of the parser_scop.
+ */
+void clan_parser_state_free() {
+  clan_symbol_free(parser_symbol);
+//  free(parser_scattering);
+  free(parser_iterators);
+  free(parser_nb_local_dims);
+  free(scatt_nb_local_dims);
+  free(parser_valid_else);
+  free(parser_ceild);
+  free(parser_floord);
+  free(parser_min);
+  free(parser_max);
+  free(parser_xfor_depths);
+  free(parser_xfor_labels);
+  clan_domain_drop(&parser_stack); 
+  clan_domain_drop(&parser_scatt_stack);
+}
+
+
+/**
+ * clan_parser_state_initialize function:
+ * this function achieves the initialization of the "parser state", with
+ * the exception of parser_scop.
+ */
+void clan_parser_state_initialize(clan_options_p options) {
+  int i;
+
+  parser_symbol        = NULL;
+  parser_loop_depth    = 0;
+  parser_options       = options;
+  parser_recording     = CLAN_FALSE;
+  parser_record        = NULL;
+  parser_if_depth      = 0;
+  parser_xfor_nb_nests = 0;
+  parser_xfor_index    = 0;
+  parser_xfor_grain    = 0;
+  parser_xfor_offset    = 0;
+  parser_indent        = CLAN_UNDEFINED;
+  parser_error         = CLAN_FALSE;
+  parser_autoscop      = CLAN_FALSE;
+  parser_line_start    = 1;
+  parser_line_end      = 1;
+  parser_column_start  = 1;
+  parser_column_end    = 1;
+  parser_nb_parameters = 0;
+
+  for (i = 0; i < CLAN_MAX_XFOR_INDICES; i++) {
+    parser_ceild[i]  = 0;
+    parser_floord[i] = 0;
+    parser_min[i]    = 0;
+    parser_max[i]    = 0;
+  }
+
+  for (i = 0; i < CLAN_MAX_DEPTH; i++) {
+    parser_nb_local_dims[i] = 0;
+    scatt_nb_local_dims[i] = 0;
+    parser_valid_else[i] = 0;
+    parser_iterators[i] = NULL;
+    parser_xfor_depths[i] = 0;
+    parser_xfor_labels[i] = CLAN_UNDEFINED;
+  }
+  if (parser_scatt_stack != NULL)
+    osl_int_set_si(parser_options->precision, 
+         &parser_scatt_stack->constraints->elt->m[0][parser_scatt_stack->constraints->elt->nb_columns-1], 0); 
+/*  for (i = 0; i < 2 * CLAN_MAX_DEPTH + 1; i++)
+    parser_scattering[i] = 0;
+*/
+}
+
+
+/**
+ * clan_parser_reinitialize function:
+ * this function frees the temporary dynamic variables of the parser and
+ * reset the variables to default values. It is meant to be used for a
+ * clean restart after a parse error.
+ */
+void clan_parser_reinitialize() {
+  int i;
+  
+  free(parser_record);
+  clan_symbol_free(parser_symbol);
+  for (i = 0; i < parser_loop_depth; i++)
+    clan_symbol_free(parser_iterators[i]);
+  while (parser_stack->next != NULL)
+    clan_domain_drop(&parser_stack); 
+  while (parser_scatt_stack->next != NULL)
+    clan_domain_drop(&parser_scatt_stack);
+  osl_scop_free(parser_scop);
+  clan_parser_state_initialize(parser_options);
+}
+
+
+/**
+ * clan_parser_autoscop function:
+ * this functions performs the automatic extraction of SCoPs from the input
+ * file. It leaves the SCoP pragmas already set by the user intact (note that
+ * as a consequence, user-SCoPs cannot be inserted to a larger SCoP).
+ * It writes a file (named by the CLAN_AUTOPRAGMA_FILE macro) with the input
+ * code where new SCoP pragmas have been inserted. If the option -autoscop
+ * is set, it puts the list of SCoPs (including automatically discovered
+ * SCoPs and user-SCoPs) in parser_scop.
+ */
+void clan_parser_autoscop() {
+  int new_scop, nb_scops = 0;
+  int line, column, restart_line, restart_column;
+  long position;
+  char c;
+  int coordinates[5][CLAN_MAX_SCOPS]; // 0, 1: line start, end
+                                      // 2, 3: column start, end
+				      // 4: autoscop or not
+ 
+  while (1) {
+    // For the automatic extraction, we parse everything except user-SCoPs.
+    if (!scanner_pragma)
+      scanner_parsing = CLAN_TRUE;
+    yyparse();
+
+    new_scop = (parser_line_end != 1) || (parser_column_end != 1);
+    restart_line = (new_scop) ? parser_line_end : scanner_line;
+    restart_column = (new_scop) ? parser_column_end : scanner_column;
+    if (CLAN_DEBUG) {
+      if (new_scop)
+	fprintf(stderr, "[Clan] Debug: new autoscop, ");
+      else
+	fprintf(stderr, "[Clan] Debug: no autoscop, ");
+      fprintf(stderr, "restart at line %d, column %d\n",
+	      restart_line, restart_column);
+    }
+ 
+    if (parser_error || new_scop) {
+      if (new_scop) {
+        // If a new SCoP has been found, store its coordinates.
+        if (nb_scops == CLAN_MAX_SCOPS)
+          CLAN_error("too many SCoPs! Change CLAN_MAX_SCOPS and recompile.");
+        coordinates[0][nb_scops] = parser_line_start;
+        coordinates[1][nb_scops] = parser_line_end;
+        coordinates[2][nb_scops] = parser_column_start;
+        coordinates[3][nb_scops] = parser_column_end;
+        coordinates[4][nb_scops] = CLAN_TRUE;
+        if (CLAN_DEBUG) {
+          fprintf(stderr, "[Clan] Debug: AutoSCoP [%d,%d -> %d,%d]\n",
+                  coordinates[0][nb_scops], coordinates[2][nb_scops],
+                  coordinates[1][nb_scops], coordinates[3][nb_scops] - 1);
+        }
+        // Let's go for the next SCoP.
+        parser_autoscop = CLAN_FALSE;
+        nb_scops++;
+      } else if (scanner_scop_start != CLAN_UNDEFINED) {
+        // If the start of a user-SCoP is detected, store its coordinate.
+	coordinates[0][nb_scops] = scanner_scop_start;
+      } else if (scanner_scop_end != CLAN_UNDEFINED) {
+        // If the end of a user-SCoP is detected, store its coordinate.
+	coordinates[1][nb_scops] = scanner_scop_end;
+	coordinates[2][nb_scops] = 0;
+	coordinates[3][nb_scops] = 0;
+	coordinates[4][nb_scops] = CLAN_FALSE;
+        if (CLAN_DEBUG) {
+          fprintf(stderr, "[Clan] Debug: user-SCoP [%d,%d -> %d,%d]\n",
+                  coordinates[0][nb_scops], coordinates[2][nb_scops],
+                  coordinates[1][nb_scops], coordinates[3][nb_scops]);
+        }
+	nb_scops++;
+      }
+
+      // Restart after the SCoP or after the error.
+      rewind(yyin);
+      line = 1;
+      column = 1;
+      while ((line != restart_line) || (column != restart_column)) {
+        c = fgetc(yyin);
+        column++;
+        if (c == '\n') {
+          line++;
+          column = 1;
+        }
+      }
+    }
+
+    // Reinitialize the scanner and the parser for a clean restart.
+    clan_scanner_free();
+    clan_scanner_reinitialize(scanner_pragma, restart_line, restart_column);
+    clan_parser_reinitialize();
+    yyrestart(yyin);
+
+    // Check whether we reached the end of file or not.
+    position = ftell(yyin);
+    c = fgetc(yyin);
+    if (fgetc(yyin) == EOF)
+      break;
+    else 
+      fseek(yyin, position, SEEK_SET);
+  }
+ 
+  // Write the code with the inserted SCoP pragmas in CLAN_AUTOPRAGMA_FILE.
+  rewind(yyin);
+  clan_scop_print_autopragma(yyin, nb_scops, coordinates);
+
+  // Use the temporary file for usual parsing.
+  scanner_line = 1;
+  scanner_column = 1;
+  scanner_pragma = CLAN_FALSE;
+  parser_options->autoscop = CLAN_FALSE;
+  if ((yyin = fopen(CLAN_AUTOPRAGMA_FILE, "r")) == NULL)
+    CLAN_error("cannot create the temporary file");
+  yyparse();
+  fclose(yyin);
+
+  // Update the SCoP coordinates with those of the original file.
+  clan_scop_update_coordinates(parser_scop, coordinates);
+  parser_options->autoscop = CLAN_TRUE;
+  
+  if (remove(CLAN_AUTOPRAGMA_FILE))
+    CLAN_warning("cannot delete temporary file");
+}
+
+
+/**
+ * clan_parse function:
+ * this function parses a file to extract a SCoP and returns, if successful,
+ * a pointer to the osl_scop_t structure.
+ * \param input   The file to parse (already open).
+ * \param options Options for file parsing.
+ */
+osl_scop_p clan_parse(FILE* input, clan_options_p options) {
+  osl_scop_p scop;
+  yyin = input;
+
+  clan_parser_state_malloc(options->precision);
+  clan_parser_state_initialize(options);
+  clan_scanner_initialize();
+  yyrestart(yyin);  //restart scanning another file
+  parser_scop = NULL;
+
+  if (!options->autoscop)
+    yyparse(); 
+  else
+    clan_parser_autoscop();
+
+  CLAN_debug("parsing done");
+
+  clan_scanner_free();
+
+  if (!parser_error)
+    scop = parser_scop;
+  else
+    scop = NULL;
+
+  clan_parser_state_free();
+
+  CLAN_debug("parser state successfully freed");
+  return scop;
+}

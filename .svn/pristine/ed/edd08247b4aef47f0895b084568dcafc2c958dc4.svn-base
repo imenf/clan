@@ -1,0 +1,47 @@
+0000000000000000000000000000000000000000 1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 imoon <imoon@imoon-Inspiron-N5110.(none)> 1412092258 +0200	clone: from git@github.com:imenf/clan.git
+1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 imoon <imoon@imoon-Inspiron-N5110.(none)> 1412092496 +0200	checkout: moving from master to xfor
+1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 cff34e202f1478eb86a97efd2b6dd77f5fa20519 imenf <fassi.imen@gmail.com> 1413460489 +0200	commit: first commit
+cff34e202f1478eb86a97efd2b6dd77f5fa20519 5f0c6a30c067d2c0329fef07d5f7be41a3481483 imenf <fassi.imen@gmail.com> 1413562675 +0200	commit: correction bug clan strides !=1 && opRel >
+5f0c6a30c067d2c0329fef07d5f7be41a3481483 2266b30a7f399e06a78e161c17205fafaa620534 imenf <fassi.imen@gmail.com> 1413563491 +0200	commit: suppression Affichage
+2266b30a7f399e06a78e161c17205fafaa620534 1f09133e69834ffbaf7a5a3a3c16917f12dd4bdb imenf <fassi.imen@gmail.com> 1413906977 +0200	commit: travail sur Scattering
+1f09133e69834ffbaf7a5a3a3c16917f12dd4bdb 8fec73827521dd67300f5dc44e609244e5104c14 imenf <fassi.imen@gmail.com> 1413992138 +0200	commit: scattering
+8fec73827521dd67300f5dc44e609244e5104c14 ef884001da4dabe4bd367ec8384325b7f63650d3 imenf <fassi.imen@gmail.com> 1414082220 +0200	commit: scattering
+ef884001da4dabe4bd367ec8384325b7f63650d3 3f02250e6f4a3e167a10a4856aae627d9c75939f imenf <fassi.imen@gmail.com> 1414149226 +0200	pull imen xfor: Fast-forward
+3f02250e6f4a3e167a10a4856aae627d9c75939f 4721d76ff44d999d1c43897a34b8b1088af3eb70 imenf <fassi.imen@gmail.com> 1414169541 +0200	commit: scatt
+4721d76ff44d999d1c43897a34b8b1088af3eb70 68142c7b009ca07987eaf9eec08d0fdc57014a37 imenf <fassi.imen@gmail.com> 1414169699 +0200	commit: scatt
+68142c7b009ca07987eaf9eec08d0fdc57014a37 e1d6c9a9244f9563e7ae1c1664c31c656daf26cf imenf <fassi.imen@gmail.com> 1414657248 +0100	pull imen xfor: Fast-forward
+e1d6c9a9244f9563e7ae1c1664c31c656daf26cf e92a9685e88e44143d661abbd3b36eb03bf68817 imenf <fassi.imen@gmail.com> 1414687700 +0100	commit: scatt Strides
+e92a9685e88e44143d661abbd3b36eb03bf68817 326da4a59368eb9f19310d13f6d52212eb38b261 imenf <fassi.imen@gmail.com> 1414770758 +0100	commit: avancement scatt
+326da4a59368eb9f19310d13f6d52212eb38b261 998fbd93d0530ba477bed046e2cdcb93dc7f5bb1 imenf <fassi.imen@gmail.com> 1415007688 +0100	pull imen xfor: Fast-forward
+998fbd93d0530ba477bed046e2cdcb93dc7f5bb1 0210c797c95d34681ee24fd3e24249f184abbff6 imenf <fassi.imen@gmail.com> 1415032785 +0100	commit: xfor
+0210c797c95d34681ee24fd3e24249f184abbff6 f5d5f4c794f659259e94eb73912ee076b61f7daa imenf <fassi.imen@gmail.com> 1415092933 +0100	pull imen xfor: Fast-forward
+f5d5f4c794f659259e94eb73912ee076b61f7daa 1447b93b0e7b3247bfce59b2e06b259c0856577b imenf <fassi.imen@gmail.com> 1415118809 +0100	commit: scatt
+1447b93b0e7b3247bfce59b2e06b259c0856577b efb05c3ad1c633237778521b259c28420c60bff7 imenf <fassi.imen@gmail.com> 1415206361 +0100	commit: offset
+efb05c3ad1c633237778521b259c28420c60bff7 4dae354f8c121b58ac492fb3a8266895edc755dd imenf <fassi.imen@gmail.com> 1415286816 +0100	commit: offset
+4dae354f8c121b58ac492fb3a8266895edc755dd 449695a6818fa978e924209ed212887bb6e21731 imenf <fassi.imen@gmail.com> 1415298021 +0100	commit: offset
+449695a6818fa978e924209ed212887bb6e21731 144ee8526a10ffac38654bfd4b9531d38b856718 imenf <fassi.imen@gmail.com> 1415639210 +0100	commit: minmaxbug
+144ee8526a10ffac38654bfd4b9531d38b856718 4c8aa1848eecbf33dd8e7b7a9af28e9ac3f6da2a imenf <fassi.imen@gmail.com> 1415900270 +0100	commit: clan bug fixes
+4c8aa1848eecbf33dd8e7b7a9af28e9ac3f6da2a b720f4aba75dd2fa734b853b003d9bff91e40dcd imenf <fassi.imen@gmail.com> 1416507188 +0100	commit: v0
+b720f4aba75dd2fa734b853b003d9bff91e40dcd 9fa43a4907a8ac4ae58a4809417168c9888704e3 imenf <fassi.imen@gmail.com> 1416566805 +0100	commit: final version
+9fa43a4907a8ac4ae58a4809417168c9888704e3 1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 imenf <fassi.imen@gmail.com> 1416818393 +0100	checkout: moving from xfor to master
+1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 imenf <fassi.imen@gmail.com> 1416819149 +0100	checkout: moving from master to final
+1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 393ccd71cacb9e19384a309c32383bad33afc59e imenf <fassi.imen@gmail.com> 1416832650 +0100	commit: strides !=1 fixes and xfor grain and offset support
+393ccd71cacb9e19384a309c32383bad33afc59e 9fa43a4907a8ac4ae58a4809417168c9888704e3 imenf <fassi.imen@gmail.com> 1416835958 +0100	checkout: moving from final to xfor
+9fa43a4907a8ac4ae58a4809417168c9888704e3 393ccd71cacb9e19384a309c32383bad33afc59e imenf <fassi.imen@gmail.com> 1416842173 +0100	checkout: moving from xfor to final
+393ccd71cacb9e19384a309c32383bad33afc59e 4d40ed3d94978ce49e93d13be73eaf2c59bc91ae imenf <fassi.imen@gmail.com> 1416927113 +0100	commit: rectification
+4d40ed3d94978ce49e93d13be73eaf2c59bc91ae 1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 imenf <fassi.imen@gmail.com> 1417439824 +0100	checkout: moving from final to master
+1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 imenf <fassi.imen@gmail.com> 1417439864 +0100	checkout: moving from master to delme
+1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 9fa43a4907a8ac4ae58a4809417168c9888704e3 imenf <fassi.imen@gmail.com> 1417439870 +0100	merge xfor: Fast-forward
+9fa43a4907a8ac4ae58a4809417168c9888704e3 1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 imenf <fassi.imen@gmail.com> 1417439933 +0100	checkout: moving from delme to master
+1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 imenf <fassi.imen@gmail.com> 1417440072 +0100	checkout: moving from master to multifor
+1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 c72232e9d5578b3c2668b03b25b1785f89f79964 imenf <fassi.imen@gmail.com> 1417441276 +0100	commit: strides bug fixes
+c72232e9d5578b3c2668b03b25b1785f89f79964 9f8eb4137dc2c06ef29c7899e807bcfd3939c94b imenf <fassi.imen@gmail.com> 1417450902 +0100	commit: xfor support
+9f8eb4137dc2c06ef29c7899e807bcfd3939c94b 82f66720a8cee782b4a459598d317b6bc1628aac Imen <fassi.imen@gmail.com> 1418750681 +0100	commit: clan with xfor Support
+82f66720a8cee782b4a459598d317b6bc1628aac 1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 Imen <fassi.imen@gmail.com> 1418812349 +0100	checkout: moving from multifor to master
+1f1ab37011fd7fb8fb1a78aea4e9c4cd62407526 9fa43a4907a8ac4ae58a4809417168c9888704e3 Imen <fassi.imen@gmail.com> 1418812463 +0100	checkout: moving from master to xfor
+9fa43a4907a8ac4ae58a4809417168c9888704e3 41febfe4e70b7d1076d63a6852469ff9e1f88066 Imen <fassi.imen@gmail.com> 1420866868 +0100	commit: some fixes : modify xfor max indices
+41febfe4e70b7d1076d63a6852469ff9e1f88066 6552ca5c799a738adaa6ec661e0ffe843bed62d9 Imen <fassi.imen@gmail.com> 1431447107 +0200	commit: coef indice courant
+6552ca5c799a738adaa6ec661e0ffe843bed62d9 e86cd0a4ad3160ba3447f0a11be3665520ed2ab7 Imen <fassi.imen@gmail.com> 1431533885 +0200	commit: working on skew
+e86cd0a4ad3160ba3447f0a11be3665520ed2ab7 f8ef7b4b60371d26d2bc282d17924624d24d6828 Imen <fassi.imen@gmail.com> 1431953820 +0200	commit: some impro
+f8ef7b4b60371d26d2bc282d17924624d24d6828 56028d985b2efaafc13ec6d4ddf80ab5874281a0 Imen <fassi.imen@gmail.com> 1432021801 +0200	pull MyRePo xfor: Fast-forward
+56028d985b2efaafc13ec6d4ddf80ab5874281a0 2f7ec8885fa5dd1ee345c1a2ba4b50dff53ee398 Imen <fassi.imen@gmail.com> 1432023412 +0200	commit: clan skew support

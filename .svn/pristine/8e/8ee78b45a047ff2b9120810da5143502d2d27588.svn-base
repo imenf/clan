@@ -1,0 +1,19 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = git@github.com:imenf/clan.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+[remote "periscop"]
+	url = https://github.com/periscop/clan.git
+	fetch = +refs/heads/*:refs/remotes/periscop/*
+[submodule "osl"]
+	url = https://github.com/periscop/openscop.git
+[remote "MyRePo"]
+	url = ssh://imenf@xfor.u-strasbg.fr/home/git/clan.git
+	fetch = +refs/heads/*:refs/remotes/MyRePo/*
