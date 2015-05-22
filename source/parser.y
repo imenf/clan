@@ -2547,7 +2547,7 @@ void clan_parser_state_free() {
  */
 void clan_parser_state_initialize(clan_options_p options) {
   int i;
-
+  parser_depth_it_pragma_scop = 0;
   parser_symbol        = NULL;
   parser_loop_depth    = 0;
   parser_options       = options;
