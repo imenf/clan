@@ -1,6 +1,0 @@
-#!/usr/bin/perl
-our $projectroot = "/home/xfor/git/clan";
-our $git_temp = "/home/xfor/git/clan/.git/gitweb/tmp";
-our $projects_list = $projectroot;
-
-$feature{'remote_heads'}{'default'} = [1];
